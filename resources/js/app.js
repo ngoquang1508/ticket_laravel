@@ -6,6 +6,19 @@ import { initSearchBars } from './components/search-bar';
 document.addEventListener('DOMContentLoaded', () => {
     initSearchBars();
 
+    const resendForm = document.querySelector('form[action$="/forgot-password"] input[name="resend"]')?.form;
+    const resendButton = document.getElementById('resend-otp');
+
+    if (resendForm && resendButton) {
+        resendForm.addEventListener('submit', () => {
+            const email = resendForm.querySelector('input[name="email"]')?.value;
+
+            if (email) {
+                localStorage.setItem(`password-reset-resend-${email}`, Date.now().toString());
+            }
+        });
+    }
+
     if (window.appToast) {
         const content = document.createElement('div');
         content.className = 'app-toast-content';

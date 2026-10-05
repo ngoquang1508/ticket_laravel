@@ -30,3 +30,22 @@ Route::post('/register', [AuthController::class, 'store'])
 // Logout
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
+
+// Password reset by email OTP
+Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])
+    ->name('password.request');
+
+Route::post('/forgot-password', [AuthController::class, 'sendOtp'])
+    ->name('password.send-otp');
+
+Route::get('/forgot-password/verify', [AuthController::class, 'verifyOtp'])
+    ->name('password.verify');
+
+Route::post('/forgot-password/verify', [AuthController::class, 'verifyOtpCode'])
+    ->name('password.verify-otp');
+
+Route::get('/forgot-password/reset', [AuthController::class, 'resetPassword'])
+    ->name('password.reset');
+
+Route::post('/forgot-password/reset', [AuthController::class, 'updatePassword'])
+    ->name('password.update');

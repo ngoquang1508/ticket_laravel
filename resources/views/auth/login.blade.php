@@ -157,7 +157,7 @@
                     </label>
 
                     <a
-                        href="#"
+                        href="{{ route('password.request') }}"
                         class="text-primary-600 transition hover:text-primary-700"
                     >
                         Quên mật khẩu?
