@@ -149,11 +149,11 @@ class AuthController extends Controller
 
         $user = User::where('email', $email)->first();
 
-        if (! $user) {
-            return back()
-                ->withErrors(['email' => 'Email không tồn tại trong hệ thống.'])
-                ->withInput();
-        }
+        // if (! $user) {
+        //     return back()
+        //         ->withErrors(['email' => 'Email không tồn tại trong hệ thống.'])
+        //         ->withInput();
+        // }
 
         if ($isResend) {
             RateLimiter::hit($rateLimitKey, 60);
