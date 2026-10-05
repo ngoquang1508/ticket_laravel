@@ -1,4 +1,95 @@
 @import 'tailwindcss';
+@import 'toastify-js/src/toastify.css';
+
+.app-toast {
+    display: flex !important;
+    width: min(calc(100vw - 2rem), 24rem);
+    max-width: calc(100vw - 2rem) !important;
+    align-items: flex-start;
+    gap: 0.75rem;
+    border-radius: 0.875rem;
+    padding: 0.875rem 0.75rem 0.875rem 1rem;
+    box-shadow: 0 10px 30px rgb(15 23 42 / 16%);
+    cursor: default;
+}
+
+.app-toast-success {
+    border: 1px solid #86efac;
+    background: #fff;
+    color: #166534;
+}
+
+.app-toast-error {
+    border: 1px solid #fca5a5;
+    background: #fff;
+    color: #991b1b;
+}
+
+.app-toast-content {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.app-toast-icon {
+    display: flex;
+    height: 1.5rem;
+    width: 1.5rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 800;
+}
+
+.app-toast-icon-success {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.app-toast-icon-error {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.app-toast-copy {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.app-toast-title {
+    color: #111827;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.25rem;
+}
+
+.app-toast-message {
+    overflow-wrap: anywhere;
+    color: #4b5563;
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+}
+
+.app-toast .toast-close {
+    margin: -0.25rem -0.25rem 0 0;
+    padding: 0.25rem;
+    color: #6b7280;
+    font-size: 1.25rem;
+    line-height: 1;
+    opacity: 0.75;
+}
+
+.app-toast .toast-close:hover {
+    color: #111827;
+    opacity: 1;
+}
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -8,4 +99,35 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Primary - màu chủ đạo */
+    --color-primary-50: #f0fdf4;   /* Nền rất nhạt */
+    --color-primary-100: #dcfce7;  /* Nền phụ */
+    --color-primary-200: #bbf7d0;  /* Border nhạt */
+    --color-primary-300: #86efac;  /* Hover nhẹ */
+    --color-primary-400: #4ade80;  /* Icon */
+    --color-primary-500: #22c55e;  /* Link */
+    --color-primary-600: #16a34a;  /* Màu chính */
+    --color-primary-700: #15803d;  /* Hover chính */
+    --color-primary-800: #166534;  /* Text đậm */
+    --color-primary-900: #14532d;  /* Text rất đậm */
+
+    /* Background */
+    --color-background: #f8fafc;   /* Nền website */
+    --color-surface: #ffffff;      /* Card, header, form */
+
+    /* Text */
+    --color-foreground: #111827;   /* Chữ chính */
+    --color-muted: #6b7280;        /* Chữ phụ */
+    --color-subtle: #9ca3af;       /* Chữ mờ */
+
+    /* Border */
+    --color-border: #e5e7eb;       /* Border mặc định */
+    --color-border-strong: #d1d5db; /* Border đậm */
+
+    /* Status */
+    --color-success: #16a34a;      /* Thành công */
+    --color-warning: #f59e0b;      /* Cảnh báo */
+    --color-danger: #ef4444;       /* Lỗi */
+    --color-info: #3b82f6;         /* Thông tin */
 }
