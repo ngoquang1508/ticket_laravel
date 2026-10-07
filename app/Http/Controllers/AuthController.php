@@ -41,6 +41,9 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
+            if (Auth::user()->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
             return redirect()->route('home');
         }
 
@@ -139,7 +142,7 @@ class AuthController extends Controller
 
         $email = strtolower($validated['email']);
         $isResend = $request->boolean('resend');
-        $rateLimitKey = 'password-reset-resend|'.$request->ip().'|'.sha1($email);
+        $rateLimitKey = 'password-reset-resend|' . $request->ip() . '|' . sha1($email);
 
         if ($isResend && RateLimiter::tooManyAttempts($rateLimitKey, 1)) {
             return back()
@@ -175,7 +178,7 @@ class AuthController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        if (! $request->session()->has('password_reset_email')) {
+        if (!$request->session()->has('password_reset_email')) {
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Vui lòng yêu cầu mã OTP trước.']);
         }
@@ -197,7 +200,7 @@ class AuthController extends Controller
 
         $email = $request->session()->get('password_reset_email');
 
-        if (! $email) {
+        if (!$email) {
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Phiên đặt lại mật khẩu đã hết hạn.']);
         }
@@ -222,7 +225,7 @@ class AuthController extends Controller
     {
         $email = $request->session()->get('password_reset_email');
 
-        if (! $email || ! $passwordResetService->isVerified($email)) {
+        if (!$email || !$passwordResetService->isVerified($email)) {
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Vui lòng xác thực OTP trước khi đặt lại mật khẩu.']);
         }
@@ -243,7 +246,7 @@ class AuthController extends Controller
 
         $email = $request->session()->get('password_reset_email');
 
-        if (! $email || ! $passwordResetService->isVerified($email)) {
+        if (!$email || !$passwordResetService->isVerified($email)) {
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Phiên đặt lại mật khẩu đã hết hạn.']);
         }
