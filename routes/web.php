@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -63,6 +64,8 @@ Route::prefix('admin')
     ->middleware(['auth', 'admin'])
     ->group(function () {
         Route::get('/', DashboardController::class)->name('dashboard');
+        Route::resource('users', UserController::class)
+            ->except(['show']);
         Route::resource('locations', LocationController::class)
             ->except(['show']);
         Route::resource('categories', CategoryController::class)

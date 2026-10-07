@@ -38,6 +38,15 @@ class AuthController extends Controller
 
         $remember = $request->boolean('remember');
 
+        if (Auth::validate($credentials)) {
+            $user = User::where('email', $credentials['email'])->first();
+            if (!$user->is_active) {
+                return back()
+                    ->withErrors(['email' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.'])
+                    ->onlyInput('email');
+            }
+        }
+
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
