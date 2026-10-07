@@ -4,6 +4,6 @@
 
 @section('content')
 
-    content
-    
+    @include('components.event-category-nav')
+
 @endsection
