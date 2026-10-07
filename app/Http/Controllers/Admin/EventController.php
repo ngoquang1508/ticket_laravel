@@ -22,8 +22,8 @@ class EventController extends Controller
             ->when($request->filled('search'), fn ($query) => $query->where('name', 'like', '%'.$request->string('search').'%'))
             ->when($request->filled('location_id'), fn ($query) => $query->where('location_id', $request->integer('location_id')))
             ->when($request->filled('sale_mode'), fn ($query) => $query->where('sale_mode', $request->string('sale_mode')))
-            ->when($request->has('is_published') && $request->input('is_published') !== '', fn ($query) => $query->where('is_published', $request->boolean('is_published')))
-            ->when($request->has('is_featured') && $request->input('is_featured') !== '', fn ($query) => $query->where('is_featured', $request->boolean('is_featured')))
+            ->when($request->filled('is_published'), fn ($query) => $query->where('is_published', $request->boolean('is_published')))
+            ->when($request->filled('is_featured'), fn ($query) => $query->where('is_featured', $request->boolean('is_featured')))
             ->latest()
             ->paginate(10)
             ->withQueryString();
