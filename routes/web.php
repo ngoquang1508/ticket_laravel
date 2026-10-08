@@ -14,6 +14,12 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::get('/event/{slug}', [\App\Http\Controllers\EventController::class, 'show'])
+    ->name('events.show');
+
+Route::get('/events/{categorySlug?}', [\App\Http\Controllers\EventController::class, 'index'])
+    ->name('events.index');
+
 /*
 |--------------------------------------------------------------------------
 | Authentication

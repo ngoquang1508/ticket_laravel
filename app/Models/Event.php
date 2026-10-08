@@ -31,6 +31,23 @@ class Event extends Model
         'is_published' => 'boolean',
     ];
 
+    public function scopeActiveListing($query)
+    {
+        return $query->with('location')
+            ->withMin('ticketTypes', 'price')
+            ->where('is_published', true);
+    }
+
+    public function scopeUpcoming($query)
+    {
+        return $query->where('starts_at', '>=', now())->orderBy('starts_at', 'asc');
+    }
+
+    public function scopePast($query)
+    {
+        return $query->where('starts_at', '<', now())->orderBy('starts_at', 'desc');
+    }
+
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);

@@ -4,6 +4,8 @@
 
 @section('content')
 
+    <!-- event category navbar -->
     @include('components.event-category-nav')
+
 
 @endsection
