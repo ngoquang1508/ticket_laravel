@@ -2,7 +2,11 @@ export function initEventSchedule() {
     const headers = document.querySelectorAll('.schedule-header');
 
     headers.forEach(header => {
-        header.addEventListener('click', () => {
+        header.addEventListener('click', (e) => {
+            if (e.target.closest('button')) {
+                return; // Prevent toggling when clicking the "Mua vé ngay" button
+            }
+
             const content = header.nextElementSibling;
             const arrow = header.querySelector('.arrow');
 
