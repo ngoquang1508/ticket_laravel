@@ -17,6 +17,9 @@ Route::get('/', function () {
 Route::get('/event/{slug}', [\App\Http\Controllers\EventController::class, 'show'])
     ->name('events.show');
 
+Route::get('/event/{slug}/book', [\App\Http\Controllers\BookingController::class, 'show'])
+    ->name('events.book');
+
 Route::get('/events/{categorySlug?}', [\App\Http\Controllers\EventController::class, 'index'])
     ->name('events.index');
 

@@ -62,22 +62,19 @@
                                 </svg>
                             @endif
                         </div>
-                        <button class="w-full py-3.5 rounded-lg font-bold transition duration-300
-                                                                                                                                                                            {{ now() < $event->starts_at
-        ? 'cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black'
-        : (now() <= $event->ends_at
-            ? 'cursor-not-allowed text-white bg-[#1db954]'
-            : 'cursor-not-allowed text-[#2b2b2b] bg-gray-500/80') }}">
-
-                            @if(now() < $event->starts_at)
+                        @if(now() < $event->starts_at)
+                            <a href="{{ route('events.book', $event->slug) }}" class="w-full block text-center py-3.5 rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
                                 Mua vé ngay
-                            @elseif(now() <= $event->ends_at)
+                            </a>
+                        @elseif(now() <= $event->ends_at)
+                            <button class="w-full py-3.5 rounded-lg font-bold transition duration-300 cursor-not-allowed text-white bg-[#1db954]" disabled>
                                 Đang diễn ra
-                            @else
+                            </button>
+                        @else
+                            <button class="w-full py-3.5 rounded-lg font-bold transition duration-300 cursor-not-allowed text-[#2b2b2b] bg-gray-500/80" disabled>
                                 Sự kiện đã kết thúc
-                            @endif
-
-                        </button>
+                            </button>
+                        @endif
                     </div>
                 </div>
 
@@ -162,22 +159,19 @@
                                             {{ \Carbon\Carbon::parse($event->ends_at)->format('H:i, d \T\h\á\n\g m, Y') }}
                                         </span>
                                     </div>
-                                    <button class="w-full md:w-auto md:px-6 px-3 py-3.5 mt-4 md:mt-0 rounded-lg font-bold transition duration-300
-            {{ now() < $event->starts_at
-        ? 'cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black'
-        : (now() <= $event->ends_at
-            ? 'cursor-not-allowed text-white bg-[#1db954]'
-            : 'cursor-not-allowed text-[#2b2b2b] bg-gray-500/80') }}">
-
-                                        @if(now() < $event->starts_at)
-                                            Mua vé ngay
-                                        @elseif(now() <= $event->ends_at)
-                                            Đang diễn ra
-                                        @else
-                                            Sự kiện đã kết thúc
-                                        @endif
-
-                                    </button>
+                        @if(now() < $event->starts_at)
+                            <a href="{{ route('events.book', $event->slug) }}" class="w-full inline-block text-center py-3.5 rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
+                                Mua vé ngay
+                            </a>
+                        @elseif(now() <= $event->ends_at)
+                            <button class="w-full md:w-auto md:px-6 px-3 py-3.5 mt-4 md:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-white bg-[#1db954]" disabled>
+                                Đang diễn ra
+                            </button>
+                        @else
+                            <button class="w-full md:w-auto md:px-6 px-3 py-3.5 mt-4 md:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-[#2b2b2b] bg-gray-500/80" disabled>
+                                Sự kiện đã kết thúc
+                            </button>
+                        @endif
                                 </div>
 
                                 <!-- Accordion Content -->

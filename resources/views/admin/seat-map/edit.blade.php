@@ -96,25 +96,26 @@
                     - Kéo chấm xanh để đổi kích thước.</br>- Kéo chấm xanh lá để xoay.</p>
             </aside>
 
-            <section class="min-w-0 overflow-auto rounded-xl border bg-gray-100 p-3 shadow-sm">
-                <div id="seat-map-canvas" class="relative origin-top-left rounded-lg border-2 border-gray-300 bg-white"
-                    style="width: {{ $initialLayout['canvas']['width'] ?? 1400 }}px; height: {{ $initialLayout['canvas']['height'] ?? 850 }}px; background-image: linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px); background-size: 25px 25px;">
+            <section class="min-w-0 flex-1 rounded-xl border bg-gray-100 p-3 shadow-sm">
+                <div id="seat-map-canvas" class="relative w-full h-[75vh] min-h-[600px] rounded-lg border-2 border-gray-300 bg-white"
+                    style="background-image: linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px); background-size: 25px 25px;">
                 </div>
             </section>
         </div>
     </div>
 
     <script>
-        (() => {
-            const canvas = document.getElementById('seat-map-canvas');
+        document.addEventListener('DOMContentLoaded', () => {
             const properties = document.getElementById('properties');
             const zoneProperties = document.getElementById('zone-properties');
-            const initialLayout = @json($initialLayout);
+            let initialLayout = @json($initialLayout);
+            if (typeof initialLayout === 'string') {
+                try { initialLayout = JSON.parse(initialLayout); } catch (e) { }
+            }
             const isAssignedSeat = @json($event->sale_mode === 'assigned_seat');
-            let objects = Array.isArray(initialLayout.objects) ? initialLayout.objects : [];
-            let selectedId = null;
+
+            let objects = Array.isArray(initialLayout?.objects) ? initialLayout.objects : Object.values(initialLayout?.objects || {});
             let nextId = objects.reduce((max, object) => Math.max(max, Number(object.id) || 0), 0) + 1;
-            let interaction = null;
 
             if (!objects.length && Array.isArray(initialLayout.rows)) {
                 objects = initialLayout.rows.map((row, index) => ({
@@ -131,247 +132,71 @@
                     rotation: 0,
                 }));
                 nextId = objects.length + 1;
+                initialLayout.objects = objects;
             }
 
-            const selected = () => objects.find(object => object.id === selectedId);
+            const map = new SeatMapKonva({
+                containerId: 'seat-map-canvas',
+                layout: initialLayout,
+                mode: 'edit',
+                isAssignedSeat: isAssignedSeat,
+                onSelect: (object) => {
+                    properties.classList.toggle('hidden', !object);
+                    if (!object) return;
+                    document.getElementById('edit-name').value = object.name || '';
+                    zoneProperties.classList.toggle('hidden', object.type !== 'zone');
+                    if (object.type === 'zone') {
+                        document.getElementById('edit-count').value = object.count || 1;
+                        document.getElementById('edit-price').value = object.price || 0;
+                    }
+                },
+                onUpdate: () => {
+                    // Update input fields on drag/resize
+                    // Data is already updated in map.objects
+                }
+            });
 
             function createObject(type, values = {}) {
                 const defaults = {
                     id: nextId++, type, name: type === 'stage' ? 'SÂN KHẤU' : type === 'entrance' ? 'LỐI VÀO' : type === 'exit' ? 'LỐI RA' : 'GHI CHÚ',
                     x: 120, y: 100, width: type === 'stage' ? 360 : 180, height: type === 'stage' ? 70 : 55, rotation: 0,
                 };
-                objects.push({ ...defaults, ...values });
-                selectedId = defaults.id;
-                render();
+                map.objects.push({ ...defaults, ...values });
+                map.renderAll();
+                map.selectObject(defaults.id);
             }
-
-            function render() {
-                canvas.innerHTML = '';
-                objects.forEach(object => {
-                    const element = document.createElement('div');
-                    element.className = `seat-map-object seat-map-${object.type} ${object.id === selectedId ? 'seat-map-selected' : ''}`;
-                    element.dataset.id = object.id;
-                    element.style.left = `${object.x}px`;
-                    element.style.top = `${object.y}px`;
-                    element.style.width = `${object.width}px`;
-                    element.style.height = `${object.height}px`;
-                    element.style.transform = `rotate(${object.rotation || 0}deg)`;
-                    element.innerHTML = `<strong>${escapeHtml(object.name || '')}</strong>`;
-
-                    if (object.type === 'zone') {
-                        const seats = document.createElement('div');
-                        seats.className = isAssignedSeat ? 'seat-map-seats' : 'seat-map-capacity';
-                        if (isAssignedSeat) {
-                            for (let number = 1; number <= Number(object.count || 0); number++) {
-                                const seat = document.createElement('span');
-                                seat.textContent = String(object.name || '') + number;
-                                seats.appendChild(seat);
-                            }
-                        } else {
-                            seats.textContent = String(Number(object.count || 0)) + ' vé';
-                        }
-                        element.appendChild(seats);
-                    }
-
-                    if (object.id === selectedId) {
-                        const resize = document.createElement('span');
-                        resize.className = 'seat-map-resize';
-                        resize.dataset.action = 'resize';
-                        const rotate = document.createElement('span');
-                        rotate.className = 'seat-map-rotate';
-                        rotate.dataset.action = 'rotate';
-                        element.append(resize, rotate);
-                    }
-
-                    canvas.appendChild(element);
-                });
-                updateProperties();
-            }
-
-            function updateProperties() {
-                const object = selected();
-                properties.classList.toggle('hidden', !object);
-                if (!object) return;
-                document.getElementById('edit-name').value = object.name || '';
-                zoneProperties.classList.toggle('hidden', object.type !== 'zone');
-                if (object.type === 'zone') {
-                    document.getElementById('edit-count').value = object.count || 1;
-                    document.getElementById('edit-price').value = object.price || 0;
-                }
-            }
-
-            function escapeHtml(value) {
-                const element = document.createElement('span');
-                element.textContent = value;
-                return element.innerHTML;
-            }
-
-            canvas.addEventListener('pointerdown', event => {
-                const element = event.target.closest('.seat-map-object');
-                if (!element) return;
-                const object = objects.find(item => item.id === Number(element.dataset.id));
-                if (!object) return;
-                selectedId = object.id;
-                const action = event.target.dataset.action || 'move';
-                interaction = { action, startX: event.clientX, startY: event.clientY, x: object.x, y: object.y, width: object.width, height: object.height, rotation: object.rotation || 0 };
-                element.setPointerCapture?.(event.pointerId);
-                render();
-            });
-
-            window.addEventListener('pointermove', event => {
-                if (!interaction) return;
-                const object = selected();
-                if (!object) return;
-                const dx = event.clientX - interaction.startX;
-                const dy = event.clientY - interaction.startY;
-                if (interaction.action === 'resize') {
-                    object.width = Math.max(80, interaction.width + dx);
-                    object.height = Math.max(45, interaction.height + dy);
-                } else if (interaction.action === 'rotate') {
-                    object.rotation = interaction.rotation + Math.round(dy / 10) * 5;
-                } else {
-                    object.x = Math.max(0, interaction.x + dx);
-                    object.y = Math.max(0, interaction.y + dy);
-                }
-                render();
-            });
-
-            window.addEventListener('pointerup', () => { interaction = null; });
-
-            canvas.addEventListener('click', event => {
-                const element = event.target.closest('.seat-map-object');
-                if (element) {
-                    selectedId = Number(element.dataset.id);
-                    render();
-                }
-            });
 
             document.querySelectorAll('[data-add]').forEach(button => button.addEventListener('click', () => createObject(button.dataset.add)));
             document.getElementById('add-zone').addEventListener('click', () => {
                 createObject('zone', { name: document.getElementById('new-zone-name').value || 'A', count: Number(document.getElementById('new-zone-count').value) || 1, price: Number(document.getElementById('new-zone-price').value) || 0, zone: document.getElementById('new-zone-name').value || 'A', width: 240, height: 170 });
             });
 
-            document.getElementById('edit-name').addEventListener('input', event => { const object = selected(); if (object) { object.name = event.target.value; render(); } });
-            document.getElementById('edit-count').addEventListener('input', event => { const object = selected(); if (object) { object.count = Number(event.target.value) || 1; render(); } });
-            document.getElementById('edit-price').addEventListener('input', event => { const object = selected(); if (object) { object.price = Number(event.target.value) || 0; render(); } });
-            document.getElementById('delete-object').addEventListener('click', () => { objects = objects.filter(object => object.id !== selectedId); selectedId = null; render(); });
+            const updateSelected = (key, value) => {
+                const object = map.objects.find(o => String(o.id) === String(map.selectedId));
+                if (object) {
+                    object[key] = value;
+                    map.renderAll();
+                }
+            };
 
-            document.getElementById('save-map-form').addEventListener('submit', () => {
-                const rows = objects.filter(object => object.type === 'zone').map(object => ({ name: object.name, seats: Number(object.count || 0), zone: object.zone || object.name, price: Number(object.price || 0), ticket_type_id: Number(object.ticket_type_id || 0) }));
-                document.getElementById('layout-input').value = JSON.stringify({ version: 2, canvas: { width: canvas.offsetWidth, height: canvas.offsetHeight }, objects, rows });
+            document.getElementById('edit-name').addEventListener('input', event => updateSelected('name', event.target.value));
+            document.getElementById('edit-count').addEventListener('input', event => updateSelected('count', Number(event.target.value) || 1));
+            document.getElementById('edit-price').addEventListener('input', event => updateSelected('price', Number(event.target.value) || 0));
+            document.getElementById('delete-object').addEventListener('click', () => {
+                map.objects = map.objects.filter(object => String(object.id) !== String(map.selectedId));
+                map.selectObject(null);
+                map.renderAll();
             });
 
-            render();
-        })();
+            document.getElementById('save-map-form').addEventListener('submit', () => {
+                const rows = map.objects.filter(object => object.type === 'zone').map(object => ({ name: object.name, seats: Number(object.count || 0), zone: object.zone || object.name, price: Number(object.price || 0), ticket_type_id: Number(object.ticket_type_id || 0) }));
+
+                // Keep original canvas width/height logic for compatibility
+                const cw = initialLayout.canvas?.width || 1400;
+                const ch = initialLayout.canvas?.height || 850;
+
+                document.getElementById('layout-input').value = JSON.stringify({ version: 2, canvas: { width: cw, height: ch }, objects: map.objects, rows });
+            });
+        });
     </script>
-
-    <style>
-        .seat-map-object {
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 8px;
-            padding: 12px;
-            user-select: none;
-            cursor: move;
-            transform-origin: center;
-        }
-
-        .seat-map-selected {
-            outline: 2px dashed #2563eb;
-            outline-offset: 4px;
-        }
-
-        .seat-map-stage {
-            justify-content: center;
-            border-radius: 8px;
-            background: #111827;
-            color: white;
-        }
-
-        .seat-map-entrance {
-            justify-content: center;
-            border: 3px solid #16a34a;
-            border-radius: 6px;
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .seat-map-exit {
-            justify-content: center;
-            border: 3px solid #dc2626;
-            border-radius: 6px;
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .seat-map-text {
-            justify-content: center;
-            border: 1px dashed #94a3b8;
-            background: #f8fafc;
-        }
-
-        .seat-map-zone {
-            border: 2px solid #374151;
-            border-radius: 8px;
-            background: #fff;
-        }
-
-        .seat-map-seats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(22px, 1fr));
-            width: 100%;
-            gap: 4px;
-            overflow: hidden;
-        }
-
-        .seat-map-seats span {
-            display: grid;
-            height: 22px;
-            place-items: center;
-            border: 1px solid #94a3b8;
-            border-radius: 4px;
-            background: #e5e7eb;
-            color: #374151;
-            font-size: 10px;
-        }
-
-        .seat-map-capacity {
-            display: grid;
-            min-height: 50px;
-            width: 100%;
-            place-items: center;
-            border: 1px dashed #64748b;
-            border-radius: 6px;
-            background: #f8fafc;
-            color: #475569;
-            font-weight: 600;
-        }
-
-        .seat-map-resize,
-        .seat-map-rotate {
-            position: absolute;
-            z-index: 2;
-            height: 14px;
-            width: 14px;
-            border: 2px solid white;
-            border-radius: 999px;
-        }
-
-        .seat-map-resize {
-            right: -8px;
-            bottom: -8px;
-            cursor: nwse-resize;
-            background: #2563eb;
-        }
-
-        .seat-map-rotate {
-            top: -26px;
-            left: calc(50% - 7px);
-            cursor: grab;
-            background: #16a34a;
-        }
-    </style>
 @endsection

@@ -4,6 +4,7 @@ import Toastify from 'toastify-js';
 import { initSearchBars } from './components/search-bar';
 import { initLoadMoreEvents } from './components/load-more-events';
 import { initEventSchedule } from './components/event-schedule';
+import './seatmap-konva.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initSearchBars();
