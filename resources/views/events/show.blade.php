@@ -160,15 +160,15 @@
                                         </span>
                                     </div>
                         @if(now() < $event->starts_at)
-                            <a href="{{ route('events.book', $event->slug) }}" class="w-full inline-block text-center py-3.5 rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
+                            <a href="{{ route('events.book', $event->slug) }}" onclick="event.stopPropagation()" class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 inline-block text-center rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
                                 Mua vé ngay
                             </a>
                         @elseif(now() <= $event->ends_at)
-                            <button class="w-full md:w-auto md:px-6 px-3 py-3.5 mt-4 md:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-white bg-[#1db954]" disabled>
+                            <button onclick="event.stopPropagation()" class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-white bg-[#1db954]" disabled>
                                 Đang diễn ra
                             </button>
                         @else
-                            <button class="w-full md:w-auto md:px-6 px-3 py-3.5 mt-4 md:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-[#2b2b2b] bg-gray-500/80" disabled>
+                            <button onclick="event.stopPropagation()" class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-[#2b2b2b] bg-gray-500/80" disabled>
                                 Sự kiện đã kết thúc
                             </button>
                         @endif
