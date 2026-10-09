@@ -24,26 +24,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (window.appToast) {
+    window.showAppToast = function(type, title, message) {
         const content = document.createElement('div');
         content.className = 'app-toast-content';
 
         const icon = document.createElement('span');
-        icon.className = `app-toast-icon app-toast-icon-${window.appToast.type}`;
-        icon.textContent = window.appToast.type === 'success' ? '✓' : '!';
+        icon.className = `app-toast-icon app-toast-icon-${type}`;
+        icon.textContent = type === 'success' ? '✓' : '!';
 
         const copy = document.createElement('div');
         copy.className = 'app-toast-copy';
 
-        const title = document.createElement('strong');
-        title.className = 'app-toast-title';
-        title.textContent = window.appToast.title;
+        const titleEl = document.createElement('strong');
+        titleEl.className = 'app-toast-title';
+        titleEl.textContent = title;
 
-        const message = document.createElement('span');
-        message.className = 'app-toast-message';
-        message.textContent = window.appToast.message;
+        const messageEl = document.createElement('span');
+        messageEl.className = 'app-toast-message';
+        messageEl.textContent = message;
 
-        copy.append(title, message);
+        copy.append(titleEl, messageEl);
         content.append(icon, copy);
 
         Toastify({
@@ -53,7 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
             gravity: 'top',
             position: 'right',
             stopOnFocus: true,
-            className: `app-toast app-toast-${window.appToast.type}`,
+            className: `app-toast app-toast-${type}`,
         }).showToast();
+    };
+
+    if (window.appToast) {
+        window.showAppToast(window.appToast.type, window.appToast.title, window.appToast.message);
     }
 });

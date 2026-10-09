@@ -27,8 +27,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/checkout', [\App\Http\Controllers\BookingController::class, 'checkout'])
         ->name('orders.checkout');
 
-    Route::post('/orders/{order}/confirm', [\App\Http\Controllers\BookingController::class, 'confirm'])
-        ->name('orders.confirm');
+    Route::post('/orders/{order}/process-payment', [\App\Http\Controllers\BookingController::class, 'processPayment'])
+        ->name('orders.process-payment');
+
+    Route::get('/vnpay-return', [\App\Http\Controllers\BookingController::class, 'vnpayReturn'])
+        ->name('orders.vnpay.return');
+
+    Route::get('/orders/{order}/success', [\App\Http\Controllers\BookingController::class, 'success'])
+        ->name('orders.success');
+
+    Route::get('/orders/{order}/instruction', [\App\Http\Controllers\BookingController::class, 'instruction'])
+        ->name('orders.instruction');
 
     Route::post('/orders/{order}/cancel', [\App\Http\Controllers\BookingController::class, 'cancel'])
         ->name('orders.cancel');

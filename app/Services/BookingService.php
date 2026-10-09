@@ -29,7 +29,7 @@ class BookingService
     /**
      * Thời gian giữ vé (phút) trước khi order hết hạn.
      */
-    const ORDER_EXPIRE_MINUTES = 1;
+    const ORDER_EXPIRE_MINUTES = 10;
 
     // =========================================================================
     // PHẦN 1: TẠO ORDER (ĐẶT VÉ)
@@ -346,6 +346,9 @@ class BookingService
                 }
             }
         });
+
+        // Gửi email thông báo
+        \Illuminate\Support\Facades\Mail::to($order->user->email)->send(new \App\Mail\OrderConfirmed($order));
     }
 
     /**
@@ -417,6 +420,9 @@ class BookingService
                 }
             }
         });
+
+        // Gửi email thông báo
+        \Illuminate\Support\Facades\Mail::to($order->user->email)->send(new \App\Mail\OrderConfirmed($order));
     }
 
     // =========================================================================

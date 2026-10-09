@@ -86,10 +86,10 @@
             </div>
             <div class="space-y-4">
                 <div class="rounded-xl border bg-white p-6 shadow-sm">
-                    <h2 class="flex gap-2 mb-4 font-semibold">Trạng thái: <p
+                    <h2 class="flex gap-2 mb-4 font-semibold">Trạng thái: <span
                             class="{{ $event->is_published ? 'text-green-600' : 'text-red-600' }}">
                             {{ $event->is_published ? 'Đã xuất bản' : 'Chưa xuất bản' }}
-                        </p>
+                        </span>
                     </h2>
                     <div class="space-y-3 text-sm">
                         <p>Bài đăng nổi bật: <strong>{{ $event->is_featured ? 'Có' : 'Không' }}</strong></p>

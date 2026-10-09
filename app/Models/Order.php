@@ -12,6 +12,11 @@ class Order extends Model
         'expires_at' => 'datetime',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'order_code';
+    }
+
     public function items()
     {
         return $this->hasMany(OrderItem::class);
