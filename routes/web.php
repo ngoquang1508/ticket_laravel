@@ -17,8 +17,22 @@ Route::get('/', function () {
 Route::get('/event/{slug}', [\App\Http\Controllers\EventController::class, 'show'])
     ->name('events.show');
 
-Route::get('/event/{slug}/book', [\App\Http\Controllers\BookingController::class, 'show'])
-    ->name('events.book');
+Route::middleware('auth')->group(function () {
+    Route::get('/event/{slug}/book', [\App\Http\Controllers\BookingController::class, 'show'])
+        ->name('events.book');
+
+    Route::post('/event/{slug}/book', [\App\Http\Controllers\BookingController::class, 'store'])
+        ->name('events.book.store');
+
+    Route::get('/orders/{order}/checkout', [\App\Http\Controllers\BookingController::class, 'checkout'])
+        ->name('orders.checkout');
+
+    Route::post('/orders/{order}/confirm', [\App\Http\Controllers\BookingController::class, 'confirm'])
+        ->name('orders.confirm');
+
+    Route::post('/orders/{order}/cancel', [\App\Http\Controllers\BookingController::class, 'cancel'])
+        ->name('orders.cancel');
+});
 
 Route::get('/events/{categorySlug?}', [\App\Http\Controllers\EventController::class, 'index'])
     ->name('events.index');

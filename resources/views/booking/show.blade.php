@@ -14,6 +14,19 @@
 
     <div class="min-h-screen text-white pt-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            @if(session('error'))
+                <div class="mb-4 bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="mb-4 bg-green-500/10 border border-green-500/50 text-green-500 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    {{ session('success') }}
+                </div>
+            @endif
 
             <!-- Header -->
             <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -113,7 +126,7 @@
                                                 {{ number_format($ticket->price, 0, ',', '.') }} đ
                                             </div>
                                             <div class="text-sm text-gray-400 mt-1">Còn lại: <span
-                                                    class="font-bold text-gray-300">100</span> vé</div>
+                                                    class="font-bold text-gray-300">{{ $ticket->quantity }}</span> vé</div>
                                         </div>
                                         <div
                                             class="flex items-center gap-3 bg-[#1e1e1e] p-1.5 rounded-lg border border-gray-700 w-fit">
@@ -154,7 +167,7 @@
                                 <span class="text-gray-400">Tổng tạm tính</span>
                                 <span class="text-2xl font-bold text-green-500" id="total-price">0 đ</span>
                             </div>
-                            <form id="checkout-form" action="#" method="POST">
+                            <form id="checkout-form" action="{{ route('events.book.store', $event->slug) }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="cart_data" id="cart-data-input">
                                 <button type="submit" id="btn-checkout"
@@ -212,12 +225,19 @@
                 }
 
                 const isAssignedSeat = @json($isAssignedSeat);
+                const soldSeats = @json($soldSeats ?? []);
+                const heldSeats = @json($heldSeats ?? []);
+                
+                const initialSeatStates = {};
+                soldSeats.forEach(id => initialSeatStates[id] = 'sold');
+                heldSeats.forEach(id => initialSeatStates[id] = 'held');
 
                 mapInstance = new SeatMapKonva({
                     containerId: 'seat-map-canvas',
                     layout: layout,
                     mode: 'view',
                     isAssignedSeat: isAssignedSeat,
+                    seatStates: initialSeatStates,
                     onSeatClick: (seatId, obj) => {
                         if (typeof window.toggleSeatSelection === 'function') {
                             // Create mock element for compatibility with toggleSeatSelection

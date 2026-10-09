@@ -347,7 +347,7 @@ class SeatMapKonva {
         const startY = padding + titleHeight;
         
         for (let i = 0; i < count; i++) {
-            const seatId = `${obj.name}-${i + 1}`;
+            const seatId = `${obj.name}${i + 1}`;
             const state = this.seatStates[seatId] || 'available';
             const theme = this.colors.seat[state];
             
@@ -486,6 +486,9 @@ class SeatMapKonva {
             
             if (this.stage.isDragging()) return; // Don't trigger if user just panned the map
             
+            const currentState = this.seatStates[seatId] || 'available';
+            if (currentState !== 'available' && currentState !== 'selected') return;
+
             this.onSeatClick(seatId, obj);
         });
     }

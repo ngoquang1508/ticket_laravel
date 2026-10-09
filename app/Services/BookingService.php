@@ -88,7 +88,7 @@ class BookingService
 
         return DB::transaction(function () use ($event, $seatIds, $count) {
             // Khóa hàng trong DB để tránh race condition
-            $lockedSeats = Seat::whereIn('id', $seatIds)
+            $lockedSeats = Seat::whereIn('seat_number', $seatIds)
                 ->where('event_id', $event->id)
                 ->lockForUpdate()
                 ->get();
@@ -112,6 +112,7 @@ class BookingService
             $ticketTypeIds = $seatsGrouped->keys()->toArray();
             $ticketTypes = TicketType::where('event_id', $event->id)
                 ->whereIn('id', $ticketTypeIds)
+                ->lockForUpdate()
                 ->get()
                 ->keyBy('id');
 
@@ -129,6 +130,8 @@ class BookingService
                 $total = $qty * $price;
 
                 $totalAmount += $total;
+
+                $ticketType->decrement('quantity', $qty);
 
                 $orderItemsData[] = [
                     'ticket_type_id' => $ticketType->id,
@@ -456,15 +459,13 @@ class BookingService
                 }
             }
 
-            // Hoàn lại số lượng vé (general_admission / free_sale)
-            if (!$isAssignedSeat) {
-                foreach ($locked->items as $item) {
-                    // Chỉ hoàn lại nếu item còn active (chưa cancelled trước đó)
-                    // Lưu ý: items() đã load, nhưng status vừa bị update ở trên
-                    // Hoàn lại dù sao vì chúng ta đã kiểm tra order status ở đầu
-                    TicketType::where('id', $item->ticket_type_id)
-                        ->increment('quantity', $item->quantity);
-                }
+            // Hoàn lại số lượng vé (cho cả assigned_seat và general_admission)
+            foreach ($locked->items as $item) {
+                // Chỉ hoàn lại nếu item còn active (chưa cancelled trước đó)
+                // Lưu ý: items() đã load, nhưng status vừa bị update ở trên
+                // Hoàn lại dù sao vì chúng ta đã kiểm tra order status ở đầu
+                TicketType::where('id', $item->ticket_type_id)
+                    ->increment('quantity', $item->quantity);
             }
 
             // KHÔNG xóa Order, OrderItem, Ticket để giữ lịch sử
@@ -544,8 +545,8 @@ class BookingService
     private function parseSeatIds(string $input): array
     {
         return array_filter(
-            array_map('intval', explode(',', $input)),
-            fn($id) => $id > 0
+            array_map('trim', explode(',', $input)),
+            fn($id) => !empty($id)
         );
     }
 
