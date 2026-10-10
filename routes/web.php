@@ -41,7 +41,16 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/orders/{order}/cancel', [\App\Http\Controllers\BookingController::class, 'cancel'])
         ->name('orders.cancel');
+
+    Route::get('/my-tickets', [\App\Http\Controllers\MyTicketController::class, 'index'])
+        ->name('user.tickets');
+        
+    Route::get('/my-tickets/{ticket_code}', [\App\Http\Controllers\MyTicketController::class, 'show'])
+        ->name('user.tickets.show');
 });
+
+Route::get('/tickets/{ticket_code}', [\App\Http\Controllers\MyTicketController::class, 'publicShow'])
+    ->name('tickets.public.show');
 
 Route::get('/events/{categorySlug?}', [\App\Http\Controllers\EventController::class, 'index'])
     ->name('events.index');

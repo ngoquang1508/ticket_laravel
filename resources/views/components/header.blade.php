@@ -37,7 +37,8 @@
 
 
                 {{-- Vé của tôi --}}
-                <a href="#" class="whitespace-nowrap text-white/90 transition hover:text-white">
+                <a href="{{ route('user.tickets') }}"
+                    class="whitespace-nowrap text-white/90 transition hover:text-white">
                     Vé của tôi
                 </a>
 
@@ -67,15 +68,15 @@
                     <div class="relative">
 
                         {{-- User button --}}
-                        <button id="user-menu-button" type="button" class="flex items-center gap-2 rounded-xl px-2 py-2
-                                               transition hover:bg-white/10" aria-expanded="false">
+                        <button id="user-menu-button" type="button" class="flex items-center gap-2 rounded-full border-2 border-white/10 pr-2
+                                                       transition hover:bg-white/10" aria-expanded="false">
 
                             {{-- Avatar --}}
                             <div class="flex h-8 w-8 items-center justify-center
-                                                   rounded-full
-                                                   bg-white/20
-                                                   font-semibold
-                                                   backdrop-blur-md">
+                                                    rounded-full
+                                                    bg-white/20
+                                                    font-semibold
+                                                    backdrop-blur-md">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </div>
 
@@ -97,40 +98,40 @@
 
                         {{-- Liquid Glass Dropdown --}}
                         <div id="user-menu" class="pointer-events-none absolute right-0 z-50 mt-2 w-48
-                                               origin-top-right
-                                               overflow-hidden
-                                               rounded-2xl
-                                               border border-white/20
-                                               bg-primary-900/75
-                                               py-2
-                                               text-white
-                                               shadow-[0_8px_32px_rgba(0,0,0,0.25)]
-                                               backdrop-blur-2xl
-                                               opacity-0
-                                               scale-95
-                                               translate-y-1
-                                               transition-all
-                                               duration-200
-                                               ease-out">
+                                                       origin-top-right
+                                                       overflow-hidden
+                                                       rounded-2xl
+                                                       border border-white/20
+                                                       bg-primary-900/75
+                                                       py-2
+                                                       text-white
+                                                       shadow-[0_8px_32px_rgba(0,0,0,0.25)]
+                                                       backdrop-blur-2xl
+                                                       opacity-0
+                                                       scale-95
+                                                       translate-y-1
+                                                       transition-all
+                                                       duration-200
+                                                       ease-out">
 
                             {{-- Tài khoản --}}
                             <a href="#" class="block px-4 py-2.5
-                                                   text-sm
-                                                   text-white/85
-                                                   transition
-                                                   hover:bg-white/10
-                                                   hover:text-white">
+                                                           text-sm
+                                                           text-white/85
+                                                           transition
+                                                           hover:bg-white/10
+                                                           hover:text-white">
                                 Tài khoản
                             </a>
 
 
                             {{-- Vé của tôi --}}
-                            <a href="#" class="block px-4 py-2.5
-                                                   text-sm
-                                                   text-white/85
-                                                   transition
-                                                   hover:bg-white/10
-                                                   hover:text-white">
+                            <a href="{{ route('user.tickets') }}" class="block px-4 py-2.5
+                                                           text-sm
+                                                           text-white/85
+                                                           transition
+                                                           hover:bg-white/10
+                                                           hover:text-white">
                                 Vé của tôi
                             </a>
 
@@ -144,14 +145,14 @@
                                 @csrf
 
                                 <button type="submit" class="block w-full
-                                                       px-4 py-2.5
-                                                       text-left
-                                                       text-sm
-                                                       font-medium
-                                                       text-red-300
-                                                       transition
-                                                       hover:bg-red-400/10
-                                                       hover:text-red-500">
+                                                               px-4 py-2.5
+                                                               text-left
+                                                               text-sm
+                                                               font-medium
+                                                               text-red-300
+                                                               transition
+                                                               hover:bg-red-400/10
+                                                               hover:text-red-500">
                                     Đăng xuất
                                 </button>
                             </form>
@@ -225,7 +226,7 @@
 
 
                 {{-- Vé của tôi --}}
-                <a href="#" class="rounded-lg px-4 py-3
+                <a href="{{ route('user.tickets') }}" class="rounded-lg px-4 py-3
                            transition hover:bg-white/10">
                     Vé của tôi
                 </a>
@@ -235,25 +236,25 @@
 
                     {{-- Đăng nhập --}}
                     <a href="{{ route('login') }}" class="mt-2 rounded-lg
-                                           bg-white
-                                           px-4 py-3
-                                           text-center
-                                           font-medium
-                                           text-primary-600
-                                           transition
-                                           hover:bg-primary-50">
+                                                   bg-white
+                                                   px-4 py-3
+                                                   text-center
+                                                   font-medium
+                                                   text-primary-600
+                                                   transition
+                                                   hover:bg-primary-50">
                         Đăng nhập
                     </a>
 
 
                     {{-- Đăng ký --}}
                     <a href="{{ route('register') }}" class="rounded-lg
-                                           border border-white
-                                           px-4 py-3
-                                           text-center
-                                           font-medium
-                                           transition
-                                           hover:bg-white/10">
+                                                   border border-white
+                                                   px-4 py-3
+                                                   text-center
+                                                   font-medium
+                                                   transition
+                                                   hover:bg-white/10">
                         Đăng ký
                     </a>
 
@@ -261,8 +262,8 @@
 
                     {{-- Mobile user --}}
                     <div class="mt-2
-                                           border-t border-white/20
-                                           pt-4">
+                                                   border-t border-white/20
+                                                   pt-4">
 
                         <p class="px-4 text-sm text-white/70">
                             Xin chào
@@ -278,14 +279,14 @@
                             @csrf
 
                             <button type="submit" class="w-full
-                                                   rounded-lg
-                                                   border border-white
-                                                   px-4 py-3
-                                                   text-center
-                                                   font-medium
-                                                   text-white
-                                                   transition
-                                                   hover:bg-red-400/20">
+                                                           rounded-lg
+                                                           border border-white
+                                                           px-4 py-3
+                                                           text-center
+                                                           font-medium
+                                                           text-white
+                                                           transition
+                                                           hover:bg-red-400/20">
                                 Đăng xuất
                             </button>
 
