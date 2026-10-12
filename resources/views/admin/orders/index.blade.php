@@ -8,7 +8,7 @@
         {{-- Tiêu đề trang --}}
         <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Quản lý đơn hàng</h1>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Quản lý đơn hàng</h1>
                 <p class="mt-1 text-sm text-gray-500">Theo dõi, kiểm tra và xử lý các đơn đặt vé của khách hàng.</p>
             </div>
         </div>

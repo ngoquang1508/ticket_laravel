@@ -14,7 +14,7 @@
                 </a>
                 <div>
                     <div class="flex items-center gap-2.5">
-                        <h1 class="text-2xl font-bold text-gray-900 font-mono">#{{ $order->order_code }}</h1>
+                        <h1 class="text-2xl font-bold tracking-tight text-gray-900 font-mono">#{{ $order->order_code }}</h1>
                         <x-order-status-badge :status="$order->status" />
                     </div>
                     <p class="mt-0.5 text-xs text-gray-500">

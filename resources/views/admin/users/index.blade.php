@@ -4,62 +4,133 @@
 
 @section('content')
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div class="mb-6 flex items-center justify-between gap-4">
+        {{-- Tiêu đề và nút thêm người dùng --}}
+        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Quản lý người dùng</h1>
-                <p class="mt-1 text-sm text-gray-500">Danh sách người dùng trong hệ thống.</p>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Quản lý người dùng</h1>
+                <p class="mt-1 text-sm text-gray-500">Danh sách người dùng và phân quyền tài khoản trong hệ thống.</p>
             </div>
-            <a href="{{ route('admin.users.create') }}" class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">+ Thêm người dùng</a>
+            <div>
+                <a href="{{ route('admin.users.create') }}"
+                    class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Thêm người dùng
+                </a>
+            </div>
         </div>
 
-        <form method="GET" class="mb-6 grid gap-3 rounded-xl border bg-white p-4 md:grid-cols-5">
-            <input name="search" value="{{ request('search') }}" placeholder="Tìm theo tên, email, sđt..." class="rounded-lg border px-3 py-2 text-sm md:col-span-2">
-            <select name="role" class="rounded-lg border px-3 py-2 text-sm">
-                <option value="">Tất cả vai trò</option>
-                <option value="admin" @selected(request('role') === 'admin')>Admin</option>
-                <option value="customer" @selected(request('role') === 'customer')>Customer</option>
-            </select>
-            <select name="is_active" class="rounded-lg border px-3 py-2 text-sm">
-                <option value="">Tất cả trạng thái</option>
-                <option value="1" @selected(request()->filled('is_active') && request('is_active') == '1')>Đang hoạt động</option>
-                <option value="0" @selected(request()->filled('is_active') && request('is_active') == '0')>Đã khóa</option>
-            </select>
-            <button class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700">Lọc</button>
-        </form>
+        {{-- Bộ lọc người dùng --}}
+        <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+            <form method="GET" action="{{ route('admin.users.index') }}"
+                class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 items-center">
+                {{-- Tìm kiếm tên, email, sđt --}}
+                <div class="relative lg:col-span-5">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </div>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Tìm theo tên, email, SĐT..."
+                        class="w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-9 pr-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                </div>
 
-        <div class="overflow-hidden rounded-xl border bg-white shadow-sm">
+                {{-- Lọc vai trò --}}
+                <div class="lg:col-span-2">
+                    <select name="role"
+                        class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                        <option value="">Tất cả vai trò</option>
+                        <option value="admin" @selected(request('role') === 'admin')>Admin</option>
+                        <option value="customer" @selected(request('role') === 'customer')>Customer</option>
+                    </select>
+                </div>
+
+                {{-- Lọc trạng thái --}}
+                <div class="lg:col-span-2">
+                    <select name="is_active"
+                        class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="1" @selected(request()->filled('is_active') && request('is_active') == '1')>Đang hoạt động</option>
+                        <option value="0" @selected(request()->filled('is_active') && request('is_active') == '0')>Đã khóa</option>
+                    </select>
+                </div>
+
+                {{-- Nút bấm Lọc & Đặt lại --}}
+                <div class="flex items-center gap-2 lg:col-span-3">
+                    <button type="submit"
+                        class="flex-1 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 cursor-pointer">
+                        Lọc
+                    </button>
+                    @if (request()->anyFilled(['search', 'role', 'is_active']))
+                        <a href="{{ route('admin.users.index') }}" title="Xóa bộ lọc"
+                            class="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition cursor-pointer">
+                            <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        {{-- Bảng danh sách người dùng --}}
+        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[800px] text-left text-sm">
-                    <thead class="border-b bg-gray-50 text-gray-600">
+                <table class="w-full min-w-[880px] text-left text-sm">
+                    <thead
+                        class="border-b border-gray-200 bg-gray-50/80 text-xs font-semibold tracking-wider text-gray-500">
                         <tr>
-                            <th class="px-5 py-4">ID</th>
-                            <th class="px-5 py-4">Họ tên</th>
-                            <th class="px-5 py-4">Email</th>
-                            <th class="px-5 py-4">Số điện thoại</th>
-                            <th class="px-5 py-4">Vai trò</th>
-                            <th class="px-5 py-4">Trạng thái</th>
-                            <th class="px-5 py-4">Ngày tạo</th>
-                            <th class="px-5 py-4 text-right">Thao tác</th>
+                            <th class="px-5 py-4 min-w-[60px]">ID</th>
+                            <th class="px-5 py-4 min-w-[200px]">Họ tên</th>
+                            <th class="px-5 py-4 min-w-[200px]">Email</th>
+                            <th class="px-5 py-4 min-w-[130px]">Số điện thoại</th>
+                            <th class="px-5 py-4 min-w-[120px]">Vai trò</th>
+                            <th class="px-5 py-4 min-w-[140px]">Trạng thái</th>
+                            <th class="px-5 py-4 min-w-[150px]">Ngày tạo</th>
+                            <th class="px-5 py-4 min-w-[100px] text-right">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y">
+                    <tbody class="divide-y divide-gray-100 text-gray-700">
                         @forelse($users as $user)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-5 py-4 text-gray-500">#{{ $user->id }}</td>
-                                <td class="px-5 py-4 font-semibold text-gray-900">{{ $user->name }}</td>
-                                <td class="px-5 py-4">{{ $user->email }}</td>
-                                <td class="px-5 py-4">{{ $user->phone ?: '-' }}</td>
+                            <tr class="hover:bg-gray-50/80 transition-colors">
+                                <td class="px-5 py-4 font-mono text-xs text-gray-400">#{{ $user->id }}</td>
                                 <td class="px-5 py-4">
-                                    <span class="w-fit rounded-full px-2 py-1 text-xs {{ $user->role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
+                                    <div class="flex items-center gap-2.5">
+                                        <div
+                                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </div>
+                                        <span class="font-semibold text-gray-900">{{ $user->name }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-gray-600">{{ $user->email }}</td>
+                                <td class="px-5 py-4 text-gray-600">{{ $user->phone ?: '-' }}</td>
+                                <td class="px-5 py-4">
+                                    <span
+                                        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $user->role === 'admin' ? 'border border-red-200 bg-red-50 text-red-700' : 'border border-blue-200 bg-blue-50 text-blue-700' }}">
                                         {{ ucfirst($user->role) }}
                                     </span>
                                 </td>
                                 <td class="px-5 py-4">
-                                    <span class="w-fit rounded-full px-2 py-1 text-xs {{ $user->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600' }}">
-                                        {{ $user->is_active ? 'Hoạt động' : 'Đã khóa' }}
-                                    </span>
+                                    @if ($user->is_active)
+                                        <span
+                                            class="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                                            Hoạt động
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-600">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                                            Đã khóa
+                                        </span>
+                                    @endif
                                 </td>
-                                <td class="px-5 py-4 text-gray-500">{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="px-5 py-4 text-xs text-gray-500">{{ $user->created_at->format('d/m/Y H:i') }}</td>
                                 {{-- Cột thao tác --}}
                                 <td class="px-5 py-4 text-right">
                                     <div class="flex items-center justify-end gap-2">
@@ -89,7 +160,16 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="px-6 py-12 text-center text-gray-500">Không tìm thấy người dùng nào.</td>
+                                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-3">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                                        </svg>
+                                    </div>
+                                    <p class="font-medium text-gray-900">Không tìm thấy người dùng nào</p>
+                                    <p class="mt-1 text-xs text-gray-500">Thử thay đổi bộ lọc tìm kiếm hoặc từ khóa tra cứu.</p>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

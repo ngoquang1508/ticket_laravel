@@ -10,11 +10,19 @@ use Illuminate\View\View;
 
 class LocationController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $locations = Location::withCount('events')
-            ->latest()
-            ->paginate(10);
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = trim($request->string('search'));
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('address', 'like', "%{$search}%");
+                });
+            })
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.locations.index', compact('locations'));
     }

@@ -11,11 +11,22 @@ use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $categories = Category::withCount('events')
-            ->latest()
-            ->paginate(10);
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = trim($request->string('search'));
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->filled('is_active'), function ($query) use ($request) {
+                $query->where('is_active', $request->boolean('is_active'));
+            })
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.categories.index', compact('categories'));
     }

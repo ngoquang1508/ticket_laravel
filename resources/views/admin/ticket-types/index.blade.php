@@ -6,7 +6,7 @@
         <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
                 <p class="text-sm text-gray-500">{{ $event->name }}</p>
-                <h1 class="text-2xl font-bold text-gray-900">Quản lý loại vé</h1>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Quản lý loại vé</h1>
             </div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('admin.events.show', $event) }}"
