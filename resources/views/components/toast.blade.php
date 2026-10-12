@@ -1,9 +1,9 @@
-@if (session('success') || $errors->any())
+@if (session('success') || session('error') || $errors->any())
     @php
         $toastData = [
             'type' => session('success') ? 'success' : 'error',
             'title' => session('success') ? 'Thành công' : 'Có lỗi xảy ra',
-            'message' => session('success') ?: $errors->first(),
+            'message' => session('success') ?: (session('error') ?: $errors->first()),
         ];
     @endphp
 
