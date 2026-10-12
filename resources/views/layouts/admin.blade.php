@@ -129,13 +129,12 @@
                         </p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 text-sm">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="h-10 p-2 rounded-full bg-primary-100 border-2 border-white shadow-sm flex items-center justify-center text-primary-700 font-bold text-lg">
-                            {{ auth()->user()?->name ?: 'Admin' }}
-                        </div>
+                <div class="flex min-w-0 items-center gap-3">
+                    <div class="min-w-0 truncate text-lg font-semibold">
+                        Hi, {{ auth()->user()?->name ?: 'Admin' }}
                     </div>
+
+                    @include('layouts.partials.notification-dropdown')
                 </div>
             </header>
 

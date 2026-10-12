@@ -8,8 +8,11 @@ use App\Models\OrderItem;
 use App\Models\Seat;
 use App\Models\Ticket;
 use App\Models\TicketType;
+use App\Models\User;
+use App\Notifications\AdminOrderNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 /**
@@ -349,6 +352,9 @@ class BookingService
 
         // Gửi email thông báo
         \Illuminate\Support\Facades\Mail::to($order->user->email)->send(new \App\Mail\OrderConfirmed($order));
+
+        // Bắn thông báo đơn mới thanh toán cho toàn bộ Admin
+        $this->notifyAdmins(AdminOrderNotification::paid($order));
     }
 
     /**
@@ -380,6 +386,9 @@ class BookingService
 
             // items vẫn active, chờ admin confirm
         });
+
+        // Bắn thông báo đơn hàng chờ duyệt cho Admin
+        $this->notifyAdmins(AdminOrderNotification::awaitingConfirmation($order));
     }
 
     /**
@@ -429,6 +438,24 @@ class BookingService
             }
         } catch (\Throwable $e) {
             Log::warning('Không thể gửi email xác nhận đơn hàng: ' . $e->getMessage());
+        }
+
+        // Bắn thông báo đơn mới thanh toán cho Admin
+        $this->notifyAdmins(AdminOrderNotification::paid($order));
+    }
+
+    /**
+     * Gửi thông báo đến toàn bộ tài khoản Admin trong hệ thống
+     */
+    protected function notifyAdmins($notification): void
+    {
+        try {
+            $admins = User::where('role', 'admin')->get();
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, $notification);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Lỗi gửi thông báo cho Admin: ' . $e->getMessage());
         }
     }
 

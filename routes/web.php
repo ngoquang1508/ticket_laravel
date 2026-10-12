@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\TicketTypeController;
 use App\Http\Controllers\Admin\SeatMapController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -135,4 +136,12 @@ Route::prefix('admin')
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
         Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
+        // Quản lý thông báo (dropdown)
+        Route::get('notifications', fn() => redirect()->route('admin.dashboard'));
+        Route::get('notifications/dropdown-data', [NotificationController::class, 'dropdownData'])->name('notifications.dropdown-data');
+        Route::get('notifications/{id}/read', [NotificationController::class, 'readAndRedirect'])->name('notifications.read');
+        Route::post('notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+        Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+        Route::delete('notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     });
