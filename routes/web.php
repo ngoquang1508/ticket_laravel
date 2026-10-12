@@ -42,6 +42,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{order}/cancel', [\App\Http\Controllers\BookingController::class, 'cancel'])
         ->name('orders.cancel');
 
+    Route::post('/orders/{order}/update-tickets', [\App\Http\Controllers\BookingController::class, 'updateTickets'])
+        ->name('orders.update-tickets');
+
+    Route::get('/orders/{order}/edit-tickets', [\App\Http\Controllers\BookingController::class, 'editTickets'])
+        ->name('orders.edit-tickets');
+
+    Route::post('/orders/{order}/edit-tickets', [\App\Http\Controllers\BookingController::class, 'updateAssignedSeats'])
+        ->name('orders.update-assigned-seats');
+
     Route::get('/my-tickets', [\App\Http\Controllers\MyTicketController::class, 'index'])
         ->name('user.tickets');
         

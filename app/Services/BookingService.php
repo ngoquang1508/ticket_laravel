@@ -432,14 +432,16 @@ class BookingService
     /**
      * Hủy order (hết hạn hoặc người dùng/admin hủy).
      * Chống hủy nhiều lần bằng kiểm tra trạng thái.
+     * Hủy đơn hàng và giải phóng ghế / hoàn lại số lượng vé.
      *
-     * @param  Order   $order
-     * @param  string  $newStatus   'expired' hoặc 'cancelled'
+     * @param  Order        $order
+     * @param  string       $newStatus      'cancelled' hoặc 'expired'
+     * @param  string|null  $cancelReason   Lý do hủy đơn hàng
      * @return void
      */
-    public function cancelOrder(Order $order, string $newStatus = 'expired'): void
+    public function cancelOrder(Order $order, string $newStatus = 'cancelled', ?string $cancelReason = null): void
     {
-        DB::transaction(function () use ($order, $newStatus) {
+        DB::transaction(function () use ($order, $newStatus, $cancelReason) {
             // Khóa dòng order để tránh cancel nhiều lần
             $locked = Order::where('id', $order->id)->lockForUpdate()->first();
 
@@ -451,8 +453,12 @@ class BookingService
 
             $isAssignedSeat = $locked->event->sale_mode === 'assigned_seat';
 
-            // Cập nhật trạng thái order
-            $locked->update(['status' => $newStatus]);
+            // Cập nhật trạng thái order và lý do hủy
+            $updateData = ['status' => $newStatus];
+            if ($cancelReason) {
+                $updateData['cancel_reason'] = $cancelReason;
+            }
+            $locked->update($updateData);
 
             // Cập nhật order_items sang cancelled (không xóa để giữ lịch sử)
             $locked->items()->update(['status' => 'cancelled']);
@@ -467,14 +473,327 @@ class BookingService
 
             // Hoàn lại số lượng vé (cho cả assigned_seat và general_admission)
             foreach ($locked->items as $item) {
-                // Chỉ hoàn lại nếu item còn active (chưa cancelled trước đó)
-                // Lưu ý: items() đã load, nhưng status vừa bị update ở trên
-                // Hoàn lại dù sao vì chúng ta đã kiểm tra order status ở đầu
                 TicketType::where('id', $item->ticket_type_id)
                     ->increment('quantity', $item->quantity);
             }
 
             // KHÔNG xóa Order, OrderItem, Ticket để giữ lịch sử
+        });
+    }
+
+    /**
+     * Tự động quét và hủy các đơn hàng pending đã quá hạn thời gian giữ vé.
+     * Hoàn trả vé/ghế, chuyển trạng thái sang cancelled và ghi nhận lý do 'Hết hạn thanh toán'.
+     *
+     * @param int|null $userId Nếu truyền userId thì chỉ quét cho user đó, nếu null thì quét toàn hệ thống.
+     * @return int Số lượng đơn hàng đã hủy.
+     */
+    public function cancelExpiredOrders(?int $userId = null): int
+    {
+        $query = Order::where('status', 'pending')
+            ->where('expires_at', '<=', now());
+
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+
+        $expiredOrders = $query->get();
+        $count = 0;
+
+        foreach ($expiredOrders as $order) {
+            $this->cancelOrder($order, 'cancelled', 'Hết hạn thanh toán');
+            $count++;
+        }
+
+        return $count;
+    }
+
+    /**
+     * Chỉnh sửa số lượng vé cho đơn hàng ở trạng thái Pending.
+     * Người dùng có thể thay đổi số lượng từng loại vé trong phạm vi cho phép (tồn kho, quota, max order).
+     *
+     * @param  Order  $order
+     * @param  array  $quantities  Mảng [ticket_type_id => new_quantity]
+     * @return Order
+     * @throws \Exception
+     */
+    public function updateOrderTickets(Order $order, array $quantities): Order
+    {
+        return DB::transaction(function () use ($order, $quantities) {
+            $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->first();
+
+            if (!$lockedOrder || $lockedOrder->status !== 'pending') {
+                throw new \Exception('Chỉ có thể chỉnh sửa số lượng vé cho đơn hàng đang chờ xử lý.');
+            }
+
+            if (now() > $lockedOrder->expires_at) {
+                $this->cancelOrder($lockedOrder, 'cancelled', 'Hết hạn thanh toán');
+                throw new \Exception('Đơn hàng đã hết thời gian giữ vé và đã bị hủy tự động.');
+            }
+
+            if ($lockedOrder->event->sale_mode === 'assigned_seat') {
+                throw new \Exception('Sự kiện chọn ghế theo sơ đồ không hỗ trợ sửa số lượng vé trực tiếp.');
+            }
+
+            // Lọc và tính tổng số vé yêu cầu mới
+            $sanitizedQuantities = [];
+            foreach ($quantities as $ttId => $qty) {
+                $sanitizedQuantities[(int)$ttId] = max(0, (int)$qty);
+            }
+
+            $totalRequested = array_sum($sanitizedQuantities);
+
+            if ($totalRequested <= 0) {
+                throw new \Exception('Đơn hàng phải có ít nhất 1 vé. Nếu muốn hủy toàn bộ, vui lòng bấm "Hủy đơn hàng".');
+            }
+
+            if ($totalRequested > self::MAX_TICKETS_PER_ORDER) {
+                throw new \Exception('Bạn chỉ được chọn tối đa ' . self::MAX_TICKETS_PER_ORDER . ' vé trong một đơn hàng.');
+            }
+
+            // Kiểm tra quota tài khoản: tính chênh lệch tăng thêm
+            $currentTotal = $lockedOrder->items()->where('status', 'active')->sum('quantity');
+            $increase = $totalRequested - $currentTotal;
+            if ($increase > 0) {
+                $this->assertUserQuota($lockedOrder->event, $lockedOrder->user_id, $increase);
+            }
+
+            $newTotalAmount = 0;
+
+            foreach ($sanitizedQuantities as $ttId => $newQty) {
+                $ticketType = TicketType::where('id', $ttId)
+                    ->where('event_id', $lockedOrder->event_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$ticketType) {
+                    continue;
+                }
+
+                $orderItem = OrderItem::where('order_id', $lockedOrder->id)
+                    ->where('ticket_type_id', $ttId)
+                    ->first();
+
+                $oldQty = $orderItem ? $orderItem->quantity : 0;
+                $diff = $newQty - $oldQty;
+
+                if ($diff > 0) {
+                    // Tăng vé -> kiểm tra số lượng tồn kho còn lại
+                    if ($ticketType->quantity < $diff) {
+                        throw new \Exception("Loại vé \"{$ticketType->name}\" không đủ số lượng (chỉ còn thêm {$ticketType->quantity} vé).");
+                    }
+
+                    // Giữ thêm vé
+                    $ticketType->decrement('quantity', $diff);
+
+                    if (!$orderItem) {
+                        $orderItem = $lockedOrder->items()->create([
+                            'ticket_type_id' => $ticketType->id,
+                            'quantity' => $newQty,
+                            'price' => (float) $ticketType->price,
+                            'total' => $newQty * (float) $ticketType->price,
+                            'status' => 'active',
+                        ]);
+                    } else {
+                        $orderItem->update([
+                            'quantity' => $newQty,
+                            'total' => $newQty * $orderItem->price,
+                            'status' => 'active',
+                        ]);
+                    }
+
+                    // Tạo thêm diff bản ghi Ticket
+                    for ($i = 0; $i < $diff; $i++) {
+                        Ticket::create([
+                            'order_id' => $lockedOrder->id,
+                            'order_item_id' => $orderItem->id,
+                            'seat_id' => null,
+                            'ticket_code' => $this->generateTicketCode(),
+                        ]);
+                    }
+                } elseif ($diff < 0) {
+                    // Giảm vé -> hoàn trả lại kho
+                    $returnCount = abs($diff);
+                    $ticketType->increment('quantity', $returnCount);
+
+                    if ($newQty === 0) {
+                        // Xóa tickets và orderItem
+                        Ticket::where('order_id', $lockedOrder->id)
+                            ->where('order_item_id', $orderItem->id)
+                            ->delete();
+                        $orderItem->delete();
+                    } else {
+                        $orderItem->update([
+                            'quantity' => $newQty,
+                            'total' => $newQty * $orderItem->price,
+                        ]);
+
+                        // Xóa bớt returnCount vé của item này
+                        $ticketIdsToDelete = Ticket::where('order_id', $lockedOrder->id)
+                            ->where('order_item_id', $orderItem->id)
+                            ->limit($returnCount)
+                            ->pluck('id');
+                        Ticket::whereIn('id', $ticketIdsToDelete)->delete();
+                    }
+                }
+
+                if ($newQty > 0 && $orderItem) {
+                    $newTotalAmount += $newQty * (float) $orderItem->price;
+                }
+            }
+
+            // Cập nhật lại tổng tiền đơn hàng
+            $lockedOrder->update(['total_amount' => $newTotalAmount]);
+
+            return $lockedOrder;
+        });
+    }
+
+    /**
+     * Cập nhật danh sách ghế ngồi cho đơn hàng pending của sự kiện assigned_seat.
+     *
+     * @throws \Exception
+     */
+    public function updateAssignedSeatOrder(Order $order, array $newSeatNumbers): Order
+    {
+        if ($order->status !== 'pending') {
+            throw new \Exception('Chỉ có thể chỉnh sửa ghế cho đơn hàng đang chờ xử lý.');
+        }
+
+        if ($order->expires_at && now()->greaterThan($order->expires_at)) {
+            $this->cancelOrder($order, 'cancelled', 'Hết hạn thanh toán');
+            throw new \Exception('Đơn hàng đã hết thời gian giữ vé và đã bị hủy tự động.');
+        }
+
+        if ($order->event->sale_mode !== 'assigned_seat') {
+            throw new \Exception('Chức năng này chỉ áp dụng cho sự kiện có sơ đồ chọn ghế.');
+        }
+
+        $newSeatNumbers = array_values(array_unique(array_filter(array_map('trim', $newSeatNumbers))));
+        $count = count($newSeatNumbers);
+
+        if ($count <= 0) {
+            throw new \Exception('Vui lòng chọn ít nhất 1 ghế. Nếu không muốn đặt vé nữa, bạn có thể hủy đơn hàng.');
+        }
+
+        if ($count > self::MAX_TICKETS_PER_ORDER) {
+            throw new \Exception('Bạn chỉ được chọn tối đa ' . self::MAX_TICKETS_PER_ORDER . ' vé trong một đơn hàng.');
+        }
+
+        return DB::transaction(function () use ($order, $newSeatNumbers, $count) {
+            /** @var Order $lockedOrder */
+            $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->first();
+
+            if (!$lockedOrder || $lockedOrder->status !== 'pending') {
+                throw new \Exception('Trạng thái đơn hàng không hợp lệ.');
+            }
+
+            // Lấy danh sách vé và ghế hiện tại của đơn hàng
+            $currentTickets = Ticket::with('seat')
+                ->where('order_id', $lockedOrder->id)
+                ->get();
+            $oldSeatNumbers = $currentTickets->pluck('seat.seat_number')->filter()->values()->toArray();
+
+            // Tính chênh lệch quota nếu số ghế tăng lên
+            $increase = $count - count($oldSeatNumbers);
+            if ($increase > 0) {
+                $this->assertUserQuota($lockedOrder->event, $lockedOrder->user_id, $increase);
+            }
+
+            $seatsToRemove = array_diff($oldSeatNumbers, $newSeatNumbers);
+            $seatsToAdd = array_diff($newSeatNumbers, $oldSeatNumbers);
+
+            // 1. Giải phóng các ghế bị bỏ chọn ($seatsToRemove)
+            if (!empty($seatsToRemove)) {
+                $removedSeats = Seat::whereIn('seat_number', $seatsToRemove)
+                    ->where('event_id', $lockedOrder->event_id)
+                    ->lockForUpdate()
+                    ->get();
+
+                foreach ($removedSeats as $seat) {
+                    $seat->update(['status' => 'available']);
+                    if ($seat->ticket_type_id) {
+                        TicketType::where('id', $seat->ticket_type_id)->increment('quantity', 1);
+                    }
+                    Ticket::where('order_id', $lockedOrder->id)
+                        ->where('seat_id', $seat->id)
+                        ->delete();
+                }
+            }
+
+            // 2. Giữ các ghế mới thêm vào ($seatsToAdd)
+            if (!empty($seatsToAdd)) {
+                $addedSeats = Seat::whereIn('seat_number', $seatsToAdd)
+                    ->where('event_id', $lockedOrder->event_id)
+                    ->lockForUpdate()
+                    ->get();
+
+                if ($addedSeats->count() !== count($seatsToAdd)) {
+                    throw new \Exception('Một số ghế đã chọn không hợp lệ.');
+                }
+
+                $unavailable = $addedSeats->where('status', '!=', 'available');
+                if ($unavailable->isNotEmpty()) {
+                    $nums = $unavailable->pluck('seat_number')->join(', ');
+                    throw new \Exception("Ghế {$nums} vừa bị đặt bởi người khác. Vui lòng chọn lại.");
+                }
+
+                foreach ($addedSeats as $seat) {
+                    $seat->update(['status' => 'held']);
+                    if ($seat->ticket_type_id) {
+                        TicketType::where('id', $seat->ticket_type_id)->decrement('quantity', 1);
+                    }
+                }
+            }
+
+            // 3. Tái cấu trúc lại OrderItems và Tickets
+            $allOrderSeats = Seat::with('ticketType')
+                ->whereIn('seat_number', $newSeatNumbers)
+                ->where('event_id', $lockedOrder->event_id)
+                ->get();
+
+            // Xóa toàn bộ OrderItems cũ
+            OrderItem::where('order_id', $lockedOrder->id)->delete();
+
+            $seatsGrouped = $allOrderSeats->groupBy('ticket_type_id');
+            $newTotalAmount = 0;
+
+            foreach ($seatsGrouped as $ticketTypeId => $seats) {
+                $ticketType = TicketType::find($ticketTypeId);
+                $qty = $seats->count();
+                $price = $ticketType ? (float) $ticketType->price : 0;
+                $subtotal = $qty * $price;
+                $newTotalAmount += $subtotal;
+
+                $orderItem = $lockedOrder->items()->create([
+                    'ticket_type_id' => $ticketTypeId,
+                    'quantity' => $qty,
+                    'price' => $price,
+                    'total' => $subtotal,
+                    'status' => 'active',
+                ]);
+
+                foreach ($seats as $seat) {
+                    $existingTicket = Ticket::where('order_id', $lockedOrder->id)
+                        ->where('seat_id', $seat->id)
+                        ->first();
+
+                    if ($existingTicket) {
+                        $existingTicket->update(['order_item_id' => $orderItem->id]);
+                    } else {
+                        Ticket::create([
+                            'order_id' => $lockedOrder->id,
+                            'order_item_id' => $orderItem->id,
+                            'seat_id' => $seat->id,
+                            'ticket_code' => $this->generateTicketCode(),
+                        ]);
+                    }
+                }
+            }
+
+            $lockedOrder->update(['total_amount' => $newTotalAmount]);
+
+            return $lockedOrder;
         });
     }
 

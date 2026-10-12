@@ -8,11 +8,14 @@ use App\Models\Ticket;
 
 class MyTicketController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, \App\Services\BookingService $bookingService)
     {
+        // Tự động kiểm tra và hủy các đơn hàng pending quá hạn thời gian giữ vé của người dùng
+        $bookingService->cancelExpiredOrders(auth()->id());
+
         $status = $request->query('status');
 
-        $orders = Order::with(['event', 'items.ticketType', 'tickets.orderItem.ticketType', 'tickets.seat'])
+        $orders = Order::with(['event.ticketTypes', 'items.ticketType', 'tickets.orderItem.ticketType', 'tickets.seat'])
             ->where('user_id', auth()->id())
             ->when($status, function ($query, $status) {
                 return $query->where('status', $status);
