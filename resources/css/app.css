@@ -1,6 +1,70 @@
 @import 'tailwindcss';
 @import 'toastify-js/src/toastify.css';
 
+/* Cấu hình color-scheme cho dark theme */
+.dark,
+:root.dark {
+    color-scheme: dark;
+}
+
+/* Xử lý lỗi trình duyệt Chrome/Edge tự động đổi màu nền và màu chữ khi autofill trên nền tối */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active,
+.dark textarea:-webkit-autofill,
+.dark textarea:-webkit-autofill:hover,
+.dark textarea:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill:active,
+.dark select:-webkit-autofill,
+.dark select:-webkit-autofill:hover,
+.dark select:-webkit-autofill:focus,
+.dark select:-webkit-autofill:active,
+input[class*="#1e1e1e"]:-webkit-autofill,
+input[class*="#1e1e1e"]:-webkit-autofill:hover,
+input[class*="#1e1e1e"]:-webkit-autofill:focus,
+input[class*="#1e1e1e"]:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #1e1e1e inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.dark input:autofill,
+.dark input:autofill:hover,
+.dark input:autofill:focus,
+.dark input:autofill:active,
+.dark textarea:autofill,
+.dark textarea:autofill:hover,
+.dark textarea:autofill:focus,
+.dark textarea:autofill:active,
+.dark select:autofill,
+.dark select:autofill:hover,
+.dark select:autofill:focus,
+.dark select:autofill:active,
+input[class*="#1e1e1e"]:autofill,
+input[class*="#1e1e1e"]:autofill:hover,
+input[class*="#1e1e1e"]:autofill:focus,
+input[class*="#1e1e1e"]:autofill:active {
+    box-shadow: 0 0 0 1000px #1e1e1e inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.dark input:-webkit-autofill:focus,
+.dark input:autofill:focus,
+.dark textarea:-webkit-autofill:focus,
+.dark textarea:autofill:focus,
+.dark select:-webkit-autofill:focus,
+.dark select:autofill:focus,
+input[class*="#1e1e1e"]:-webkit-autofill:focus,
+input[class*="#1e1e1e"]:autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #1e1e1e inset, 0 0 0 2px rgba(34, 197, 94, 0.2) !important;
+    box-shadow: 0 0 0 1000px #1e1e1e inset, 0 0 0 2px rgba(34, 197, 94, 0.2) !important;
+    border-color: #22c55e !important;
+}
+
 .app-toast {
     display: flex !important;
     width: min(calc(100vw - 2rem), 24rem);
