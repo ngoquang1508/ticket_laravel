@@ -394,8 +394,8 @@ class BookingService
         DB::transaction(function () use ($order) {
             $locked = Order::where('id', $order->id)->lockForUpdate()->first();
 
-            if ($locked->status !== 'processing') {
-                throw new \Exception('Đơn hàng không ở trạng thái đang xử lý.');
+            if (!in_array($locked->status, ['processing', 'pending'])) {
+                throw new \Exception('Đơn hàng không ở trạng thái chờ xử lý hoặc chờ thanh toán.');
             }
 
             $isAssignedSeat = $locked->event->sale_mode === 'assigned_seat';
@@ -421,8 +421,15 @@ class BookingService
             }
         });
 
-        // Gửi email thông báo
-        \Illuminate\Support\Facades\Mail::to($order->user->email)->send(new \App\Mail\OrderConfirmed($order));
+        // Gửi email thông báo (xử lý an toàn nếu chưa cấu hình mail server)
+        try {
+            $recipientEmail = $order->user?->email ?: $order->customer_email;
+            if ($recipientEmail) {
+                \Illuminate\Support\Facades\Mail::to($recipientEmail)->send(new \App\Mail\OrderConfirmed($order));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Không thể gửi email xác nhận đơn hàng: ' . $e->getMessage());
+        }
     }
 
     // =========================================================================

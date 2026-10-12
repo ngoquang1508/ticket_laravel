@@ -133,7 +133,7 @@
                     <div class="flex items-center gap-3">
                         <div
                             class="h-10 p-2 rounded-full bg-primary-100 border-2 border-white shadow-sm flex items-center justify-center text-primary-700 font-bold text-lg">
-                            {{ auth()->user()->name }}
+                            {{ auth()->user()?->name ?: 'Admin' }}
                         </div>
                     </div>
                 </div>

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\TicketTypeController;
 use App\Http\Controllers\Admin\SeatMapController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -128,4 +129,10 @@ Route::prefix('admin')
             ->name('events.seat-map.update');
 
         Route::resource('events', EventController::class);
+
+        // Quản lý đơn hàng
+        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+        Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     });
