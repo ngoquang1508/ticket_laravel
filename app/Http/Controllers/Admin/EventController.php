@@ -19,6 +19,17 @@ class EventController extends Controller
     {
         $events = Event::with(['location', 'categories'])
             ->withCount(['ticketTypes', 'seats'])
+            ->withSum('ticketTypes as remaining_tickets_count', 'quantity')
+            ->withSum(['orderItems as booked_tickets_count' => function ($query) {
+                $query->whereHas('order', function ($q) {
+                    $q->where('status', '!=', 'cancelled');
+                })->where('order_items.status', '!=', 'cancelled');
+            }], 'quantity')
+            ->withSum(['orderItems as paid_tickets_count' => function ($query) {
+                $query->whereHas('order', function ($q) {
+                    $q->where('status', 'completed');
+                })->where('order_items.status', '!=', 'cancelled');
+            }], 'quantity')
             ->when($request->filled('search'), fn ($query) => $query->where('name', 'like', '%'.$request->string('search').'%'))
             ->when($request->filled('location_id'), fn ($query) => $query->where('location_id', $request->integer('location_id')))
             ->when($request->filled('sale_mode'), fn ($query) => $query->where('sale_mode', $request->string('sale_mode')))

@@ -31,14 +31,30 @@
                             <td class="px-6 py-4 font-medium text-gray-900">{{ $location->name }}</td>
                             <td class="px-6 py-4 text-gray-600">{{ $location->address }}</td>
                             <td class="px-6 py-4">{{ $location->events_count }}</td>
-                            <td class="px-6 py-4 text-right">
-                                <a href="{{ route('admin.locations.edit', $location) }}" class="font-medium text-primary-700 hover:underline">Sửa</a>
-                                <form action="{{ route('admin.locations.destroy', $location) }}" method="POST" class="ml-3 inline" onsubmit="return confirm('Bạn có chắc muốn xóa địa điểm này?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="font-medium text-red-600 hover:underline">Xóa</button>
-                                </form>
-                            </td>
+                                {{-- Cột thao tác --}}
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        {{-- Nút sửa --}}
+                                        <a href="{{ route('admin.locations.edit', $location) }}"
+                                            class="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 hover:text-primary-600 shadow-2xs"
+                                            title="Chỉnh sửa địa điểm">
+                                            <x-icons.pencil />
+                                        </a>
+
+                                        {{-- Nút xóa --}}
+                                        <form action="{{ route('admin.locations.destroy', $location) }}" method="POST"
+                                            onsubmit="return confirm('Bạn có chắc muốn xóa địa điểm {{ $location->name }}?');"
+                                            class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="rounded-lg border border-red-200 bg-red-50/50 px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-100 hover:border-red-300 cursor-pointer shadow-2xs"
+                                                title="Xóa địa điểm">
+                                                <x-icons.delete />
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                         </tr>
                     @empty
                         <tr><td colspan="4" class="px-6 py-12 text-center text-gray-500">Chưa có địa điểm nào.</td></tr>

@@ -60,14 +60,28 @@
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-gray-500">{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                {{-- Cột thao tác --}}
                                 <td class="px-5 py-4 text-right">
-                                    <div class="flex items-center justify-end gap-3">
-                                        <a href="{{ route('admin.users.edit', $user) }}" class="font-medium text-primary-700 hover:underline">Sửa</a>
+                                    <div class="flex items-center justify-end gap-2">
+                                        {{-- Nút sửa --}}
+                                        <a href="{{ route('admin.users.edit', $user) }}"
+                                            class="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 hover:text-primary-600 shadow-2xs"
+                                            title="Chỉnh sửa người dùng">
+                                            <x-icons.pencil />
+                                        </a>
+
+                                        {{-- Nút xóa (chỉ hiển thị khi không phải tài khoản hiện tại) --}}
                                         @if($user->id !== auth()->id())
-                                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa người dùng này không?');">
+                                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
+                                                onsubmit="return confirm('Bạn có chắc chắn muốn xóa người dùng {{ $user->name }} không?');"
+                                                class="inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="font-medium text-red-600 hover:underline">Xóa</button>
+                                                <button type="submit"
+                                                    class="rounded-lg border border-red-200 bg-red-50/50 px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-100 hover:border-red-300 cursor-pointer shadow-2xs"
+                                                    title="Xóa người dùng">
+                                                    <x-icons.delete />
+                                                </button>
                                             </form>
                                         @endif
                                     </div>
@@ -75,7 +89,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-gray-500">Không tìm thấy người dùng nào.</td>
+                                <td colspan="8" class="px-6 py-12 text-center text-gray-500">Không tìm thấy người dùng nào.</td>
                             </tr>
                         @endforelse
                     </tbody>

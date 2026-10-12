@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Event extends Model
@@ -86,5 +87,68 @@ class Event extends Model
     public function seats(): HasMany
     {
         return $this->hasMany(Seat::class);
+    }
+
+    /**
+     * Các đơn hàng của sự kiện
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Các mục vé trong đơn hàng thuộc sự kiện
+     */
+    public function orderItems(): HasManyThrough
+    {
+        return $this->hasManyThrough(OrderItem::class, Order::class);
+    }
+
+    /**
+     * Lấy số vé đã bán / đã đặt của sự kiện (các đơn hàng chưa bị hủy)
+     */
+    public function getSoldTicketsAttribute(): int
+    {
+        if (isset($this->attributes['booked_tickets_count'])) {
+            return (int) $this->attributes['booked_tickets_count'];
+        }
+
+        return (int) $this->orderItems()
+            ->whereHas('order', fn ($q) => $q->where('status', '!=', 'cancelled'))
+            ->where('order_items.status', '!=', 'cancelled')
+            ->sum('quantity');
+    }
+
+    /**
+     * Lấy số vé đã thanh toán thành công của sự kiện
+     */
+    public function getPaidTicketsAttribute(): int
+    {
+        if (isset($this->attributes['paid_tickets_count'])) {
+            return (int) $this->attributes['paid_tickets_count'];
+        }
+
+        return (int) $this->orderItems()
+            ->whereHas('order', fn ($q) => $q->where('status', 'completed'))
+            ->where('order_items.status', '!=', 'cancelled')
+            ->sum('quantity');
+    }
+
+    /**
+     * Lấy tổng số vé phát hành của sự kiện
+     */
+    public function getTotalTicketsAttribute(): int
+    {
+        // Với sự kiện ghế ngồi: tổng vé = số ghế đã thiết lập
+        if ($this->sale_mode === 'assigned_seat' && ($this->seats_count ?? $this->seats()->count()) > 0) {
+            return (int) ($this->seats_count ?? $this->seats()->count());
+        }
+
+        // Với sự kiện khu vực hoặc tự do: quantity trong ticket_types là số vé còn lại trong kho
+        // Tổng số vé ban đầu = số vé còn lại + số vé đã được đặt/bán
+        $remaining = (int) ($this->remaining_tickets_count ?? $this->ticketTypes()->sum('quantity'));
+
+        return $remaining + $this->sold_tickets;
     }
 }
