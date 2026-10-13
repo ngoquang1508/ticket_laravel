@@ -106,7 +106,7 @@
                 <div class="mt-6 grid gap-3 sm:grid-cols-2">
 
                     {{-- My tickets --}}
-                    <a href="#"
+                    <a href="{{ route('user.tickets') }}"
                         class="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
 
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
