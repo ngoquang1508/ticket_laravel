@@ -69,14 +69,15 @@
 
                         {{-- User button --}}
                         <button id="user-menu-button" type="button" class="flex items-center gap-2 rounded-full border-2 border-white/10 pr-2
-                                                       transition hover:bg-white/10" aria-expanded="false">
+                                                                                   transition hover:bg-white/10"
+                            aria-expanded="false">
 
                             {{-- Avatar --}}
                             <div class="flex h-8 w-8 items-center justify-center
-                                                    rounded-full
-                                                    bg-white/20
-                                                    font-semibold
-                                                    backdrop-blur-md">
+                                                                                rounded-full
+                                                                                bg-white/20
+                                                                                font-semibold
+                                                                                backdrop-blur-md">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </div>
 
@@ -97,7 +98,7 @@
 
 
                         {{-- Liquid Glass Dropdown --}}
-                        <div id="user-menu" class="pointer-events-none absolute right-0 z-50 mt-2 w-48
+                        <div id="user-menu" class="pointer-events-none absolute right-0 z-50 mt-2 w-52
                                                        origin-top-right
                                                        overflow-hidden
                                                        rounded-2xl
@@ -115,45 +116,58 @@
                                                        ease-out">
 
                             {{-- Tài khoản --}}
-                            <a href="#" class="block px-4 py-2.5
-                                                           text-sm
-                                                           text-white/85
-                                                           transition
-                                                           hover:bg-white/10
-                                                           hover:text-white">
-                                Tài khoản
+                            <a href="#" class="flex items-center gap-2.5 px-4 py-2.5
+                                                  text-sm
+                                                  text-white/85
+                                                  transition
+                                                  hover:bg-white/10
+                                                  hover:text-white">
+                                <x-icons.user class="h-4 w-4 shrink-0 text-white/70" />
+                                <span>Tài khoản</span>
                             </a>
-
 
                             {{-- Vé của tôi --}}
-                            <a href="{{ route('user.tickets') }}" class="block px-4 py-2.5
-                                                           text-sm
-                                                           text-white/85
-                                                           transition
-                                                           hover:bg-white/10
-                                                           hover:text-white">
-                                Vé của tôi
+                            <a href="{{ route('user.tickets') }}" class="flex items-center gap-2.5 px-4 py-2.5
+                                                                             text-sm
+                                                                             text-white/85
+                                                                             transition
+                                                                             hover:bg-white/10
+                                                                             hover:text-white">
+                                <x-icons.ticket class="h-4 w-4 shrink-0 text-white/70" />
+                                <span>Vé của tôi</span>
                             </a>
 
+                            @if (Auth::user()->role === 'admin')
+                                {{-- Trang quản trị --}}
+                                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 px-4 py-2.5
+                                                                                  text-sm
+                                                                                  text-white/85
+                                                                                  transition
+                                                                                  hover:bg-white/10
+                                                                                  hover:text-white">
+                                    <x-icons.admin class="h-4 w-4 shrink-0 text-white/70" />
+                                    <span>Trang quản trị</span>
+                                </a>
+                            @endif
 
                             {{-- Divider --}}
                             <div class="my-1 border-t border-white/15"></div>
-
 
                             {{-- Logout --}}
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
 
-                                <button type="submit" class="block w-full
-                                                               px-4 py-2.5
-                                                               text-left
-                                                               text-sm
-                                                               font-medium
-                                                               text-red-300
-                                                               transition
-                                                               hover:bg-red-400/10
-                                                               hover:text-red-500">
-                                    Đăng xuất
+                                <button type="submit" class="flex w-full items-center gap-2.5
+                                                                 px-4 py-2.5
+                                                                 text-left
+                                                                 text-sm
+                                                                 font-medium
+                                                                 text-red-300
+                                                                 transition
+                                                                 hover:bg-red-400/10
+                                                                 hover:text-red-400">
+                                    <x-icons.logout class="h-4 w-4 shrink-0 text-red-300" />
+                                    <span>Đăng xuất</span>
                                 </button>
                             </form>
 
@@ -217,80 +231,90 @@
                     Trang chủ
                 </a>
 
-
                 {{-- Sự kiện --}}
                 <a href="{{ route('events.index') }}" class="rounded-lg px-4 py-3
                            transition hover:bg-white/10">
                     Sự kiện
                 </a>
 
-
-                {{-- Vé của tôi --}}
-                <a href="{{ route('user.tickets') }}" class="rounded-lg px-4 py-3
-                           transition hover:bg-white/10">
-                    Vé của tôi
-                </a>
-
-
                 @guest
 
                     {{-- Đăng nhập --}}
                     <a href="{{ route('login') }}" class="mt-2 rounded-lg
-                                                   bg-white
-                                                   px-4 py-3
-                                                   text-center
-                                                   font-medium
-                                                   text-primary-600
-                                                   transition
-                                                   hover:bg-primary-50">
+                                                               bg-white
+                                                               px-4 py-3
+                                                               text-center
+                                                               font-medium
+                                                               text-primary-600
+                                                               transition
+                                                               hover:bg-primary-50">
                         Đăng nhập
                     </a>
 
-
                     {{-- Đăng ký --}}
                     <a href="{{ route('register') }}" class="rounded-lg
-                                                   border border-white
-                                                   px-4 py-3
-                                                   text-center
-                                                   font-medium
-                                                   transition
-                                                   hover:bg-white/10">
+                                                               border border-white
+                                                               px-4 py-3
+                                                               text-center
+                                                               font-medium
+                                                               transition
+                                                               hover:bg-white/10">
                         Đăng ký
                     </a>
 
                 @else
 
                     {{-- Mobile user --}}
-                    <div class="mt-2
-                                                   border-t border-white/20
-                                                   pt-4">
+                    <div class="mt-2 border-t border-white/20 pt-4">
 
-                        <p class="px-4 text-sm text-white/70">
-                            Xin chào
-                        </p>
+                        {{-- Thông tin người dùng mobile --}}
+                        <div class="flex items-center gap-3 px-4 pb-3">
+                            <div
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 font-semibold backdrop-blur-md">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-xs text-white/70">Tài khoản</p>
+                                <p class="truncate font-medium text-white">{{ Auth::user()->name }}</p>
+                            </div>
+                        </div>
 
-                        <p class="px-4 pt-1 font-medium text-white">
-                            {{ Auth::user()->name }}
-                        </p>
+                        <div class="flex flex-col gap-1">
+                            {{-- Tài khoản --}}
+                            <a href="#"
+                                class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-white/90 transition hover:bg-white/10 hover:text-white">
+                                <x-icons.user class="h-4 w-4 shrink-0 text-white/70" />
+                                <span>Tài khoản</span>
+                            </a>
 
+                            {{-- Vé của tôi --}}
+                            <a href="{{ route('user.tickets') }}"
+                                class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-white/90 transition hover:bg-white/10 hover:text-white">
+                                <x-icons.ticket class="h-4 w-4 shrink-0 text-white/70" />
+                                <span>Vé của tôi</span>
+                            </a>
 
-                        {{-- Logout --}}
-                        <form action="{{ route('logout') }}" method="POST" class="mt-3 px-4">
-                            @csrf
+                            @if (Auth::user()->role === 'admin')
+                                {{-- Trang quản trị --}}
+                                <a href="{{ route('admin.dashboard') }}"
+                                    class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-white/90 transition hover:bg-white/10 hover:text-white">
+                                    <x-icons.admin class="h-4 w-4 shrink-0 text-white/70" />
+                                    <span>Trang quản trị</span>
+                                </a>
+                            @endif
 
-                            <button type="submit" class="w-full
-                                                           rounded-lg
-                                                           border border-white
-                                                           px-4 py-3
-                                                           text-center
-                                                           font-medium
-                                                           text-white
-                                                           transition
-                                                           hover:bg-red-400/20">
-                                Đăng xuất
-                            </button>
+                            {{-- Logout --}}
+                            <form action="{{ route('logout') }}" method="POST"
+                                class="mt-2 border-t border-white/10 pt-2 px-2">
+                                @csrf
 
-                        </form>
+                                <button type="submit"
+                                    class="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left font-medium text-red-300 transition hover:bg-red-400/20 hover:text-red-400">
+                                    <x-icons.logout class="h-4 w-4 shrink-0 text-red-300" />
+                                    <span>Đăng xuất</span>
+                                </button>
+                            </form>
+                        </div>
 
                     </div>
 
@@ -323,14 +347,14 @@
         menuButton.addEventListener('click', () => {
 
             const isOpen =
-                mobileMenu.classList.contains('max-h-[500px]');
+                mobileMenu.classList.contains('max-h-[600px]');
 
 
             if (isOpen) {
 
                 // Close menu
                 mobileMenu.classList.remove(
-                    'max-h-[500px]',
+                    'max-h-[600px]',
                     'opacity-100'
                 );
 
@@ -356,7 +380,7 @@
                 );
 
                 mobileMenu.classList.add(
-                    'max-h-[500px]',
+                    'max-h-[600px]',
                     'opacity-100'
                 );
 
