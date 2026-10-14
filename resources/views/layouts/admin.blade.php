@@ -108,7 +108,7 @@
         onclick="toggleMobileSidebar()"></div>
 
     <div class="min-h-screen flex">
-        @include('admin.partials.sidebar')
+        @include('admin.components.sidebar')
 
         <div id="main-content" class="min-w-0 flex-1 flex flex-col w-full">
             <header
