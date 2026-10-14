@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    window.showAppToast = function(type, title, message) {
+    window.showAppToast = function(type, title, message, url = null) {
         const content = document.createElement('div');
         content.className = 'app-toast-content';
 
@@ -46,15 +46,22 @@ document.addEventListener('DOMContentLoaded', () => {
         copy.append(titleEl, messageEl);
         content.append(icon, copy);
 
-        Toastify({
+        const toastConfig = {
             node: content,
-            duration: 5000,
+            duration: 6000,
             close: true,
             gravity: 'top',
             position: 'right',
             stopOnFocus: true,
             className: `app-toast app-toast-${type}`,
-        }).showToast();
+        };
+
+        if (url) {
+            toastConfig.destination = url;
+            toastConfig.newWindow = false;
+        }
+
+        Toastify(toastConfig).showToast();
     };
 
     if (window.appToast) {

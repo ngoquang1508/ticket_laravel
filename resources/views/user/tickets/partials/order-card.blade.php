@@ -31,6 +31,19 @@
                 </svg>
                 Thành công
             </span>
+        @elseif($order->status === 'processing')
+            <div class="flex flex-col items-end gap-1 shrink-0">
+                <span
+                    class="inline-flex shrink-0 items-center gap-1.5 rounded-full
+                           bg-blue-500/10 px-3 py-1.5 text-xs font-semibold
+                           text-blue-400 ring-1 ring-inset ring-blue-500/20">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Chờ duyệt thanh toán
+                </span>
+            </div>
         @elseif($order->status === 'pending')
             <!-- Trạng thái Chờ xử lý & thời gian hết hạn trên header -->
             <div class="flex flex-col items-end gap-1 shrink-0">
@@ -42,7 +55,20 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Chờ xử lý
+                    Chờ thanh toán
+                </span>
+            </div>
+        @elseif($order->status === 'expired')
+            <div class="flex flex-col items-end gap-1 shrink-0">
+                <span
+                    class="inline-flex shrink-0 items-center gap-1.5 rounded-full
+                           bg-gray-500/10 px-3 py-1.5 text-xs font-semibold
+                           text-gray-400 ring-1 ring-inset ring-gray-500/20">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Hết hạn giữ vé
                 </span>
             </div>
         @else
@@ -140,8 +166,8 @@
 
         </div>
 
-        <!-- Cảnh báo thời gian hết hạn cho đơn Chờ xử lý -->
-        @if($order->status === 'pending' && $order->expires_at)
+        <!-- Cảnh báo thời gian hết hạn cho đơn Chờ thanh toán / Chờ duyệt -->
+        @if(in_array($order->status, ['pending', 'processing']) && $order->expires_at)
             <div
                 class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3.5 py-2.5 text-xs text-amber-300">
                 <div class="flex items-center gap-2">
@@ -169,6 +195,19 @@
                         </span>
                     @endif
                 </div>
+            </div>
+        @endif
+
+        <!-- Lý do hết hạn nếu đơn hết hạn -->
+        @if($order->status === 'expired')
+            <div
+                class="mt-4 flex items-center gap-2.5 rounded-xl border border-gray-500/20 bg-gray-500/10 px-3.5 py-2.5 text-xs text-gray-300">
+                <svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Trạng thái: <strong class="font-semibold text-gray-200">{{ $order->cancel_reason ?: 'Hết hạn giữ vé thanh toán' }}</strong></span>
             </div>
         @endif
 
@@ -203,8 +242,8 @@
         <div
             class="mt-5 flex flex-wrap items-center justify-end gap-2 @if ($order->status !== 'cancelled' || $order->tickets->count() > 0) border-t border-dashed border-white/10 pt-4 @endif">
 
-            <!-- Nút xem chi tiết vé (hỗ trợ cả Completed và Pending) -->
-            @if($order->tickets->count() > 0 && ($order->status === 'completed' || ($order->status === 'pending' && $order->expires_at > now())))
+            <!-- Nút xem chi tiết vé (hỗ trợ cả Completed, Pending và Processing) -->
+            @if($order->tickets->count() > 0 && ($order->status === 'completed' || (in_array($order->status, ['pending', 'processing']) && $order->expires_at > now())))
                 <button type="button" onclick="toggleOrderTickets({{ $order->id }})"
                     class="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white transition cursor-pointer hover:text-blue-400">
                     <span id="btn-text-{{ $order->id }}">Xem chi tiết vé</span>
@@ -216,16 +255,16 @@
                 </button>
             @endif
 
-            @if($order->status === 'pending')
+            @if(in_array($order->status, ['pending', 'processing']))
                 @if ($order->expires_at < now())
                     <a href="{{ route('events.book', $order->event->slug) }}"
                         class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-xs font-semibold text-emerald-400 transition hover:bg-emerald-500/20">
                         Đặt lại vé
                     </a>
                 @else
-                    @if($order->payment_method === 'direct')
+                    @if($order->status === 'processing' || $order->payment_method === 'direct')
                         <a href="{{ route('orders.instruction', $order) }}"
-                            class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-xs font-semibold text-emerald-400 transition hover:bg-emerald-500/20">
+                            class="rounded-lg border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-xs font-semibold text-blue-400 transition hover:bg-blue-500/20">
                             Hướng dẫn thanh toán
                         </a>
                     @else
@@ -244,7 +283,7 @@
                         </button>
                     </form>
                 @endif
-            @elseif($order->status === 'cancelled')
+            @elseif(in_array($order->status, ['cancelled', 'expired']))
                 <a href="{{ route('events.book', $order->event->slug) }}"
                     class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-xs font-semibold text-emerald-400 transition hover:bg-emerald-500/20">
                     Đặt lại vé
@@ -256,7 +295,7 @@
     </div>
 
     <!-- Dropdown danh sách chi tiết các vé -->
-    @if(($order->status === 'completed' || ($order->status === 'pending' && $order->expires_at > now())) && $order->tickets->count() > 0)
+    @if(($order->status === 'completed' || (in_array($order->status, ['pending', 'processing']) && $order->expires_at > now())) && $order->tickets->count() > 0)
         @include('user.tickets.partials.ticket-list', ['order' => $order])
     @endif
 

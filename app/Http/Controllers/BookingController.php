@@ -53,13 +53,13 @@ class BookingController extends Controller
             // Cart data is sent as JSON in 'cart_data' hidden input
             \Illuminate\Support\Facades\Log::info('Received cart_data:', ['data' => $request->input('cart_data')]);
             $cartData = json_decode($request->input('cart_data'), true) ?? [];
-            
-            $input = $event->sale_mode === 'assigned_seat' 
+
+            $input = $event->sale_mode === 'assigned_seat'
                 ? ['seats' => implode(',', array_keys($cartData))]
                 : ['tickets' => $cartData];
 
             $order = $bookingService->createOrder($event, $input);
-            
+
             // Giữ vé thành công, redirect về trang chọn vé và tự mở modal checkout
             return redirect()->route('events.book', $event->slug)
                 ->with('active_checkout_order', $order->order_code)
@@ -86,9 +86,9 @@ class BookingController extends Controller
                 $paymentUrl = $vnpayService->createPaymentUrl($order);
                 return redirect($paymentUrl);
             } elseif ($method === 'direct') {
-                // Kiểm tra sự kiện có còn trong thời hạn cho phép thanh toán trực tiếp không (trước 24h)
+                // Kiểm tra sự kiện có còn trong thời hạn cho phép thanh toán trực tiếp không (trước 48h)
                 if (!$order->event->canPayDirect()) {
-                    return back()->with('error', 'Hình thức thanh toán trực tiếp đã ngừng nhận cho sự kiện này (chỉ áp dụng trước 24 giờ khi sự kiện diễn ra). Vui lòng chọn thanh toán qua VNPay.');
+                    return back()->with('error', 'Hình thức thanh toán trực tiếp đã ngừng nhận cho sự kiện này (chỉ áp dụng trước 48 giờ khi sự kiện diễn ra). Vui lòng chọn thanh toán qua VNPay.');
                 }
 
                 // Gia hạn tối đa 24 giờ nhưng không vượt quá thời điểm bắt đầu sự kiện
@@ -97,10 +97,9 @@ class BookingController extends Controller
                     $expireAt = $order->event->starts_at;
                 }
 
-                $order->update([
-                    'expires_at' => $expireAt,
-                    'payment_method' => 'direct'
-                ]);
+                // Chuyển sang processing và kích hoạt thông báo cho Admin
+                $bookingService->markAsProcessing($order, $expireAt);
+
                 return redirect()->route('orders.instruction', $order->order_code);
             } else {
                 return back()->with('error', 'Phương thức thanh toán không hợp lệ.');
@@ -113,7 +112,7 @@ class BookingController extends Controller
     public function vnpayReturn(\Illuminate\Http\Request $request, \App\Services\VNPayService $vnpayService, \App\Services\BookingService $bookingService)
     {
         $result = $vnpayService->verifyPayment($request->all());
-        
+
         if (!$result['order_code']) {
             return redirect()->route('home')->with('error', 'Giao dịch không hợp lệ.');
         }
@@ -149,7 +148,7 @@ class BookingController extends Controller
 
     public function instruction(\App\Models\Order $order)
     {
-        if ($order->user_id !== auth()->id() || $order->status !== 'pending' || $order->payment_method !== 'direct') {
+        if ($order->user_id !== auth()->id() || !in_array($order->status, [\App\Models\Order::STATUS_PENDING, \App\Models\Order::STATUS_PROCESSING]) || $order->payment_method !== \App\Models\Order::PAYMENT_METHOD_DIRECT) {
             return redirect()->route('home');
         }
         return view('booking.instruction', compact('order'));

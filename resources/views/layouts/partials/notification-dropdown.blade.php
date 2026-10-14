@@ -75,6 +75,7 @@
                     $targetUrl = route('admin.notifications.read', $notification->id);
                 @endphp
                 <div class="notification-item group relative flex items-start gap-2.5 p-3.5 transition-colors {{ $isUnread ? 'bg-primary-50/35 hover:bg-primary-50/60' : 'bg-white hover:bg-gray-50' }}"
+                    data-id="{{ $notification->id }}"
                     data-unread="{{ $isUnread ? '1' : '0' }}">
                     
                     {{-- Link nội dung chuyển sang trang chi tiết --}}
@@ -184,6 +185,7 @@
         const btn = document.getElementById('admin-notification-btn');
         const menu = document.getElementById('admin-notification-menu');
         const container = document.getElementById('admin-notification-container');
+        const itemsContainer = document.getElementById('notification-items-container');
         const tabAllBtn = document.getElementById('tab-all-btn');
         const tabUnreadBtn = document.getElementById('tab-unread-btn');
         const emptyStateAll = document.getElementById('empty-state-all');
@@ -191,7 +193,7 @@
         const loadMoreContainer = document.getElementById('load-more-container');
         const btnLoadMore = document.getElementById('btn-load-more');
 
-        if (!btn || !menu || !container) return;
+        if (!btn || !menu || !container || !itemsContainer) return;
 
         // Quản lý trạng thái tab và số lượng hiển thị
         let activeTab = 'all'; // 'all' hoặc 'unread'
@@ -420,5 +422,212 @@
         // Khởi tạo hiển thị lần đầu và gắn nút xóa
         bindDeleteButtons();
         updateNotificationView();
+
+        // =========================================================================
+        // TỰ ĐỘNG CẬP NHẬT THÔNG BÁO & BẮN TOAST (POLLING 12 GIÂY)
+        // =========================================================================
+        const POLLING_INTERVAL_MS = 12000;
+        const dropdownDataUrl = '{{ route('admin.notifications.dropdown-data') }}';
+
+        // Tập hợp các ID thông báo đã hiển thị ban đầu
+        const knownNotificationIds = new Set(
+            getItems().map(item => item.getAttribute('data-id')).filter(Boolean)
+        );
+
+        // Tạo âm thanh chuông "Ting" tinh tế bằng Web Audio API
+        function playNotificationSound() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1046.5, ctx.currentTime); // C6
+                osc.frequency.exponentialRampToValueAtTime(1318.5, ctx.currentTime + 0.08); // E6
+
+                gain.gain.setValueAtTime(0.18, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + 0.35);
+            } catch (err) {
+                // Trình duyệt có thể hạn chế autoplay nếu chưa tương tác
+            }
+        }
+
+        // Tạo thẻ HTML cho item thông báo mới
+        function createNotificationItemElement(notif) {
+            const div = document.createElement('div');
+            const isUnread = !notif.read;
+            div.className = `notification-item group relative flex items-start gap-2.5 p-3.5 transition-colors ${isUnread ? 'bg-primary-50/35 hover:bg-primary-50/60' : 'bg-white hover:bg-gray-50'}`;
+            div.setAttribute('data-id', notif.id);
+            div.setAttribute('data-unread', isUnread ? '1' : '0');
+
+            let iconBg = 'bg-blue-100 text-blue-600';
+            let iconSvg = `<svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+
+            if (notif.icon_type === 'success') {
+                iconBg = 'bg-emerald-100 text-emerald-600';
+                iconSvg = `<svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else if (notif.icon_type === 'warning') {
+                iconBg = 'bg-amber-100 text-amber-600';
+                iconSvg = `<svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else if (notif.icon_type === 'danger') {
+                iconBg = 'bg-rose-100 text-rose-600';
+                iconSvg = `<svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`;
+            }
+
+            div.innerHTML = `
+                <a href="${notif.url}" class="flex items-start gap-3 flex-1 min-w-0">
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconBg}">
+                        ${iconSvg}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-xs font-semibold text-gray-900 truncate">
+                                ${notif.title || 'Thông báo mới'}
+                            </p>
+                            ${isUnread ? '<span class="h-2 w-2 shrink-0 rounded-full bg-primary-600" title="Chưa đọc"></span>' : ''}
+                        </div>
+                        <p class="mt-0.5 text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                            ${notif.message || ''}
+                        </p>
+                        <span class="mt-1 block text-[11px] font-medium text-gray-400">
+                            ${notif.created_at_human || 'Vừa xong'}
+                        </span>
+                    </div>
+                </a>
+                <button type="button"
+                    class="btn-delete-notif flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 opacity-60 sm:opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all self-center"
+                    title="Xóa thông báo"
+                    data-delete-url="/admin/notifications/${notif.id}"
+                    data-is-unread="${isUnread ? '1' : '0'}">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            `;
+
+            return div;
+        }
+
+        // Cập nhật số đếm badge chuông và các tab
+        function updateBadges(unreadCount, totalCount) {
+            // Badge đỏ trên nút chuông
+            let badge = document.getElementById('notification-badge');
+            if (unreadCount > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.id = 'notification-badge';
+                    badge.className = 'absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white shadow-sm ring-2 ring-white animate-pulse';
+                    btn.appendChild(badge);
+                }
+                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+            } else if (badge) {
+                badge.remove();
+            }
+
+            // Badge ở header dropdown
+            let headerBadge = document.getElementById('header-unread-badge');
+            if (unreadCount > 0) {
+                if (!headerBadge) {
+                    const titleContainer = menu.querySelector('h3.text-sm')?.parentElement;
+                    if (titleContainer) {
+                        headerBadge = document.createElement('span');
+                        headerBadge.id = 'header-unread-badge';
+                        headerBadge.className = 'rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600 border border-red-200';
+                        titleContainer.appendChild(headerBadge);
+                    }
+                }
+                if (headerBadge) headerBadge.textContent = `${unreadCount} mới`;
+            } else if (headerBadge) {
+                headerBadge.remove();
+            }
+
+            // Tab counts
+            const tabAllCount = document.getElementById('tab-all-count');
+            if (tabAllCount) tabAllCount.textContent = totalCount;
+
+            const tabUnreadCount = document.getElementById('tab-unread-count');
+            if (tabUnreadCount) {
+                if (unreadCount > 0) {
+                    tabUnreadCount.textContent = unreadCount;
+                } else {
+                    tabUnreadCount.remove();
+                }
+            } else if (unreadCount > 0 && tabUnreadBtn) {
+                const countBadge = document.createElement('span');
+                countBadge.id = 'tab-unread-count';
+                countBadge.className = 'rounded-full bg-red-500 px-1.5 py-0.2 text-[10px] font-bold text-white';
+                countBadge.textContent = unreadCount;
+                tabUnreadBtn.appendChild(countBadge);
+            }
+        }
+
+        // Hàm kiểm tra thông báo mới
+        async function fetchNewNotifications() {
+            try {
+                const response = await fetch(dropdownDataUrl, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) return;
+                const data = await response.json();
+
+                const unreadCount = data.unread_count ?? 0;
+                const totalCount = data.total_count ?? (data.notifications?.length || 0);
+                const notifications = data.notifications || [];
+
+                // Lọc ra các thông báo chưa từng có trên giao diện
+                const newItems = notifications.filter(n => !knownNotificationIds.has(String(n.id)));
+
+                if (newItems.length > 0) {
+                    let hasPlayedSound = false;
+
+                    // Đảo ngược mảng để chèn các item mới nhất lên đầu cùng
+                    newItems.slice().reverse().forEach(notif => {
+                        knownNotificationIds.add(String(notif.id));
+
+                        // Bắn Toast thông báo góc màn hình (click vào chuyển tới đơn hàng)
+                        if (typeof window.showAppToast === 'function') {
+                            window.showAppToast('success', notif.title, notif.message, notif.url);
+                        }
+
+                        // Chèn vào đầu danh sách dropdown
+                        const notifEl = createNotificationItemElement(notif);
+                        if (itemsContainer) {
+                            itemsContainer.prepend(notifEl);
+                        }
+
+                        if (!hasPlayedSound) {
+                            playNotificationSound();
+                            hasPlayedSound = true;
+                        }
+                    });
+
+                    // Gắn lại sự kiện nút xóa và cập nhật hiển thị theo tab
+                    bindDeleteButtons();
+                    updateNotificationView();
+                }
+
+                // Cập nhật số đếm badge
+                updateBadges(unreadCount, totalCount);
+
+            } catch (err) {
+                console.debug('Polling notification error:', err);
+            }
+        }
+
+        // Khởi động vòng lặp kiểm tra định kỳ mỗi 12 giây
+        setInterval(fetchNewNotifications, POLLING_INTERVAL_MS);
     });
 </script>

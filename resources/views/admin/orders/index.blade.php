@@ -133,10 +133,10 @@
                         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
                         <option value="">Tất cả</option>
                         <option value="completed" @selected(request('status') === 'completed')>Hoàn tất</option>
-                        <option value="processing" @selected(request('status') === 'processing')>Đang xử lý</option>
-                        <option value="pending" @selected(request('status') === 'pending')>Chờ thanh toán</option>
-                        <option value="cancelled" @selected(request('status') === 'cancelled')>Đã hủy</option>
-                        <option value="expired" @selected(request('status') === 'expired')>Hết hạn</option>
+                        <option value="processing" @selected(request('status') === 'processing')>Đang xử lý (Chờ duyệt)</option>
+                        <option value="pending" @selected(request('status') === 'pending')>Đang giữ chỗ</option>
+                        <option value="cancelled" @selected(request('status') === 'cancelled')>Đã hủy (Khách/Admin hủy)</option>
+                        <option value="expired" @selected(request('status') === 'expired')>Hết hạn thanh toán</option>
                     </select>
                 </div>
 
@@ -257,12 +257,25 @@
                                 </td>
 
                                 {{-- Thanh toán --}}
+                                {{-- Thanh toán --}}
                                 <td class="px-5 py-4">
                                     <div class="flex flex-col gap-1">
-                                        <span
-                                            class="inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium {{ $order->payment_method === 'vnpay' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-gray-100 text-gray-700' }}">
-                                            {{ $order->payment_method === 'vnpay' ? 'VNPay' : 'Trực tiếp' }}
-                                        </span>
+                                        @if ($order->payment_method === 'vnpay')
+                                            <span
+                                                class="inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                VNPay
+                                            </span>
+                                        @elseif ($order->payment_method === 'direct')
+                                            <span
+                                                class="inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700">
+                                                Trực tiếp
+                                            </span>
+                                        @else
+                                            <span
+                                                class="inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium bg-gray-50 text-gray-500 border border-gray-200">
+                                                Chưa chọn
+                                            </span>
+                                        @endif
                                         <span
                                             class="text-[11px] {{ $order->payment_status === 'paid' ? 'text-emerald-600 font-semibold' : 'text-gray-500' }}">
                                             {{ $order->payment_status === 'paid' ? '✓ Đã thanh toán' : ($order->payment_status === 'failed' ? 'Thất bại' : 'Chưa thanh toán') }}
@@ -272,7 +285,26 @@
 
                                 {{-- Trạng thái đơn --}}
                                 <td class="px-5 py-4">
-                                    <x-order-status-badge :status="$order->status" />
+                                    <div class="flex flex-col gap-1">
+                                        <div>
+                                            <x-order-status-badge :status="$order->status" />
+                                        </div>
+                                        @if ($order->status === 'pending' && $order->expires_at)
+                                            @if ($order->expires_at > now())
+                                                <span class="text-[11px] font-medium text-amber-600">
+                                                    Còn {{ (int) ceil(now()->diffInSeconds($order->expires_at) / 60) }}p giữ chỗ
+                                                </span>
+                                            @else
+                                                <span class="text-[11px] font-medium text-red-500">
+                                                    Đã quá hạn
+                                                </span>
+                                            @endif
+                                        @elseif ($order->status === 'cancelled' && $order->cancel_reason)
+                                            <span class="text-[11px] text-gray-400 max-w-[140px] truncate" title="{{ $order->cancel_reason }}">
+                                                {{ $order->cancel_reason }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
 
                                 {{-- Cột thao tác --}}
@@ -285,8 +317,8 @@
                                             <x-icons.eye />
                                         </a>
 
-                                        {{-- Nút xác nhận thanh toán (cho pending / processing) --}}
-                                        @if (in_array($order->status, ['pending', 'processing']))
+                                        {{-- Nút xác nhận thanh toán (CHỈ cho đơn processing, KHÔNG cho đơn pending đang giữ chỗ) --}}
+                                        @if ($order->status === 'processing')
                                             <form action="{{ route('admin.orders.confirm', $order) }}" method="POST"
                                                 onsubmit="return confirm('Bạn có chắc chắn muốn xác nhận thanh toán cho đơn hàng #{{ $order->order_code }}?');"
                                                 class="inline">
@@ -297,8 +329,10 @@
                                                     <x-icons.check />
                                                 </button>
                                             </form>
+                                        @endif
 
-                                            {{-- Nút hủy đơn hàng --}}
+                                        {{-- Nút hủy đơn hàng (cho cả pending và processing) --}}
+                                        @if (in_array($order->status, ['pending', 'processing']))
                                             <button type="button"
                                                 onclick="openCancelModal('{{ $order->order_code }}', '{{ route('admin.orders.cancel', $order) }}')"
                                                 class="rounded-lg border border-red-200 bg-red-50/50 px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-100 hover:border-red-300 cursor-pointer shadow-2xs"

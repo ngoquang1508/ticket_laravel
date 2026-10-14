@@ -393,12 +393,12 @@ class BookingService
      * @param  Order  $order
      * @return void
      */
-    public function markAsProcessing(Order $order): void
+    public function markAsProcessing(Order $order, ?\Carbon\Carbon $expireAt = null): void
     {
-        DB::transaction(function () use ($order) {
+        DB::transaction(function () use ($order, $expireAt) {
             $locked = Order::where('id', $order->id)->lockForUpdate()->first();
 
-            if ($locked->status !== 'pending') {
+            if (!in_array($locked->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING])) {
                 throw new \Exception('Đơn hàng không ở trạng thái chờ thanh toán.');
             }
 
@@ -408,10 +408,16 @@ class BookingService
 
             // Với direct payment: admin sẽ xác nhận sau, cập nhật processing
             // sold_quantity và trạng thái ghế chỉ thay đổi khi admin confirm thật sự
-            $locked->update([
-                'status' => 'processing',
-                'payment_method' => 'direct',
-            ]);
+            $updateData = [
+                'status' => Order::STATUS_PROCESSING,
+                'payment_method' => Order::PAYMENT_METHOD_DIRECT,
+            ];
+
+            if ($expireAt) {
+                $updateData['expires_at'] = $expireAt;
+            }
+
+            $locked->update($updateData);
 
             // items vẫn active, chờ admin confirm
         });
@@ -432,8 +438,8 @@ class BookingService
         DB::transaction(function () use ($order) {
             $locked = Order::where('id', $order->id)->lockForUpdate()->first();
 
-            if (!in_array($locked->status, ['processing', 'pending'])) {
-                throw new \Exception('Đơn hàng không ở trạng thái chờ xử lý hoặc chờ thanh toán.');
+            if ($locked->status !== Order::STATUS_PROCESSING) {
+                throw new \Exception('Chỉ có thể xác nhận thanh toán khi đơn hàng ở trạng thái Chờ duyệt (processing). Đơn hàng đang trong thời gian giữ vé chưa thể xác nhận.');
             }
 
             $isAssignedSeat = $locked->event->sale_mode === 'assigned_seat';
@@ -553,7 +559,7 @@ class BookingService
      */
     public function cancelExpiredOrders(?int $userId = null): int
     {
-        $query = Order::where('status', 'pending')
+        $query = Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
             ->where('expires_at', '<=', now());
 
         if ($userId) {
@@ -564,7 +570,7 @@ class BookingService
         $count = 0;
 
         foreach ($expiredOrders as $order) {
-            $this->cancelOrder($order, 'cancelled', 'Hết hạn thanh toán');
+            $this->cancelOrder($order, Order::STATUS_CANCELLED, 'Hết hạn thanh toán');
             $count++;
         }
 

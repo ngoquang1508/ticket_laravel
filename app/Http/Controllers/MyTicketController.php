@@ -18,6 +18,12 @@ class MyTicketController extends Controller
         $orders = Order::with(['event.ticketTypes', 'items.ticketType', 'tickets.orderItem.ticketType', 'tickets.seat'])
             ->where('user_id', auth()->id())
             ->when($status, function ($query, $status) {
+                if ($status === 'pending') {
+                    return $query->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING]);
+                }
+                if ($status === 'cancelled') {
+                    return $query->whereIn('status', [Order::STATUS_CANCELLED, Order::STATUS_EXPIRED]);
+                }
                 return $query->where('status', $status);
             })
             ->orderBy('created_at', 'desc')

@@ -122,7 +122,12 @@ class NotificationController extends Controller
     public function dropdownData(): JsonResponse
     {
         $user = auth()->user();
+        if (!$user) {
+            return response()->json(['unread_count' => 0, 'total_count' => 0, 'notifications' => []]);
+        }
+
         $unreadCount = $user->unreadNotifications()->count();
+        $totalCount = $user->notifications()->count();
         $notifications = $user->notifications()->latest()->take(10)->get()->map(function ($item) {
             return [
                 'id' => $item->id,
@@ -137,6 +142,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'unread_count' => $unreadCount,
+            'total_count' => $totalCount,
             'notifications' => $notifications,
         ]);
     }

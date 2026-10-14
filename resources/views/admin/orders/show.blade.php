@@ -26,16 +26,25 @@
             {{-- Các nút thao tác xác nhận / hủy --}}
             @if (in_array($order->status, ['pending', 'processing']))
                 <div class="flex flex-wrap items-center gap-2">
-                    {{-- Nút xác nhận thanh toán --}}
-                    <form action="{{ route('admin.orders.confirm', $order) }}" method="POST"
-                        onsubmit="return confirm('Xác nhận đã nhận đủ tiền thanh toán cho đơn hàng #{{ $order->order_code }}?');">
-                        @csrf
-                        <button type="submit"
-                            class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-xs cursor-pointer">
-                            <x-icons.check />
-                            <span>Xác nhận thanh toán</span>
-                        </button>
-                    </form>
+                    {{-- Nút xác nhận thanh toán (CHỈ cho đơn processing, KHÔNG cho đơn pending đang giữ chỗ) --}}
+                    @if ($order->status === 'processing')
+                        <form action="{{ route('admin.orders.confirm', $order) }}" method="POST"
+                            onsubmit="return confirm('Xác nhận đã nhận đủ tiền thanh toán cho đơn hàng #{{ $order->order_code }}?');">
+                            @csrf
+                            <button type="submit"
+                                class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-xs cursor-pointer">
+                                <x-icons.check />
+                                <span>Xác nhận thanh toán</span>
+                            </button>
+                        </form>
+                    @elseif ($order->status === 'pending')
+                        <span class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Khách đang giữ chỗ (chưa thể xác nhận)</span>
+                        </span>
+                    @endif
 
                     {{-- Nút hủy đơn hàng --}}
                     <button type="button" onclick="openCancelModal()"
@@ -219,7 +228,13 @@
                         <div class="flex justify-between">
                             <dt class="text-gray-500">Phương thức:</dt>
                             <dd class="font-semibold text-gray-900">
-                                {{ $order->payment_method === 'vnpay' ? 'VNPay QR / Thẻ nội địa' : 'Trực tiếp / Chuyển khoản' }}
+                                @if ($order->payment_method === 'vnpay')
+                                    VNPay QR / Thẻ nội địa
+                                @elseif ($order->payment_method === 'direct')
+                                    Trực tiếp / Chuyển khoản
+                                @else
+                                    <span class="text-gray-400 font-normal">Chưa chọn (Đang giữ chỗ)</span>
+                                @endif
                             </dd>
                         </div>
 
@@ -237,10 +252,19 @@
                             </div>
                         @endif
 
-                        @if ($order->expires_at && $order->status === 'pending')
+                        @if ($order->expires_at && in_array($order->status, ['pending', 'processing']))
                             <div class="flex justify-between border-t pt-2">
-                                <dt class="text-gray-500">Hạn giữ chỗ:</dt>
-                                <dd class="font-medium text-amber-700">{{ $order->expires_at->format('d/m/Y H:i:s') }}</dd>
+                                <dt class="text-gray-500">
+                                    {{ $order->status === 'pending' ? 'Hạn giữ chỗ (10p):' : 'Hạn hoàn tất chuyển khoản:' }}
+                                </dt>
+                                <dd class="font-medium {{ $order->expires_at > now() ? 'text-amber-700' : 'text-red-600' }}">
+                                    {{ $order->expires_at->format('d/m/Y H:i:s') }}
+                                    @if ($order->expires_at > now())
+                                        (còn {{ (int) ceil(now()->diffInSeconds($order->expires_at) / 60) }}p)
+                                    @else
+                                        (Đã hết hạn)
+                                    @endif
+                                </dd>
                             </div>
                         @endif
                     </dl>

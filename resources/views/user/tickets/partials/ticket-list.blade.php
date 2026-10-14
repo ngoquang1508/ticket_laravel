@@ -11,7 +11,7 @@
                         Danh sách vé đang giữ chỗ ({{ $order->tickets->count() }})
                     @endif
                 </h4>
-                @if($order->status === 'pending')
+                @if(in_array($order->status, ['pending', 'processing']))
                     <span
                         class="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-amber-400 font-medium bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
                         <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor"

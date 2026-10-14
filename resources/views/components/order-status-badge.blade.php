@@ -13,7 +13,7 @@
             'classes' => 'border-blue-200 bg-blue-50 text-blue-700',
         ],
         'pending' => [
-            'label' => 'Chờ thanh toán',
+            'label' => 'Đang giữ chỗ',
             'dot' => 'bg-amber-500',
             'classes' => 'border-amber-200 bg-amber-50 text-amber-700',
         ],
