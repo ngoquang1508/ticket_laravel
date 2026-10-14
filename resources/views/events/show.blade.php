@@ -15,7 +15,7 @@
                     </h1>
 
                     <div class="flex items-start gap-4 mb-6">
-                        <svg class="w-5 h-5 text-green-500 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        <svg class="w-5 h-5 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -43,6 +43,59 @@
                         </div>
                     </div>
 
+                    <!-- Phương thức thanh toán áp dụng -->
+                    <div class="flex items-start gap-4 mb-8">
+                        <svg class="w-5 h-5 text-white shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-green-500 text-sm lg:text-base font-semibold mb-2.5">
+                                Phương thức thanh toán
+                            </div>
+
+                            <div class="space-y-2 text-xs sm:text-sm">
+                                <!-- Thanh toán Online -->
+                                <div class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="h-2 w-2 shrink-0 rounded-full bg-blue-400"></span>
+                                        <span class="font-medium text-gray-200">Online (VNPay)</span>
+                                    </div>
+
+                                    <span class="text-[11px] text-blue-400">
+                                        Hỗ trợ 24/7
+                                    </span>
+                                </div>
+
+                                <!-- Thanh toán Trực tiếp -->
+                                <div class="flex items-center justify-between gap-3 rounded-lg bg-white/5 px-3 py-2.5">
+                                    <div class="flex min-w-0 items-center gap-2">
+                                        <span class="h-2 w-2 shrink-0 rounded-full
+                                {{ $event->canPayDirect() ? 'bg-amber-400' : 'bg-red-400' }}">
+                                        </span>
+
+                                        <span class="font-medium text-gray-200">
+                                            Trực tiếp / Chuyển khoản
+                                        </span>
+                                    </div>
+
+                                    @if($event->canPayDirect())
+                                        <span class="shrink-0 text-[11px] text-gray-400">
+                                            Ngừng: <span class="font-medium text-amber-400">
+                                                {{ $event->direct_payment_cutoff_at->format('H:i, d/m/Y') }}
+                                            </span>
+                                        </span>
+                                    @else
+                                        <span class="shrink-0 text-[11px] font-medium text-red-400">
+                                            Đã ngừng nhận
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex-grow"></div>
 
                     <div class="pt-6 border-t border-gray-400/50">
@@ -63,15 +116,20 @@
                             @endif
                         </div>
                         @if(now() < $event->starts_at)
-                            <a href="{{ route('events.book', $event->slug) }}" class="w-full block text-center py-3.5 rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
+                            <a href="{{ route('events.book', $event->slug) }}"
+                                class="w-full block text-center py-3.5 rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
                                 Mua vé ngay
                             </a>
                         @elseif(now() <= $event->ends_at)
-                            <button class="w-full py-3.5 rounded-lg font-bold transition duration-300 cursor-not-allowed text-white bg-[#1db954]" disabled>
+                            <button
+                                class="w-full py-3.5 rounded-lg font-bold transition duration-300 cursor-not-allowed text-white bg-[#1db954]"
+                                disabled>
                                 Đang diễn ra
                             </button>
                         @else
-                            <button class="w-full py-3.5 rounded-lg font-bold transition duration-300 cursor-not-allowed text-[#2b2b2b] bg-gray-500/80" disabled>
+                            <button
+                                class="w-full py-3.5 rounded-lg font-bold transition duration-300 cursor-not-allowed text-[#2b2b2b] bg-gray-500/80"
+                                disabled>
                                 Sự kiện đã kết thúc
                             </button>
                         @endif
@@ -159,19 +217,24 @@
                                             {{ \Carbon\Carbon::parse($event->ends_at)->format('H:i, d \T\h\á\n\g m, Y') }}
                                         </span>
                                     </div>
-                        @if(now() < $event->starts_at)
-                            <a href="{{ route('events.book', $event->slug) }}" onclick="event.stopPropagation()" class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 inline-block text-center rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
-                                Mua vé ngay
-                            </a>
-                        @elseif(now() <= $event->ends_at)
-                            <button onclick="event.stopPropagation()" class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-white bg-[#1db954]" disabled>
-                                Đang diễn ra
-                            </button>
-                        @else
-                            <button onclick="event.stopPropagation()" class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-[#2b2b2b] bg-gray-500/80" disabled>
-                                Sự kiện đã kết thúc
-                            </button>
-                        @endif
+                                    @if(now() < $event->starts_at)
+                                        <a href="{{ route('events.book', $event->slug) }}" onclick="event.stopPropagation()"
+                                            class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 inline-block text-center rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
+                                            Mua vé ngay
+                                        </a>
+                                    @elseif(now() <= $event->ends_at)
+                                        <button onclick="event.stopPropagation()"
+                                            class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-white bg-[#1db954]"
+                                            disabled>
+                                            Đang diễn ra
+                                        </button>
+                                    @else
+                                        <button onclick="event.stopPropagation()"
+                                            class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 rounded-lg font-bold transition duration-300 cursor-not-allowed text-[#2b2b2b] bg-gray-500/80"
+                                            disabled>
+                                            Sự kiện đã kết thúc
+                                        </button>
+                                    @endif
                                 </div>
 
                                 <!-- Accordion Content -->

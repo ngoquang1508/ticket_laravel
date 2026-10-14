@@ -86,9 +86,19 @@ class BookingController extends Controller
                 $paymentUrl = $vnpayService->createPaymentUrl($order);
                 return redirect($paymentUrl);
             } elseif ($method === 'direct') {
-                // For direct payment, extend expiry to 24 hours
+                // Kiểm tra sự kiện có còn trong thời hạn cho phép thanh toán trực tiếp không (trước 24h)
+                if (!$order->event->canPayDirect()) {
+                    return back()->with('error', 'Hình thức thanh toán trực tiếp đã ngừng nhận cho sự kiện này (chỉ áp dụng trước 24 giờ khi sự kiện diễn ra). Vui lòng chọn thanh toán qua VNPay.');
+                }
+
+                // Gia hạn tối đa 24 giờ nhưng không vượt quá thời điểm bắt đầu sự kiện
+                $expireAt = now()->addHours(24);
+                if ($order->event->starts_at && $expireAt->greaterThan($order->event->starts_at)) {
+                    $expireAt = $order->event->starts_at;
+                }
+
                 $order->update([
-                    'expires_at' => now()->addHours(24),
+                    'expires_at' => $expireAt,
                     'payment_method' => 'direct'
                 ]);
                 return redirect()->route('orders.instruction', $order->order_code);

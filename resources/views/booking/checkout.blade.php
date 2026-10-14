@@ -72,6 +72,10 @@
                         <span>Chọn hình thức thanh toán:</span>
                     </h3>
 
+                    @php
+                        $canPayDirect = $order->event ? $order->event->canPayDirect() : false;
+                    @endphp
+
                     <div class="space-y-2 mb-3.5 sm:mb-4">
                         <!-- Lựa chọn VNPay -->
                         <label class="flex items-center justify-between p-2.5 sm:p-3 border border-white/10 rounded-xl cursor-pointer bg-[#292929] hover:bg-white/5 transition has-[:checked]:border-emerald-500/60 has-[:checked]:bg-emerald-500/10 has-[:checked]:ring-1 has-[:checked]:ring-emerald-500/50">
@@ -87,17 +91,30 @@
                         </label>
 
                         <!-- Lựa chọn Thanh toán trực tiếp -->
-                        <label class="flex items-center justify-between p-2.5 sm:p-3 border border-white/10 rounded-xl cursor-pointer bg-[#292929] hover:bg-white/5 transition has-[:checked]:border-emerald-500/60 has-[:checked]:bg-emerald-500/10 has-[:checked]:ring-1 has-[:checked]:ring-emerald-500/50">
-                            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                <input type="radio" name="payment_method" value="direct"
-                                    class="w-4 h-4 text-emerald-500 border-white/20 bg-black/40 focus:ring-emerald-500 shrink-0">
-                                <div class="min-w-0">
-                                    <span class="block text-xs sm:text-sm font-semibold text-white truncate">Thanh toán trực tiếp</span>
-                                    <span class="block text-[11px] text-gray-400 truncate">Chuyển khoản thủ công hoặc tại quầy</span>
+                        @if($canPayDirect)
+                            <label class="flex items-center justify-between p-2.5 sm:p-3 border border-white/10 rounded-xl cursor-pointer bg-[#292929] hover:bg-white/5 transition has-[:checked]:border-emerald-500/60 has-[:checked]:bg-emerald-500/10 has-[:checked]:ring-1 has-[:checked]:ring-emerald-500/50">
+                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                    <input type="radio" name="payment_method" value="direct"
+                                        class="w-4 h-4 text-emerald-500 border-white/20 bg-black/40 focus:ring-emerald-500 shrink-0">
+                                    <div class="min-w-0">
+                                        <span class="block text-xs sm:text-sm font-semibold text-white truncate">Thanh toán trực tiếp</span>
+                                        <span class="block text-[11px] text-gray-400 truncate">Chuyển khoản thủ công hoặc tại quầy</span>
+                                    </div>
                                 </div>
+                                <span class="shrink-0 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">24h</span>
+                            </label>
+                        @else
+                            <div class="flex items-center justify-between p-2.5 sm:p-3 border border-white/5 rounded-xl bg-[#202020] opacity-50 cursor-not-allowed">
+                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                    <input type="radio" disabled class="w-4 h-4 text-gray-600 border-white/10 bg-black/20 shrink-0">
+                                    <div class="min-w-0">
+                                        <span class="block text-xs sm:text-sm font-semibold text-gray-400 truncate">Thanh toán trực tiếp</span>
+                                        <span class="block text-[11px] text-red-400 truncate">Đã ngừng nhận (sự kiện diễn ra trong vòng 24h)</span>
+                                    </div>
+                                </div>
+                                <span class="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">Đã đóng</span>
                             </div>
-                            <span class="shrink-0 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">24h</span>
-                        </label>
+                        @endif
                     </div>
 
                     <!-- Nút xác nhận thanh toán -->

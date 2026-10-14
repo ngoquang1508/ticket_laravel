@@ -32,6 +32,31 @@ class Event extends Model
         'is_published' => 'boolean',
     ];
 
+    /**
+     * Số giờ trước khi sự kiện bắt đầu sẽ ngừng chấp nhận thanh toán trực tiếp.
+     */
+    const DIRECT_PAYMENT_CUTOFF_HOURS = 48;
+
+    /**
+     * Thời điểm ngừng nhận thanh toán trực tiếp (48 giờ trước khi sự kiện bắt đầu).
+     */
+    public function getDirectPaymentCutoffAtAttribute(): ?\Carbon\Carbon
+    {
+        return $this->starts_at ? $this->starts_at->copy()->subHours(self::DIRECT_PAYMENT_CUTOFF_HOURS) : null;
+    }
+
+    /**
+     * Kiểm tra xem sự kiện có còn cho phép thanh toán trực tiếp hay không.
+     */
+    public function canPayDirect(): bool
+    {
+        if (!$this->starts_at) {
+            return false;
+        }
+
+        return now()->lt($this->direct_payment_cutoff_at);
+    }
+
     public function scopeActiveListing($query)
     {
         return $query->with('location')
@@ -115,7 +140,7 @@ class Event extends Model
         }
 
         return (int) $this->orderItems()
-            ->whereHas('order', fn ($q) => $q->where('status', '!=', 'cancelled'))
+            ->whereHas('order', fn($q) => $q->where('status', '!=', 'cancelled'))
             ->where('order_items.status', '!=', 'cancelled')
             ->sum('quantity');
     }
@@ -130,7 +155,7 @@ class Event extends Model
         }
 
         return (int) $this->orderItems()
-            ->whereHas('order', fn ($q) => $q->where('status', 'completed'))
+            ->whereHas('order', fn($q) => $q->where('status', 'completed'))
             ->where('order_items.status', '!=', 'cancelled')
             ->sum('quantity');
     }
