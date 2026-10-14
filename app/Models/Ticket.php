@@ -11,6 +11,7 @@ class Ticket extends Model
     protected $casts = [
         'is_used' => 'boolean',
         'used_at' => 'datetime',
+        'checked_in_at' => 'datetime',
     ];
 
     public function order()
@@ -26,5 +27,10 @@ class Ticket extends Model
     public function seat()
     {
         return $this->belongsTo(Seat::class);
+    }
+
+    public function checkedInBy()
+    {
+        return $this->belongsTo(User::class, 'checked_in_by');
     }
 }

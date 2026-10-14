@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SeatMapController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\CheckInController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -141,4 +142,9 @@ Route::prefix('admin')
         Route::post('notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
         Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
         Route::delete('notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+
+        // Check-in vé bằng QR
+        Route::get('check-in', [CheckInController::class, 'index'])->name('checkin.index');
+        Route::post('check-in/verify', [CheckInController::class, 'verify'])->name('checkin.verify');
+        Route::post('check-in/confirm', [CheckInController::class, 'confirm'])->name('checkin.confirm');
     });

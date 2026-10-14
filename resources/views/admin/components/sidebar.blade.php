@@ -85,6 +85,18 @@
             <span class="sidebar-text whitespace-nowrap">Người dùng</span>
         </a>
 
+        <!-- Check-in vé -->
+        <a href="{{ route('admin.checkin.index') }}"
+            class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.checkin.*') ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}"
+            title="Check-in vé">
+            <svg class="sidebar-icon h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h2.25v2.25H13.5v-2.25zM13.5 18h2.25v2.25H13.5V18zM18 13.5h2.25v2.25H18v-2.25zM18 18h2.25v2.25H18V18z" />
+            </svg>
+            <span class="sidebar-text whitespace-nowrap">Check-in vé</span>
+        </a>
+
         <!-- Border separator -->
         <div class="h-px w-full bg-gray-800 my-4"></div>
 
