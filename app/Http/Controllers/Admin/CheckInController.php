@@ -18,7 +18,7 @@ class CheckInController extends Controller
         // Danh sách các sự kiện đang hoạt động để Admin chọn trước khi check-in
         $events = Event::with('location')
             ->where('is_published', true)
-            ->orderBy('starts_at', 'desc')
+            ->orderBy('starts_at', 'asc')
             ->get();
 
         // Thống kê số lượng vé đã check-in trong ngày hôm nay
