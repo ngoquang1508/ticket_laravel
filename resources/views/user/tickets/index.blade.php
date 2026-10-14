@@ -15,9 +15,10 @@
                     {{-- Thẻ đơn hàng (kèm dropdown danh sách vé) --}}
                     @include('user.tickets.partials.order-card', ['order' => $order])
 
-                    {{-- Modal chỉnh sửa vé cho đơn hàng Pending --}}
+                    {{-- Modal chỉnh sửa vé và Modal thanh toán cho đơn hàng Pending --}}
                     @if($order->status === 'pending' && $order->expires_at > now())
                         @include('user.tickets.partials.edit-modal', ['order' => $order])
+                        @include('booking.checkout', ['order' => $order])
                     @endif
                 @empty
                     {{-- Giao diện khi chưa có vé nào --}}
@@ -36,4 +37,14 @@
 
     <!-- Script tương tác vé, modal và đếm ngược thời gian -->
     @include('user.tickets.partials.scripts')
+
+    @if(session('active_checkout_order'))
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                if (typeof window.openCheckoutModal === 'function') {
+                    window.openCheckoutModal("{{ session('active_checkout_order') }}");
+                }
+            });
+        </script>
+    @endif
 @endsection

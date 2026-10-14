@@ -1,134 +1,180 @@
-@extends('layouts.app')
-@section('title', 'Thanh toán đơn hàng')
+{{-- 
+    Modal Thanh toán (Checkout Modal Partial)
+    Chỉ chứa HTML/CSS/JS của modal thanh toán, không chứa trang nền.
+    Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé của tôi (user.tickets).
+--}}
 
-@section('content')
-<!-- Dark overlay background to simulate modal -->
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-    <!-- Modal Container -->
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col relative animate-fade-in-up">
-        
-        <!-- Header -->
-        <div class="bg-gray-50 border-b border-gray-100 p-4 text-center relative">
-            <h2 class="text-xl font-bold text-gray-900">Hoàn tất thanh toán</h2>
-            <p class="text-gray-500 text-xs mt-1">Ghế của bạn đang được giữ trong thời gian đếm ngược</p>
+<div id="checkout-modal-{{ $order->id }}"
+    onclick="if(event.target === this) closeCheckoutModal({{ $order->id }})"
+    class="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm p-3 sm:p-4 flex items-center justify-center hidden transition-all duration-300 checkout-modal-backdrop"
+    data-order-id="{{ $order->id }}"
+    data-order-code="{{ $order->order_code }}"
+    data-expires-at="{{ $order->expires_at->toIso8601String() }}">
+
+    <!-- Container Modal (Giới hạn chiều cao max-h, header cố định và body cuộn mượt mà) -->
+    <div id="checkout-modal-container-{{ $order->id }}"
+        class="relative w-full max-w-lg my-auto rounded-2xl bg-[#222222] border border-white/10 text-white shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden animate-fade-in-up">
+
+        <!-- Header Modal (Cố định ở trên cùng, luôn nhìn thấy nút X và tiêu đề) -->
+        <div class="shrink-0 flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-6 sm:py-3.5 bg-[#222222] z-10">
+            <div class="min-w-0 pr-2">
+                <h2 class="text-base sm:text-lg font-bold text-white truncate">
+                    Hoàn tất thanh toán
+                </h2>
+                <p class="text-gray-400 text-xs mt-0.5 line-clamp-1">
+                    Ghế của bạn đang được giữ chỗ trong thời gian đếm ngược
+                </p>
+            </div>
+
+            <!-- Nút đóng 'X' modal thuần túy -->
+            <button type="button" onclick="closeCheckoutModal({{ $order->id }})"
+                class="shrink-0 text-gray-400 hover:text-white hover:bg-white/10 p-1.5 sm:p-2 rounded-xl transition duration-150 flex items-center justify-center cursor-pointer"
+                title="Đóng modal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
 
-        <!-- Body -->
-        <div class="p-5">
-            <!-- Countdown -->
-            <div class="flex justify-center mb-4">
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-5 py-2 text-center">
-                    <span class="block text-[11px] font-semibold text-yellow-600 uppercase tracking-wide mb-0.5">Thời gian giữ vé còn lại</span>
-                    <div class="text-2xl font-mono font-bold text-yellow-600" id="countdown">10:00</div>
+        <!-- Thân Modal (Cuộn nội dung độc lập, thanh cuộn mượt mà) -->
+        <div class="overflow-y-auto p-4 sm:p-5 space-y-3.5 sm:space-y-4 custom-scrollbar">
+            <!-- Đồng hồ đếm ngược -->
+            <div class="flex justify-center">
+                <div id="countdown-wrapper-{{ $order->id }}"
+                    class="w-full sm:w-auto bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2 sm:px-6 sm:py-2.5 text-center transition-all duration-300">
+                    <span class="block text-[11px] font-semibold text-amber-400 uppercase tracking-wider mb-0.5">Thời gian giữ vé còn lại</span>
+                    <div class="text-2xl sm:text-3xl font-mono font-bold text-amber-400 tracking-wider countdown-display"
+                        id="countdown-{{ $order->id }}">10:00</div>
                 </div>
             </div>
 
-            <!-- Order Info -->
-            <div class="bg-gray-50 rounded-lg p-4 mb-5 border border-gray-100 text-sm">
+            <!-- Thông tin đơn hàng tóm tắt -->
+            <div class="bg-[#292929] rounded-xl p-3 sm:p-4 border border-white/10 text-xs sm:text-sm">
                 <div class="flex justify-between items-center mb-1.5">
-                    <span class="text-gray-500">Mã đơn:</span>
-                    <span class="font-semibold text-gray-900">{{ $order->order_code }}</span>
+                    <span class="text-gray-400">Mã đơn hàng:</span>
+                    <span class="font-mono font-bold text-white tracking-wide">{{ $order->order_code }}</span>
                 </div>
-                <div class="flex justify-between items-center mb-1.5">
-                    <span class="text-gray-500">Sự kiện:</span>
-                    <span class="font-semibold text-gray-900 line-clamp-1 text-right max-w-[60%]">{{ $order->event->name }}</span>
+                <div class="flex justify-between items-start mb-1.5 gap-2">
+                    <span class="text-gray-400 shrink-0">Sự kiện:</span>
+                    <span class="font-medium text-white text-right line-clamp-1">{{ $order->event->name }}</span>
                 </div>
-                <div class="flex justify-between items-center pt-2 border-t border-gray-200 mt-2">
-                    <span class="text-gray-500 font-medium">Tổng tiền:</span>
-                    <span class="text-lg font-bold text-primary-600">{{ number_format($order->total_amount, 0, ',', '.') }} đ</span>
+                <div class="flex justify-between items-center pt-2 border-t border-white/10 mt-1.5">
+                    <span class="text-gray-400 font-medium">Tổng tiền:</span>
+                    <span class="text-base sm:text-lg font-extrabold text-emerald-400">{{ number_format($order->total_amount, 0, ',', '.') }} đ</span>
                 </div>
             </div>
 
-            <div id="payment-actions">
-                <form id="payment-form" action="{{ route('orders.process-payment', $order->order_code) }}" method="POST">
+            <!-- Các hành động thanh toán (khi đơn còn hiệu lực) -->
+            <div id="payment-actions-{{ $order->id }}">
+                <form id="payment-form-{{ $order->id }}" action="{{ route('orders.process-payment', $order->order_code) }}" method="POST">
                     @csrf
-                    <h3 class="font-semibold text-gray-900 mb-2 text-sm">Chọn phương thức thanh toán:</h3>
-                    
-                    <div class="space-y-2 mb-5">
-                        <!-- VNPay Option -->
-                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition peer-checked:border-primary-500 peer-checked:bg-primary-50 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 has-[:checked]:ring-1 has-[:checked]:ring-primary-500">
-                            <input type="radio" name="payment_method" value="vnpay" class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500" checked>
-                            <span class="ml-3 text-sm font-medium text-gray-900">Thanh toán qua VNPay</span>
+                    <h3 class="font-semibold text-white mb-2 text-xs sm:text-sm flex items-center gap-2">
+                        <span>Chọn hình thức thanh toán:</span>
+                    </h3>
+
+                    <div class="space-y-2 mb-3.5 sm:mb-4">
+                        <!-- Lựa chọn VNPay -->
+                        <label class="flex items-center justify-between p-2.5 sm:p-3 border border-white/10 rounded-xl cursor-pointer bg-[#292929] hover:bg-white/5 transition has-[:checked]:border-emerald-500/60 has-[:checked]:bg-emerald-500/10 has-[:checked]:ring-1 has-[:checked]:ring-emerald-500/50">
+                            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                <input type="radio" name="payment_method" value="vnpay"
+                                    class="w-4 h-4 text-emerald-500 border-white/20 bg-black/40 focus:ring-emerald-500 shrink-0" checked>
+                                <div class="min-w-0">
+                                    <span class="block text-xs sm:text-sm font-semibold text-white truncate">Thanh toán qua VNPay</span>
+                                    <span class="block text-[11px] text-gray-400 truncate">Quét mã QR, Thẻ ATM, Visa/Mastercard</span>
+                                </div>
+                            </div>
+                            <span class="shrink-0 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Online</span>
                         </label>
 
-                        <!-- Direct Option -->
-                        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition peer-checked:border-primary-500 peer-checked:bg-primary-50 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 has-[:checked]:ring-1 has-[:checked]:ring-primary-500">
-                            <input type="radio" name="payment_method" value="direct" class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500">
-                            <span class="ml-3 text-sm font-medium text-gray-900">Thanh toán trực tiếp</span>
+                        <!-- Lựa chọn Thanh toán trực tiếp -->
+                        <label class="flex items-center justify-between p-2.5 sm:p-3 border border-white/10 rounded-xl cursor-pointer bg-[#292929] hover:bg-white/5 transition has-[:checked]:border-emerald-500/60 has-[:checked]:bg-emerald-500/10 has-[:checked]:ring-1 has-[:checked]:ring-emerald-500/50">
+                            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                <input type="radio" name="payment_method" value="direct"
+                                    class="w-4 h-4 text-emerald-500 border-white/20 bg-black/40 focus:ring-emerald-500 shrink-0">
+                                <div class="min-w-0">
+                                    <span class="block text-xs sm:text-sm font-semibold text-white truncate">Thanh toán trực tiếp</span>
+                                    <span class="block text-[11px] text-gray-400 truncate">Chuyển khoản thủ công hoặc tại quầy</span>
+                                </div>
+                            </div>
+                            <span class="shrink-0 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">24h</span>
                         </label>
                     </div>
 
-                    <div class="flex flex-col gap-2">
-                        <button type="submit" id="btn-pay" class="w-full bg-primary-600 text-white font-bold py-2.5 rounded-lg hover:bg-primary-700 transition shadow-sm text-sm">
-                            Tiến hành thanh toán
-                        </button>
-                    </div>
-                </form>
-                
-                <form id="cancel-form" action="{{ route('orders.cancel', $order->order_code) }}" method="POST" class="mt-2">
-                    @csrf
-                    <button type="submit" id="btn-cancel" class="w-full bg-white text-gray-500 border border-gray-200 font-semibold py-2.5 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition text-sm">
-                        Hủy đơn hàng
+                    <!-- Nút xác nhận thanh toán -->
+                    <button type="submit" id="btn-pay-{{ $order->id }}"
+                        class="w-full bg-emerald-500 text-white font-bold py-2.5 sm:py-3 rounded-xl hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/20 text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2">
+                        <span>Tiến hành thanh toán</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
                     </button>
                 </form>
+
+                <!-- Nút thao tác phụ: Đóng modal và Hủy đơn hàng -->
+                <div class="mt-2.5 sm:mt-3 grid grid-cols-2 gap-2">
+                    <button type="button" onclick="closeCheckoutModal({{ $order->id }})"
+                        class="text-center bg-white/5 text-gray-300 border border-white/10 font-semibold py-2 sm:py-2.5 px-2 rounded-xl hover:bg-white/10 hover:text-white transition text-xs flex items-center justify-center truncate cursor-pointer">
+                        Đóng modal (Giữ vé)
+                    </button>
+
+                    <form id="cancel-form-{{ $order->id }}" action="{{ route('orders.cancel', $order->order_code) }}" method="POST"
+                        onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Ghế đang giữ sẽ được giải phóng ngay lập tức.');">
+                        @csrf
+                        <button type="submit" id="btn-cancel-{{ $order->id }}"
+                            class="w-full bg-white/5 text-gray-400 border border-white/10 font-semibold py-2 sm:py-2.5 px-2 rounded-xl hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition text-xs cursor-pointer truncate">
+                            Hủy đơn hàng
+                        </button>
+                    </form>
+                </div>
             </div>
 
-            <!-- Expired Actions (Hidden by default) -->
-            <div id="expired-actions" class="hidden">
-                <a href="{{ route('events.book', $order->event->slug) }}" class="block w-full text-center bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition text-sm">
-                    Đóng
-                </a>
+            <!-- Hành động khi thời gian giữ vé đã hết (Ẩn mặc định) -->
+            <div id="expired-actions-{{ $order->id }}" class="hidden">
+                <div class="text-center py-3 space-y-2.5">
+                    <p class="text-xs sm:text-sm text-red-400">Đơn hàng đã hết hạn giữ vé và các ghế đã được mở lại cho người khác.</p>
+                    <a href="{{ route('events.book', $order->event->slug) }}"
+                        class="block w-full text-center bg-emerald-500 text-white font-bold py-2.5 sm:py-3 rounded-xl hover:bg-emerald-600 transition text-xs sm:text-sm">
+                        Đặt lại vé ngay
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .animate-fade-in-up {
-        animation: fadeInUp 0.3s ease-out forwards;
-    }
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(15px) scale(0.97); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-</style>
-
+{{-- Script đếm ngược riêng cho từng đơn hàng --}}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    (function () {
+        const orderId = "{{ $order->id }}";
         const expiresAt = new Date("{{ $order->expires_at->toIso8601String() }}").getTime();
-        const countdownEl = document.getElementById('countdown');
-        const paymentActions = document.getElementById('payment-actions');
-        const expiredActions = document.getElementById('expired-actions');
+        const countdownEl = document.getElementById('countdown-' + orderId);
+        const countdownWrapper = document.getElementById('countdown-wrapper-' + orderId);
+        const paymentActions = document.getElementById('payment-actions-' + orderId);
+        const expiredActions = document.getElementById('expired-actions-' + orderId);
         let timer = null;
-
-        function showToast() {
-            if (window.showAppToast) {
-                window.showAppToast('error', 'Có lỗi xảy ra', 'Thời gian giữ vé đã hết!');
-            } else {
-                // Fallback in case JS hasn't fully loaded
-                alert('Thời gian giữ vé đã hết!');
-            }
-        }
 
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = expiresAt - now;
 
             if (distance <= 0) {
-                countdownEl.innerHTML = "00:00";
-                countdownEl.parentElement.classList.remove('bg-yellow-50', 'border-yellow-200');
-                countdownEl.parentElement.classList.add('bg-red-50', 'border-red-200');
-                countdownEl.classList.remove('text-yellow-600');
-                countdownEl.classList.add('text-red-600');
-                
-                // Hide payment and cancel buttons, show Close button
-                paymentActions.classList.add('hidden');
-                expiredActions.classList.remove('hidden');
+                if (countdownEl) countdownEl.innerHTML = "00:00";
+                if (countdownWrapper) {
+                    countdownWrapper.classList.remove('bg-amber-500/10', 'border-amber-500/20');
+                    countdownWrapper.classList.add('bg-red-500/10', 'border-red-500/20');
+                }
+                if (countdownEl) {
+                    countdownEl.classList.remove('text-amber-400');
+                    countdownEl.classList.add('text-red-400');
+                }
 
-                showToast();
+                // Ẩn form thanh toán, hiển thị hành động khi hết hạn
+                if (paymentActions) paymentActions.classList.add('hidden');
+                if (expiredActions) expiredActions.classList.remove('hidden');
+
                 clearInterval(timer);
 
-                // Send background request to release seats immediately
+                // Gửi request hủy đơn và giải phóng ghế trong nền
                 fetch("{{ route('orders.cancel', $order->order_code) }}", {
                     method: 'POST',
                     headers: {
@@ -144,13 +190,88 @@
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            countdownEl.innerHTML = 
-                (minutes < 10 ? "0" + minutes : minutes) + ":" + 
-                (seconds < 10 ? "0" + seconds : seconds);
+            const timeStr = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+            if (countdownEl) countdownEl.innerHTML = timeStr;
         }
 
         timer = setInterval(updateCountdown, 1000);
         updateCountdown();
+    })();
+</script>
+
+{{-- Khối Style và Script điều khiển chung (chỉ nạp 1 lần duy nhất) --}}
+@once
+<style>
+    /* Hiệu ứng hiển thị modal mượt mà */
+    .animate-fade-in-up {
+        animation: fadeInUpModal 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeInUpModal {
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* Thanh cuộn tinh tế cho modal */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 9999px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 9999px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+</style>
+
+<script>
+    // Hàm mở modal thanh toán
+    window.openCheckoutModal = function (orderId) {
+        let modal = null;
+        if (orderId) {
+            modal = document.getElementById('checkout-modal-' + orderId)
+                 || document.querySelector(`[data-order-code="${orderId}"]`);
+        } else {
+            modal = document.querySelector('.checkout-modal-backdrop');
+        }
+
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+    };
+
+    // Hàm đóng modal thanh toán
+    window.closeCheckoutModal = function (orderId) {
+        if (orderId) {
+            const modal = document.getElementById('checkout-modal-' + orderId)
+                       || document.querySelector(`[data-order-code="${orderId}"]`);
+            if (modal) modal.classList.add('hidden');
+        } else {
+            document.querySelectorAll('.checkout-modal-backdrop').forEach(m => m.classList.add('hidden'));
+        }
+        document.body.classList.remove('overflow-hidden');
+    };
+
+    // Đóng modal khi nhấn phím Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            window.closeCheckoutModal();
+        }
     });
 </script>
-@endsection
+@endonce

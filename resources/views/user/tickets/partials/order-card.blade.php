@@ -229,10 +229,10 @@
                             Hướng dẫn thanh toán
                         </a>
                     @else
-                        <a href="{{ route('orders.checkout', $order) }}"
-                            class="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-500">
+                        <button type="button" onclick="openCheckoutModal({{ $order->id }})"
+                            class="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-600 shadow-sm shadow-emerald-500/20 cursor-pointer">
                             Thanh toán ngay
-                        </a>
+                        </button>
                     @endif
 
                     <form action="{{ route('orders.cancel', $order) }}" method="POST"

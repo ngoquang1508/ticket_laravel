@@ -21,10 +21,40 @@
                 </div>
             @endif
 
+            @if(session('info'))
+                <div class="mb-4 bg-blue-500/10 border border-blue-500/50 text-blue-400 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    {{ session('info') }}
+                </div>
+            @endif
+
             @if(session('success'))
                 <div class="mb-4 bg-green-500/10 border border-green-500/50 text-green-500 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     {{ session('success') }}
+                </div>
+            @endif
+
+            @if(isset($activeOrder) && $activeOrder && $activeOrder->expires_at > now())
+                <!-- Banner thông báo có đơn hàng đang giữ chỗ của sự kiện này -->
+                <div class="mb-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5 text-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex items-start sm:items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold text-white text-sm sm:text-base">Bạn đang có đơn hàng giữ vé #{{ $activeOrder->order_code }}</p>
+                            <p class="text-xs sm:text-sm text-amber-300/80 mt-0.5">Số lượng: {{ $activeOrder->tickets->count() }} vé | Tổng tiền: {{ number_format($activeOrder->total_amount, 0, ',', '.') }} đ</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                        <button type="button" onclick="openCheckoutModal({{ $activeOrder->id }})" 
+                                class="bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl hover:bg-emerald-600 transition text-xs sm:text-sm shadow-md shadow-emerald-500/20 cursor-pointer">
+                            Thanh toán ngay
+                        </button>
+                    </div>
                 </div>
             @endif
 
@@ -420,4 +450,19 @@
             document.getElementById('checkout-form').submit();
         });
     </script>
+
+    @if(isset($activeOrder) && $activeOrder && $activeOrder->expires_at > now())
+        {{-- Nhúng Modal Thanh toán trực tiếp tại trang chọn vé --}}
+        @include('booking.checkout', ['order' => $activeOrder])
+    @endif
+
+    @if(session('active_checkout_order'))
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                if (typeof window.openCheckoutModal === 'function') {
+                    window.openCheckoutModal("{{ session('active_checkout_order') }}");
+                }
+            });
+        </script>
+    @endif
 @endsection

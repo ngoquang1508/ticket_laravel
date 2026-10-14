@@ -39,7 +39,24 @@ class BookingService
     // =========================================================================
 
     /**
-     * Tạo order mới. Trả về Order đã tạo hoặc ném Exception.
+     * Lấy đơn hàng pending của user cho sự kiện cụ thể nếu còn trong thời gian giữ vé.
+     *
+     * @param  Event  $event
+     * @param  int  $userId
+     * @return Order|null
+     */
+    public function getActivePendingOrder(Event $event, int $userId): ?Order
+    {
+        return Order::where('event_id', $event->id)
+            ->where('user_id', $userId)
+            ->where('status', 'pending')
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Tạo order mới. Nếu đã có order pending còn hạn thì trả về order hiện tại.
      *
      * @param  Event  $event
      * @param  array  $input  Dữ liệu từ request (đã qua validate cơ bản)
@@ -49,6 +66,18 @@ class BookingService
      */
     public function createOrder(Event $event, array $input): Order
     {
+        $userId = auth()->id();
+        if ($userId) {
+            // Tự động dọn dẹp các đơn hết hạn của user
+            $this->cancelExpiredOrders($userId);
+
+            // Kiểm tra xem user đã có order pending còn trong thời gian giữ vé hay chưa
+            $existingOrder = $this->getActivePendingOrder($event, $userId);
+            if ($existingOrder) {
+                return $existingOrder;
+            }
+        }
+
         // --- Kiểm tra thời gian sự kiện ---
         $this->assertEventBookable($event);
 
@@ -893,7 +922,7 @@ class BookingService
             'customer_phone' => $user->phone ?? '',
             'total_amount' => $totalAmount,
             'status' => 'pending',
-            'payment_method' => 'direct', // mặc định, cập nhật khi checkout
+            'payment_method' => null, // chưa chọn phương thức, cập nhật khi người dùng xác nhận ở checkout
             'expires_at' => now()->addMinutes(self::ORDER_EXPIRE_MINUTES),
         ]);
     }

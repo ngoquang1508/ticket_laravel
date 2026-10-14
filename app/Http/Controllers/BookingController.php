@@ -7,17 +7,25 @@ use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
-    public function show(string $slug)
+    public function show(string $slug, \App\Services\BookingService $bookingService)
     {
         $event = Event::with(['ticketTypes', 'seatMap'])
             ->where('slug', $slug)
             ->where('is_published', true)
             ->firstOrFail();
 
+        $userId = auth()->id();
+        $activeOrder = null;
+
+        if ($userId) {
+            $bookingService->cancelExpiredOrders($userId);
+            $activeOrder = $bookingService->getActivePendingOrder($event, $userId);
+        }
+
         $soldSeats = \App\Models\Seat::where('event_id', $event->id)->where('status', 'sold')->pluck('seat_number')->toArray();
         $heldSeats = \App\Models\Seat::where('event_id', $event->id)->where('status', 'held')->pluck('seat_number')->toArray();
 
-        return view('booking.show', compact('event', 'soldSeats', 'heldSeats'));
+        return view('booking.show', compact('event', 'soldSeats', 'heldSeats', 'activeOrder'));
     }
 
     public function store(Request $request, string $slug, \App\Services\BookingService $bookingService)
@@ -25,6 +33,21 @@ class BookingController extends Controller
         $event = Event::where('slug', $slug)
             ->where('is_published', true)
             ->firstOrFail();
+
+        $userId = auth()->id();
+
+        // 1. Quét hủy các đơn đã hết hạn giữ vé của user
+        $bookingService->cancelExpiredOrders($userId);
+
+        // 2. Kiểm tra xem user đã có order pending của cùng event còn trong thời gian giữ vé hay chưa
+        $existingOrder = $bookingService->getActivePendingOrder($event, $userId);
+
+        if ($existingOrder) {
+            // Không tạo order mới, tái sử dụng order hiện tại và tự mở checkout modal của order đó
+            return redirect()->route('events.book', $event->slug)
+                ->with('active_checkout_order', $existingOrder->order_code)
+                ->with('info', 'Bạn đang có đơn hàng giữ vé cho sự kiện này. Vui lòng thanh toán hoặc hủy đơn trước khi đặt mới.');
+        }
 
         try {
             // Cart data is sent as JSON in 'cart_data' hidden input
@@ -37,27 +60,13 @@ class BookingController extends Controller
 
             $order = $bookingService->createOrder($event, $input);
             
-            // Redirect to checkout
-            return redirect()->route('orders.checkout', $order->order_code)->with('success', 'Giữ vé thành công! Vui lòng hoàn tất trong 10 phút.');
+            // Giữ vé thành công, redirect về trang chọn vé và tự mở modal checkout
+            return redirect()->route('events.book', $event->slug)
+                ->with('active_checkout_order', $order->order_code)
+                ->with('success', 'Giữ vé thành công! Vui lòng hoàn tất thanh toán trong 10 phút.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
-    }
-
-    public function checkout(\App\Models\Order $order, \App\Services\BookingService $bookingService)
-    {
-        if ($order->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if ($order->status !== 'pending' || now() > $order->expires_at) {
-            if ($order->status === 'pending' && now() > $order->expires_at) {
-                $bookingService->cancelOrder($order, 'cancelled', 'Hết hạn thanh toán');
-            }
-            return redirect()->route('user.tickets')->with('error', 'Đơn hàng đã hết thời gian giữ vé và đã bị hủy tự động.');
-        }
-
-        return view('booking.checkout', compact('order'));
     }
 
     public function processPayment(\Illuminate\Http\Request $request, \App\Models\Order $order, \App\Services\VNPayService $vnpayService, \App\Services\BookingService $bookingService)
@@ -114,7 +123,9 @@ class BookingController extends Controller
                 return redirect()->route('home')->with('error', 'Lỗi xử lý đơn hàng: ' . $e->getMessage());
             }
         } else {
-            return redirect()->route('orders.checkout', $order->order_code)->with('error', 'Thanh toán thất bại: ' . $result['message']);
+            return redirect()->route('user.tickets')
+                ->with('active_checkout_order', $order->order_code)
+                ->with('error', 'Thanh toán thất bại: ' . $result['message']);
         }
     }
 

@@ -26,9 +26,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/event/{slug}/book', [\App\Http\Controllers\BookingController::class, 'store'])
         ->name('events.book.store');
 
-    Route::get('/orders/{order}/checkout', [\App\Http\Controllers\BookingController::class, 'checkout'])
-        ->name('orders.checkout');
-
     Route::post('/orders/{order}/process-payment', [\App\Http\Controllers\BookingController::class, 'processPayment'])
         ->name('orders.process-payment');
 
@@ -55,7 +52,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/my-tickets', [\App\Http\Controllers\MyTicketController::class, 'index'])
         ->name('user.tickets');
-        
+
     Route::get('/my-tickets/{ticket_code}', [\App\Http\Controllers\MyTicketController::class, 'show'])
         ->name('user.tickets.show');
 });
