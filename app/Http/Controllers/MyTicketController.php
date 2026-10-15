@@ -21,8 +21,36 @@ class MyTicketController extends Controller
                 if ($status === 'pending') {
                     return $query->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING]);
                 }
+                if ($status === 'completed') {
+                    // Đơn hàng thành công và sự kiện vẫn còn hiệu lực (chưa kết thúc)
+                    return $query->where('status', Order::STATUS_COMPLETED)
+                        ->whereHas('event', function ($q) {
+                            $q->where('ends_at', '>=', now());
+                        });
+                }
+                if ($status === 'expired') {
+                    // Đơn hàng hết hạn: bao gồm đơn hết hạn giữ chỗ/thanh toán HOẶC đơn đã hoàn thành nhưng sự kiện đã kết thúc
+                    return $query->where(function ($q) {
+                        $q->where('status', Order::STATUS_EXPIRED)
+                            ->orWhere(function ($sub) {
+                                $sub->where('status', Order::STATUS_CANCELLED)
+                                    ->where('cancel_reason', 'like', '%Hết hạn%');
+                            })
+                            ->orWhere(function ($sub) {
+                                $sub->where('status', Order::STATUS_COMPLETED)
+                                    ->whereHas('event', function ($ev) {
+                                        $ev->where('ends_at', '<', now());
+                                    });
+                            });
+                    });
+                }
                 if ($status === 'cancelled') {
-                    return $query->whereIn('status', [Order::STATUS_CANCELLED, Order::STATUS_EXPIRED]);
+                    // Đơn hàng đã hủy (do người dùng hủy hoặc lý do khác ngoài hết hạn)
+                    return $query->where('status', Order::STATUS_CANCELLED)
+                        ->where(function ($q) {
+                            $q->whereNull('cancel_reason')
+                                ->orWhere('cancel_reason', 'not like', '%Hết hạn%');
+                        });
                 }
                 return $query->where('status', $status);
             })

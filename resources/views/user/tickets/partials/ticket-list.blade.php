@@ -29,10 +29,26 @@
                         {{-- Vé trạng thái Completed (có các nút Xem chi tiết, Copy, Chia sẻ) --}}
                         <div
                             class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-white/5 bg-[#2a2a2a] p-3.5 transition hover:border-white/10">
+                            @php
+                                $ticketIsUsed = $ticket->is_used || !empty($ticket->checked_in_at);
+                                $ticketCheckInTime = $ticket->checked_in_at ?? $ticket->used_at;
+                                $ticketIsExpired = !$ticketIsUsed && (($isEventEnded ?? false) || in_array($order->status, ['expired', 'cancelled']));
+                            @endphp
                             <!-- Thông tin vé -->
                             <div class="flex flex-col min-w-0">
-                                <span
-                                    class="font-mono text-sm font-bold text-white tracking-wider truncate">{{ $ticket->ticket_code }}</span>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span
+                                        class="font-mono text-sm font-bold text-white tracking-wider truncate">{{ $ticket->ticket_code }}</span>
+                                    @if($ticketIsUsed)
+                                        <span class="inline-flex items-center gap-1 rounded bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400 ring-1 ring-inset ring-red-500/20">
+                                            Đã sử dụng
+                                        </span>
+                                    @elseif($ticketIsExpired)
+                                        <span class="inline-flex items-center gap-1 rounded bg-rose-500/10 px-2 py-0.5 text-[10px] font-semibold text-rose-400 ring-1 ring-inset ring-rose-500/20">
+                                            Hết hạn
+                                        </span>
+                                    @endif
+                                </div>
                                 <span class="text-xs text-gray-400 mt-0.5 truncate">
                                     Vị trí: {{ $ticket->orderItem->ticketType->name }}
                                     @if($ticket->seat)

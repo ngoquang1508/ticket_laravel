@@ -75,17 +75,16 @@
                     $targetUrl = route('admin.notifications.read', $notification->id);
                 @endphp
                 <div class="notification-item group relative flex items-start gap-2.5 p-3.5 transition-colors {{ $isUnread ? 'bg-primary-50/35 hover:bg-primary-50/60' : 'bg-white hover:bg-gray-50' }}"
-                    data-id="{{ $notification->id }}"
-                    data-unread="{{ $isUnread ? '1' : '0' }}">
-                    
+                    data-id="{{ $notification->id }}" data-unread="{{ $isUnread ? '1' : '0' }}">
+
                     {{-- Link nội dung chuyển sang trang chi tiết --}}
                     <a href="{{ $targetUrl }}" class="flex items-start gap-3 flex-1 min-w-0">
                         {{-- Icon phân loại thông báo --}}
                         <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl 
-                                @if ($iconType === 'success') bg-emerald-100 text-emerald-600
-                                @elseif ($iconType === 'warning') bg-amber-100 text-amber-600
-                                @elseif ($iconType === 'danger') bg-rose-100 text-rose-600
-                                @else bg-blue-100 text-blue-600 @endif">
+                                    @if ($iconType === 'success') bg-emerald-100 text-emerald-600
+                                    @elseif ($iconType === 'warning') bg-amber-100 text-amber-600
+                                    @elseif ($iconType === 'danger') bg-rose-100 text-rose-600
+                                    @else bg-blue-100 text-blue-600 @endif">
 
                             @if ($iconType === 'success')
                                 <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,16 +146,19 @@
 
             {{-- Empty state: Khi không có thông báo nào ở tab Tất cả --}}
             <div id="empty-state-all" class="hidden p-8 text-center">
-                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-400 mb-3">
+                <div
+                    class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-400 mb-3">
                     <x-icons.notification class="h-6 w-6" />
                 </div>
                 <p class="text-xs font-semibold text-gray-700">Chưa có thông báo nào</p>
-                <p class="text-[11px] text-gray-400 mt-0.5">Bạn sẽ nhận được thông báo khi có đơn hàng mới hoặc cập nhật.</p>
+                <p class="text-[11px] text-gray-400 mt-0.5">Bạn sẽ nhận được thông báo khi có đơn hàng mới hoặc cập
+                    nhật.</p>
             </div>
 
             {{-- Empty state: Khi không có thông báo chưa đọc nào ở tab Chưa đọc --}}
             <div id="empty-state-unread" class="hidden p-8 text-center">
-                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-3">
+                <div
+                    class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-3">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
