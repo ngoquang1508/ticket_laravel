@@ -116,7 +116,7 @@
                                                        ease-out">
 
                             {{-- Tài khoản --}}
-                            <a href="#" class="flex items-center gap-2.5 px-4 py-2.5
+                            <a href="{{ route('user.profile') }}" class="flex items-center gap-2.5 px-4 py-2.5
                                                   text-sm
                                                   text-white/85
                                                   transition
@@ -281,7 +281,7 @@
 
                         <div class="flex flex-col gap-1">
                             {{-- Tài khoản --}}
-                            <a href="#"
+                            <a href="{{ route('user.profile') }}"
                                 class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-white/90 transition hover:bg-white/10 hover:text-white">
                                 <x-icons.user class="h-4 w-4 shrink-0 text-white/70" />
                                 <span>Tài khoản</span>

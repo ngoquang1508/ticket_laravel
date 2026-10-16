@@ -56,6 +56,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/my-tickets/{ticket_code}', [\App\Http\Controllers\MyTicketController::class, 'show'])
         ->name('user.tickets.show');
+
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])
+        ->name('user.profile');
+
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'updateProfile'])
+        ->name('user.profile.update');
+
+    Route::put('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])
+        ->name('user.profile.password');
 });
 
 Route::get('/tickets/{ticket_code}', [\App\Http\Controllers\MyTicketController::class, 'publicShow'])
