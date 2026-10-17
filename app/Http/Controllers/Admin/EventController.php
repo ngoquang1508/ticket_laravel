@@ -92,7 +92,7 @@ class EventController extends Controller
     public function edit(Event $event): View
     {
         return view('admin.events.edit', array_merge(
-            ['event' => $event->load('categories')],
+            ['event' => $event->load(['categories', 'ticketTypes'])],
             $this->formData(),
         ));
     }
@@ -213,42 +213,71 @@ class EventController extends Controller
             'starts_at' => ['required', 'date'],
             'ends_at' => ['required', 'date', 'after:starts_at'],
             'sale_mode' => ['required', 'in:general_admission,assigned_seat,free_sale'],
-            'ticket_name' => ['required_if:sale_mode,free_sale', 'nullable', 'string', 'max:100'],
-            'ticket_price' => ['required_if:sale_mode,free_sale', 'nullable', 'numeric', 'min:0'],
-            'ticket_quantity' => ['required_if:sale_mode,free_sale', 'nullable', 'integer', 'min:1'],
+            'free_tickets' => ['required_if:sale_mode,free_sale', 'nullable', 'array', 'min:1'],
+            'free_tickets.*.id' => ['nullable', 'integer'],
+            'free_tickets.*.name' => ['required_if:sale_mode,free_sale', 'nullable', 'string', 'max:100'],
+            'free_tickets.*.price' => ['required_if:sale_mode,free_sale', 'nullable', 'numeric', 'min:0'],
+            'free_tickets.*.quantity' => ['required_if:sale_mode,free_sale', 'nullable', 'integer', 'min:1'],
             'is_featured' => ['boolean'],
             'is_published' => ['boolean'],
         ];
 
         $validated = $request->validate($rules);
-        unset($validated['ticket_name'], $validated['ticket_price'], $validated['ticket_quantity']);
+        unset($validated['free_tickets']);
 
         return $validated;
     }
 
+    /**
+     * Lưu danh sách các loại vé tự do cho sự kiện
+     */
     private function saveFreeSaleTicket(Request $request, Event $event): void
     {
         DB::transaction(function () use ($request, $event): void {
-            $ticket = $event->ticketTypes()->first();
+            $submittedTickets = $request->input('free_tickets', []);
+            $existingTickets = $event->ticketTypes()->get()->keyBy('id');
+            $keptTicketIds = [];
 
-            if ($ticket && ($ticket->sold_quantity > 0 || $ticket->seats()->exists())) {
-                $ticket->update([
-                    'name' => $request->string('ticket_name')->toString(),
-                    'price' => $request->input('ticket_price'),
-                    'quantity' => max((int) $request->input('ticket_quantity'), $ticket->sold_quantity),
-                    'is_active' => true,
-                ]);
+            foreach ($submittedTickets as $ticketData) {
+                $name = trim($ticketData['name'] ?? '');
+                $price = $ticketData['price'] ?? 0;
+                $quantity = (int) ($ticketData['quantity'] ?? 0);
+                $ticketId = !empty($ticketData['id']) ? (int) $ticketData['id'] : null;
 
-                return;
+                if ($ticketId && $existingTickets->has($ticketId)) {
+                    // Cập nhật loại vé hiện có
+                    $ticket = $existingTickets->get($ticketId);
+                    $newQuantity = max($quantity, (int) $ticket->sold_quantity);
+
+                    $ticket->update([
+                        'name' => $name,
+                        'price' => $price,
+                        'quantity' => $newQuantity,
+                        'is_active' => true,
+                    ]);
+
+                    $keptTicketIds[] = $ticket->id;
+                } else {
+                    // Tạo mới loại vé
+                    $newTicket = $event->ticketTypes()->create([
+                        'name' => $name,
+                        'price' => $price,
+                        'quantity' => max(1, $quantity),
+                        'is_active' => true,
+                    ]);
+
+                    $keptTicketIds[] = $newTicket->id;
+                }
             }
 
-            $event->ticketTypes()->delete();
-            $event->ticketTypes()->create([
-                'name' => $request->string('ticket_name')->toString(),
-                'price' => $request->input('ticket_price'),
-                'quantity' => (int) $request->input('ticket_quantity'),
-                'is_active' => true,
-            ]);
+            // Xóa các loại vé cũ không còn nằm trong danh sách gửi lên (chỉ xóa khi chưa có vé bán và không có ghế liên kết)
+            foreach ($existingTickets as $existingTicket) {
+                if (!in_array($existingTicket->id, $keptTicketIds, true)) {
+                    if ($existingTicket->sold_quantity === 0 && !$existingTicket->seats()->exists()) {
+                        $existingTicket->delete();
+                    }
+                }
+            }
         });
     }
 

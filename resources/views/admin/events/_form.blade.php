@@ -47,7 +47,29 @@
     </div>
 </div>
 
-@php($selectedSaleMode = old('sale_mode', $event->sale_mode ?? 'general_admission'))
+<?php
+    $selectedSaleMode = old('sale_mode', $event->sale_mode ?? 'general_admission');
+
+    // Chuẩn bị dữ liệu danh sách vé tự do (ưu tiên old data, sau đó đến ticketTypes của sự kiện, hoặc tạo sẵn 1 dòng mặc định)
+    $freeTickets = old('free_tickets');
+    if ($freeTickets === null) {
+        if (isset($event) && $event->ticketTypes && $event->ticketTypes->isNotEmpty()) {
+            $freeTickets = $event->ticketTypes->map(function ($ticket) {
+                return [
+                    'id' => $ticket->id,
+                    'name' => $ticket->name,
+                    'price' => (float) $ticket->price,
+                    'quantity' => (int) $ticket->quantity,
+                    'sold_quantity' => (int) $ticket->sold_quantity,
+                ];
+            })->toArray();
+        } else {
+            $freeTickets = [
+                ['id' => null, 'name' => 'Vé thường', 'price' => 0, 'quantity' => 100, 'sold_quantity' => 0]
+            ];
+        }
+    }
+?>
 <div>
     <label for="sale_mode" class="mb-2 block text-sm font-medium">Hình thức bán vé</label>
     <select id="sale_mode" name="sale_mode" required class="w-full rounded-lg border px-4 py-2.5">
@@ -57,22 +79,52 @@
     </select>
 </div>
 
-<div id="free-ticket-fields" class="grid gap-5 rounded-xl border border-primary-100 bg-primary-50 p-4 md:grid-cols-3">
-    <div class="md:col-span-3">
-        <p class="font-semibold text-primary-900">Vé tự do</p>
-        <p class="text-sm text-primary-700">Nhập thông tin vé trực tiếp tại đây. Hình thức này không tạo seatmap.</p>
+<div id="free-ticket-fields" class="space-y-4 rounded-xl border border-primary-200 bg-primary-50/60 p-4 sm:p-5">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <p class="font-bold text-primary-950 text-base">Danh sách loại vé tự do</p>
+            <p class="text-xs sm:text-sm text-primary-700">Cấu hình một hoặc nhiều loại vé (ví dụ: Vé VIP, Vé Thường...). Hình thức này không tạo sơ đồ ghế.</p>
+        </div>
+        <button type="button" id="btn-add-free-ticket" class="inline-flex items-center justify-center gap-1.5 self-start sm:self-auto rounded-lg bg-primary-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Thêm loại vé
+        </button>
     </div>
-    <div>
-        <label for="ticket_name" class="mb-2 block text-sm font-medium">Tên loại vé</label>
-        <input id="ticket_name" name="ticket_name" value="{{ old('ticket_name', $event?->ticketTypes?->first()?->name ?? 'Vé thường') }}" class="w-full rounded-lg border px-3 py-2.5">
-    </div>
-    <div>
-        <label for="ticket_price" class="mb-2 block text-sm font-medium">Giá vé</label>
-        <input id="ticket_price" name="ticket_price" type="number" min="0" step="0.01" value="{{ old('ticket_price', $event?->ticketTypes?->first()?->price ?? '') }}" class="w-full rounded-lg border px-3 py-2.5">
-    </div>
-    <div>
-        <label for="ticket_quantity" class="mb-2 block text-sm font-medium">Số lượng vé</label>
-        <input id="ticket_quantity" name="ticket_quantity" type="number" min="1" value="{{ old('ticket_quantity', $event?->ticketTypes?->first()?->quantity ?? '') }}" class="w-full rounded-lg border px-3 py-2.5">
+
+    @error('free_tickets')
+        <p class="text-xs font-semibold text-red-600">{{ $message }}</p>
+    @enderror
+
+    <div id="free-ticket-list" class="space-y-3">
+        @foreach($freeTickets as $idx => $ticket)
+            <div class="free-ticket-row rounded-lg border border-gray-200 bg-white p-3.5 sm:p-4 shadow-xs" data-index="{{ $idx }}">
+                @if(!empty($ticket['id']))
+                    <input type="hidden" name="free_tickets[{{ $idx }}][id]" value="{{ $ticket['id'] }}">
+                @endif
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-end">
+                    <div class="sm:col-span-5">
+                        <label class="mb-1 block text-xs font-semibold text-gray-700">Tên loại vé <span class="text-red-500">*</span></label>
+                        <input type="text" name="free_tickets[{{ $idx }}][name]" value="{{ $ticket['name'] ?? '' }}" placeholder="VD: Vé VIP, Vé Thường" class="free-ticket-input w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-600 focus:ring-1 focus:ring-primary-600">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label class="mb-1 block text-xs font-semibold text-gray-700">Giá vé (đ) <span class="text-red-500">*</span></label>
+                        <input type="number" min="0" step="1000" name="free_tickets[{{ $idx }}][price]" value="{{ $ticket['price'] ?? 0 }}" placeholder="0" class="free-ticket-input w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-600 focus:ring-1 focus:ring-primary-600">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label class="mb-1 block text-xs font-semibold text-gray-700">Số lượng <span class="text-red-500">*</span></label>
+                        <input type="number" min="{{ max(1, (int)($ticket['sold_quantity'] ?? 0)) }}" name="free_tickets[{{ $idx }}][quantity]" value="{{ $ticket['quantity'] ?? '' }}" placeholder="100" class="free-ticket-input w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-600 focus:ring-1 focus:ring-primary-600">
+                        @if(!empty($ticket['sold_quantity']) && $ticket['sold_quantity'] > 0)
+                            <p class="mt-1 text-[11px] font-medium text-amber-600">Đã bán: {{ $ticket['sold_quantity'] }} vé</p>
+                        @endif
+                    </div>
+                    <div class="sm:col-span-1 flex items-center justify-end sm:justify-center">
+                        <button type="button" class="btn-remove-free-ticket inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition" title="Xóa loại vé này" @disabled(!empty($ticket['sold_quantity']) && $ticket['sold_quantity'] > 0)>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 </div>
 
@@ -98,14 +150,80 @@
         (() => {
             const mode = document.getElementById('sale_mode');
             const fields = document.getElementById('free-ticket-fields');
-            const inputs = fields.querySelectorAll('input');
-            const sync = () => {
-                const free = mode.value === 'free_sale';
-                fields.classList.toggle('hidden', !free);
-                inputs.forEach(input => input.required = free);
+            const list = document.getElementById('free-ticket-list');
+            const btnAdd = document.getElementById('btn-add-free-ticket');
+
+            let ticketIndex = {{ count($freeTickets) }};
+
+            // Hàm đồng bộ trạng thái required cho các input vé tự do
+            const updateInputsRequired = (isRequired) => {
+                const inputs = fields.querySelectorAll('.free-ticket-input');
+                inputs.forEach(input => {
+                    input.required = isRequired;
+                });
             };
-            mode.addEventListener('change', sync);
-            sync();
+
+            // Đồng bộ ẩn/hiện khối vé tự do theo hình thức bán vé
+            const syncVisibility = () => {
+                const isFree = mode.value === 'free_sale';
+                fields.classList.toggle('hidden', !isFree);
+                updateInputsRequired(isFree);
+            };
+
+            // Thêm dòng loại vé mới
+            if (btnAdd) {
+                btnAdd.addEventListener('click', () => {
+                    const idx = 'new_' + Date.now() + '_' + (ticketIndex++);
+                    const row = document.createElement('div');
+                    row.className = 'free-ticket-row rounded-lg border border-gray-200 bg-white p-3.5 sm:p-4 shadow-xs';
+                    row.dataset.index = idx;
+                    row.innerHTML = `
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-end">
+                            <div class="sm:col-span-5">
+                                <label class="mb-1 block text-xs font-semibold text-gray-700">Tên loại vé <span class="text-red-500">*</span></label>
+                                <input type="text" name="free_tickets[${idx}][name]" required placeholder="VD: Vé VIP, Vé Thường" class="free-ticket-input w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-600 focus:ring-1 focus:ring-primary-600">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="mb-1 block text-xs font-semibold text-gray-700">Giá vé (đ) <span class="text-red-500">*</span></label>
+                                <input type="number" min="0" step="1000" name="free_tickets[${idx}][price]" value="0" required placeholder="0" class="free-ticket-input w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-600 focus:ring-1 focus:ring-primary-600">
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="mb-1 block text-xs font-semibold text-gray-700">Số lượng <span class="text-red-500">*</span></label>
+                                <input type="number" min="1" name="free_tickets[${idx}][quantity]" value="100" required placeholder="100" class="free-ticket-input w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-600 focus:ring-1 focus:ring-primary-600">
+                            </div>
+                            <div class="sm:col-span-1 flex items-center justify-end sm:justify-center">
+                                <button type="button" class="btn-remove-free-ticket inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition" title="Xóa loại vé này">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(row);
+                    updateInputsRequired(mode.value === 'free_sale');
+                });
+            }
+
+            // Xóa dòng loại vé
+            if (list) {
+                list.addEventListener('click', (e) => {
+                    const removeBtn = e.target.closest('.btn-remove-free-ticket');
+                    if (!removeBtn || removeBtn.disabled) return;
+
+                    const rows = list.querySelectorAll('.free-ticket-row');
+                    if (rows.length <= 1) {
+                        alert('Cần có ít nhất một loại vé cho sự kiện bán vé tự do.');
+                        return;
+                    }
+
+                    const row = removeBtn.closest('.free-ticket-row');
+                    if (row) {
+                        row.remove();
+                    }
+                });
+            }
+
+            mode.addEventListener('change', syncVisibility);
+            syncVisibility();
         })();
     </script>
 @endpush
