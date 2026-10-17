@@ -226,9 +226,9 @@ class SeatMapKonva {
             }
             group.add(bgRect);
 
-            // Title
+            // Title: hiển thị tên khu vực kèm giá vé ở cả chế độ xem và chỉnh sửa
             let titleText = obj.name;
-            if (this.mode === 'view' && isZone && obj.price) {
+            if (isZone && obj.price) {
                 titleText += ` - ${new Intl.NumberFormat('vi-VN').format(obj.price)}đ`;
             }
             
@@ -370,15 +370,17 @@ class SeatMapKonva {
             });
             seatGroup.add(rect);
             
-            const fontSize = Math.max(5, bestSize * 0.45);
+            // Chỉ hiển thị số thứ tự 1-n thay vì chuỗi tên đầy đủ để tránh tràn chữ và vỡ giao diện
+            const fontSize = Math.max(7, bestSize * 0.45);
             const text = new Konva.Text({
                 name: 'seat-text',
-                text: seatId,
+                text: String(i + 1),
                 width: bestSize,
                 height: bestSize,
                 align: 'center',
                 verticalAlign: 'middle',
                 fontSize: fontSize,
+                fontStyle: 'bold',
                 fill: this.mode === 'edit' ? '#374151' : theme.text,
                 opacity: theme.opacity || 1
             });
@@ -420,7 +422,7 @@ class SeatMapKonva {
         this.selectedId = id;
         if (this.mode === 'edit') {
             if (id) {
-                const node = this.layer.findOne('#' + id);
+                const node = this.layer.findOne(n => n.id() === String(id));
                 if (node) {
                     this.transformer.nodes([node]);
                     node.moveToTop();
@@ -495,7 +497,8 @@ class SeatMapKonva {
 
     updateSeatState(seatId, state) {
         this.seatStates[seatId] = state;
-        const seatGroup = this.layer.findOne('#seat-' + seatId);
+        // Sử dụng hàm so sánh ID tuyệt đối thay vì selector chuỗi để tránh lỗi CSS selector khi seatId chứa khoảng trắng hoặc tiếng Việt
+        const seatGroup = this.layer.findOne(node => node.id() === 'seat-' + seatId);
         
         if (seatGroup) {
             const rect = seatGroup.findOne('.seat-rect');
