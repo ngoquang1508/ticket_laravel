@@ -68,6 +68,10 @@ Route::middleware('auth')->group(function () {
 Route::get('/tickets/{ticket_code}', [\App\Http\Controllers\MyTicketController::class, 'publicShow'])
     ->name('tickets.public.show');
 
+// Gợi ý tìm kiếm tức thì (Live Search Suggestions)
+Route::get('/events/search/suggestions', [\App\Http\Controllers\EventController::class, 'searchSuggestions'])
+    ->name('events.search.suggestions');
+
 Route::get('/events/{categorySlug?}', [\App\Http\Controllers\EventController::class, 'index'])
     ->name('events.index');
 

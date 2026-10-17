@@ -74,6 +74,30 @@ class Event extends Model
         return $query->where('starts_at', '<', now())->orderBy('starts_at', 'desc');
     }
 
+    /**
+     * Tìm kiếm sự kiện theo từ khóa (tên sự kiện, mô tả, địa điểm hoặc danh mục)
+     */
+    public function scopeSearch($query, ?string $term)
+    {
+        if (empty($term)) {
+            return $query;
+        }
+
+        $term = trim($term);
+
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%")
+                ->orWhereHas('location', function ($locQuery) use ($term) {
+                    $locQuery->where('name', 'like', "%{$term}%")
+                        ->orWhere('address', 'like', "%{$term}%");
+                })
+                ->orWhereHas('categories', function ($catQuery) use ($term) {
+                    $catQuery->where('name', 'like', "%{$term}%");
+                });
+        });
+    }
+
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);

@@ -30,7 +30,7 @@
         <div class="mb-12 text-center" id="{{ $type }}-load-more-wrapper">
             <button
                 class="load-more-btn inline-flex h-10 items-center justify-center overflow-hidden rounded-full border px-6 text-sm font-semibold transition-all duration-300 ease-in-out cursor-pointer {{ $isPast ? 'border-gray-500 text-gray-400 hover:bg-gray-700' : 'border-green-500 text-green-500 hover:bg-green-500' }} hover:text-white"
-                data-type="{{ $type }}" data-page="2" data-url="{{ route('events.index', $categorySlug) }}">
+                data-type="{{ $type }}" data-page="2" data-url="{{ route('events.index', array_filter(['categorySlug' => $categorySlug, 'q' => request('q')])) }}">
                 <span class="flex items-center gap-1">
                     Xem thêm sự kiện {{ $type === 'upcoming' ? 'sắp diễn ra' : 'đã diễn ra' }}
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
