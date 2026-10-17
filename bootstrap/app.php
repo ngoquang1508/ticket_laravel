@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Tin cậy proxy từ ngrok / reverse proxy để nhận diện đúng giao thức HTTPS
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'admin' => AdminMiddleware::class,
         ]);
