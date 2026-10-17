@@ -16,6 +16,7 @@ class EventController extends Controller
     {
         $currentCategory = null;
         $searchTerm = trim($request->get('q', ''));
+        $locationFilter = $request->get('location');
         $query = Event::activeListing();
 
         // 1. Lọc theo danh mục nếu có
@@ -27,8 +28,27 @@ class EventController extends Controller
             $query->whereHas('categories', fn($q) => $q->where('categories.id', $currentCategory->id));
         }
 
-        // 2. Lọc theo từ khóa tìm kiếm nếu có
-        if ($searchTerm !== '') {
+        // 2. Lọc theo vị trí khác (ngoại trừ các thành phố chính: TP.HCM, Hà Nội, Đà Nẵng)
+        if ($locationFilter === 'other') {
+            $query->where(function ($q) {
+                $q->whereDoesntHave('location')
+                    ->orWhereHas('location', function ($locQuery) {
+                        $locQuery->where('address', 'not like', '%Hồ Chí Minh%')
+                            ->where('address', 'not like', '%TP.HCM%')
+                            ->where('address', 'not like', '%TP. HCM%')
+                            ->where('address', 'not like', '%Sài Gòn%')
+                            ->where('address', 'not like', '%Hà Nội%')
+                            ->where('address', 'not like', '%Đà Nẵng%');
+                    });
+            });
+
+            if ($searchTerm !== '') {
+                $query->search($searchTerm);
+            } else {
+                $searchTerm = 'Vị trí khác';
+            }
+        } elseif ($searchTerm !== '') {
+            // Lọc theo từ khóa tìm kiếm nếu có
             $query->search($searchTerm);
         }
 

@@ -69,16 +69,17 @@ class HomeController extends Controller
 
         // 4. Khối Vé bán lại (Resale Tickets)
         $resaleCategory = Category::where('slug', 've-ban-lai')->first();
+
         $resaleEvents = collect();
+
         if ($resaleCategory) {
             $resaleEvents = Event::activeListing()
                 ->upcoming()
-                ->whereHas('categories', fn($q) => $q->where('categories.id', $resaleCategory->id))
+                ->whereHas('categories', function ($q) use ($resaleCategory) {
+                    $q->where('categories.id', $resaleCategory->id);
+                })
                 ->take(8)
                 ->get();
-        }
-        if ($resaleEvents->isEmpty()) {
-            $resaleEvents = Event::activeListing()->upcoming()->take(8)->get();
         }
 
         // 5. Điểm đến thú vị (3 thành phố chính: TP.HCM, Hà Nội, Đà Nẵng và Vị trí khác)
@@ -94,38 +95,43 @@ class HomeController extends Controller
                 'name' => 'Tp. Hồ Chí Minh',
                 'query' => 'Hồ Chí Minh',
                 'count' => $countHcm,
-                'image' => 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=600&q=80',
+                'image' => asset('/storage/images/destinations/ho-chi-minh.jpg')
             ],
             [
                 'name' => 'Hà Nội',
                 'query' => 'Hà Nội',
                 'count' => $countHn,
-                'image' => 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80',
+                'image' => asset('/storage/images/destinations/ha-noi.jpg')
             ],
             [
                 'name' => 'Đà Nẵng',
                 'query' => 'Đà Nẵng',
                 'count' => $countDn,
-                'image' => 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=600&q=80',
+                'image' => asset('/storage/images/destinations/da-nang.jpg')
             ],
             [
                 'name' => 'Vị trí khác',
                 'query' => '',
+                'location' => 'other',
                 'count' => $countOther,
-                'image' => 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=600&q=80',
+                'image' => asset('/storage/images/destinations/khac.jpg')
             ],
         ];
 
         // 6. Các danh mục sự kiện cụ thể: CHỈ HIỂN THỊ DANH MỤC CÓ SỐ LƯỢNG EVENT >= 4 VÀ CHỈ LẤY 4 SỰ KIỆN
         $categorySections = Category::where('is_active', true)
             ->whereNotIn('slug', ['ve-ban-lai', 'khac'])
-            ->withCount(['events' => function ($query) {
-                $query->where('is_published', true)->where('starts_at', '>=', now());
-            }])
+            ->withCount([
+                'events' => function ($query) {
+                    $query->where('is_published', true)->where('starts_at', '>=', now());
+                }
+            ])
             ->having('events_count', '>=', 4)
-            ->with(['events' => function ($query) {
-                $query->activeListing()->upcoming()->take(4);
-            }])
+            ->with([
+                'events' => function ($query) {
+                    $query->activeListing()->upcoming()->take(4);
+                }
+            ])
             ->get();
 
         return view('home.index', compact(

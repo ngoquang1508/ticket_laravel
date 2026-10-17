@@ -20,15 +20,15 @@
     </div>
 
     {{-- Thông tin sự kiện --}}
-    <div class="flex flex-col pt-3">
-        {{-- Tên sự kiện tối đa 2 dòng --}}
+    <div class="flex flex-col pt-2.5">
+        {{-- Tên sự kiện cố định 2 dòng để các card bằng nhau --}}
         <h3
-            class="line-clamp-2 text-sm sm:text-base font-bold text-white group-hover:text-emerald-400 transition-colors">
+            class="h-[2.6rem] line-clamp-2 text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors leading-snug">
             {{ $event->name }}
         </h3>
 
         {{-- Giá vé khởi điểm --}}
-        <div class="mt-1.5 text-sm sm:text-base font-bold text-emerald-400">
+        <div class="mt-1 text-xs sm:text-sm font-bold text-emerald-400">
             @if(isset($event->ticket_types_min_price) && $event->ticket_types_min_price > 0)
                 Từ {{ number_format($event->ticket_types_min_price, 0, ',', '.') }}đ
             @else
@@ -37,8 +37,8 @@
         </div>
 
         {{-- Địa điểm (Thành phố) và Ngày diễn ra --}}
-        <div class="mt-1 flex items-center text-sm font-semibold sm:text-sm text-white/70">
-            <svg class="mr-1 h-3.5 w-3.5 shrink-0 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="mt-1 flex items-center text-xs text-gray-400">
+            <svg class="mr-1 h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -47,9 +47,9 @@
             <span class="truncate">
                 {{ $event->location ? $event->location->city : 'Toàn quốc' }}
             </span>
-            <span class="mx-1.5 text-gray-500">•</span>
-            <span class="shrink-0">
-                {{ $event->starts_at ? $event->starts_at->format('d \T\h m') : 'Đang cập nhật' }}
+            <span class="mx-1 text-gray-500">•</span>
+            <span class="shrink-0 font-medium">
+                {{ $event->starts_at ? $event->starts_at->format('d/m') : 'Đang cập nhật' }}
             </span>
         </div>
     </div>

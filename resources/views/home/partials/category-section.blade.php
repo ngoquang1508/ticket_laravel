@@ -9,7 +9,7 @@
                 {{-- Tiêu đề Danh mục kèm icon và mũi tên > --}}
                 <div class="mb-4 flex items-center justify-between">
                     <a href="{{ route('events.index', $category->slug) }}"
-                        class="group inline-flex items-center gap-2 text-xl sm:text-2xl font-extrabold text-white hover:text-emerald-400 transition-colors">
+                        class="group inline-flex items-center gap-2 text-lg sm:text-xl font-bold text-white hover:text-emerald-400 transition-colors">
                         <span>{{ $category->name }}</span>
                         <svg class="h-5 w-5 text-gray-400 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">

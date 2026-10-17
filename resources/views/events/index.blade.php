@@ -42,9 +42,10 @@
 
         {{-- Trạng thái trống --}}
         @if($upcomingEvents->isEmpty() && $pastEvents->isEmpty())
-            <div class="flex flex-col items-center justify-center py-16 text-center text-gray-400">
+            <div class="flex flex-col items-center justify-center text-center text-gray-400">
                 @if(!empty($searchTerm))
-                    <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5 border border-white/10 text-emerald-400 shadow-inner">
+                    <div
+                        class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5 border border-white/10 text-emerald-400 shadow-inner">
                         <x-icons.search class="h-8 w-8 text-emerald-400" />
                     </div>
                     <p class="text-base font-semibold text-white">Không tìm thấy sự kiện nào phù hợp với "{{ $searchTerm }}"</p>
@@ -54,10 +55,14 @@
                         Xem tất cả sự kiện
                     </a>
                 @else
-                    <div class="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/5 border border-white/10 text-gray-400">
-                        <x-icons.ticket class="h-8 w-8" />
-                    </div>
-                    <p class="text-sm font-medium text-gray-300">Chưa có sự kiện nào.</p>
+                    <p class="my-6 text-sm font-medium text-gray-300">Chưa có vé
+                        {{ $currentCategory ? 'cho "' . $currentCategory->name . '"' : 'nào' }}
+                    </p>
+                    <p class="mb-6 text-sm font-medium text-gray-300">Hãy quay lại sau để khám phá các sự kiện mới.</p>
+                    <a href="{{ route('events.index') }}"
+                        class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-6 py-2.5 text-xs font-bold text-black hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20">
+                        Xem tất cả sự kiện
+                    </a>
                 @endif
             </div>
         @endif

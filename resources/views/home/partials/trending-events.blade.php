@@ -5,7 +5,7 @@
     <section class="py-4">
         {{-- Tiêu đề section --}}
         <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2">
+            <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                 <span>🔥</span>
                 <span>Sự kiện xu hướng</span>
             </h2>
@@ -30,20 +30,20 @@
                         // Fallback overlap 15% tương ứng với từng số
                         $defaultOverlap = match($index + 1) {
                             1 => '-ml-[4px] sm:-ml-[5px]',
-                            10 => '-ml-[9px] sm:-ml-[12px]',
-                            default => '-ml-[6px] sm:-ml-[8px]',
+                            10 => '-ml-[8px] sm:-ml-[10px]',
+                            default => '-ml-[5px] sm:-ml-[7px]',
                         };
                     @endphp
                     <div class="trending-item flex-shrink-0 flex items-end">
                         {{-- Số thứ tự: width co giãn tự nhiên theo nội dung số --}}
                         <div class="trending-number shrink-0 flex items-end select-none pointer-events-none pb-0.5">
-                            <span class="text-7xl sm:text-8xl font-black tracking-tighter leading-none select-none text-transparent bg-clip-text bg-gradient-to-b from-emerald-100 via-emerald-400 to-emerald-700 drop-shadow-[2px_3px_0px_#064e3b] drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] block">
+                            <span class="text-6xl sm:text-7xl font-black tracking-tighter leading-none select-none text-transparent bg-clip-text bg-gradient-to-b from-emerald-100 via-emerald-400 to-emerald-700 drop-shadow-[2px_3px_0px_#064e3b] drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] block">
                                 {{ $index + 1 }}
                             </span>
                         </div>
 
                         {{-- Thẻ sự kiện: đè lên 15% của số, không hover/scale --}}
-                        <div class="trending-card {{ $defaultOverlap }} w-[240px] sm:w-[280px]">
+                        <div class="trending-card {{ $defaultOverlap }} w-[210px] sm:w-[250px]">
                             <a href="{{ route('events.show', $event->slug) }}"
                                 class="block relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-gray-800">
                                 @if($event->image)
@@ -55,7 +55,7 @@
                                     </div>
                                 @endif
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent pointer-events-none"></div>
-                                <div class="absolute bottom-2 left-2 right-2 text-xs font-semibold text-white truncate drop-shadow">
+                                <div class="absolute bottom-2 left-2 right-2 text-xs font-medium text-white truncate drop-shadow">
                                     {{ $event->name }}
                                 </div>
                             </a>

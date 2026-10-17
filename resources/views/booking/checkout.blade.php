@@ -61,7 +61,7 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                 <div class="flex justify-between items-center pt-2 border-t border-white/10 mt-1.5">
                     <span class="text-gray-400 font-medium">Tổng tiền:</span>
                     <span
-                        class="text-base sm:text-lg font-extrabold text-emerald-400">{{ number_format($order->total_amount, 0, ',', '.') }}
+                        class="text-base sm:text-lg font-semibold text-emerald-400">{{ number_format($order->total_amount, 0, ',', '.') }}
                         đ</span>
                 </div>
             </div>

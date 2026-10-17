@@ -112,7 +112,7 @@
                             <tfoot class="border-t border-gray-200 bg-gray-50/50">
                                 <tr>
                                     <td colspan="3" class="px-6 py-4 text-right font-semibold text-gray-700">Tổng cộng:</td>
-                                    <td class="px-6 py-4 text-right text-base font-extrabold text-primary-600 font-mono">
+                                    <td class="px-6 py-4 text-right text-base font-semibold text-primary-600 font-mono">
                                         {{ number_format($order->total_amount, 0, ',', '.') }}đ
                                     </td>
                                 </tr>

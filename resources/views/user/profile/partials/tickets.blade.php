@@ -17,7 +17,7 @@
                     </svg>
                 </div>
             </div>
-            <p class="mt-2 text-xl sm:text-2xl font-extrabold text-white">
+            <p class="mt-2 text-xl sm:text-2xl font-semibold text-white">
                 {{ number_format($upcomingTicketsCount) }}
             </p>
             <p class="mt-0.5 text-[11px] text-emerald-400 flex items-center gap-1">
@@ -37,7 +37,7 @@
                     </svg>
                 </div>
             </div>
-            <p class="mt-2 text-xl sm:text-2xl font-extrabold text-white">
+            <p class="mt-2 text-xl sm:text-2xl font-semibold text-white">
                 {{ number_format($totalTickets) }}
             </p>
             <p class="mt-0.5 text-[11px] text-gray-400">
@@ -56,7 +56,7 @@
                     </svg>
                 </div>
             </div>
-            <p class="mt-2 text-xl sm:text-2xl font-extrabold text-white">
+            <p class="mt-2 text-xl sm:text-2xl font-semibold text-white">
                 {{ number_format($totalOrders) }}
             </p>
             <p class="mt-0.5 text-[11px] text-gray-400">
@@ -187,7 +187,7 @@
 
                             <div class="text-right shrink-0">
                                 <span class="text-xs text-gray-400">Tổng tiền</span>
-                                <p class="text-sm sm:text-base font-extrabold text-white">
+                                <p class="text-sm sm:text-base font-semibold text-white">
                                     {{ number_format($order->total_amount, 0, ',', '.') }} ₫
                                 </p>
                             </div>

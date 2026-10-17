@@ -5,7 +5,7 @@
     <section class="py-4">
         {{-- Tiêu đề section --}}
         <div class="mb-5 flex items-center justify-between">
-            <h2 class="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2">
+            <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                 <svg preserveAspectRatio="none" overflow="visible" width="20" height="20" viewBox="0 0 20 20" fill="none"
                     xmlns="http://www.w3.org/2000/svg" display="block">
                     <g fill="#FFD530">
@@ -24,8 +24,13 @@
         {{-- Lưới 4 thẻ điểm đến lớn --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
             @foreach($destinations as $dest)
-                <a href="{{ route('events.index', ['q' => $dest['query']]) }}"
-                    class="group relative aspect-[4/3] sm:aspect-[3/4] md:aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-gray-900 shadow-xl transition-colors duration-300 hover:border-emerald-500/50">
+                @php
+                    $destUrl = !empty($dest['location']) && $dest['location'] === 'other'
+                        ? route('events.index', ['location' => 'other'])
+                        : route('events.index', ['q' => $dest['query']]);
+                @endphp
+                <a href="{{ $destUrl }}"
+                    class="group relative aspect-[3/4] sm:aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-gray-900 shadow-xl transition-colors duration-300 hover:border-emerald-500/50">
 
                     {{-- Ảnh phong cảnh điểm đến --}}
                     <img src="{{ $dest['image'] }}" alt="{{ $dest['name'] }}"
@@ -42,7 +47,7 @@
                     {{-- Tên thành phố và số sự kiện --}}
                     <div class="absolute bottom-4 left-4 right-4 z-10">
                         <h3
-                            class="text-base font-extrabold text-white drop-shadow-md transition-colors duration-300 group-hover:text-emerald-300 sm:text-xl md:text-2xl">
+                            class="text-sm sm:text-base md:text-lg font-bold text-white drop-shadow-md transition-colors duration-300 group-hover:text-emerald-300">
                             {{ $dest['name'] }}
                         </h3>
 

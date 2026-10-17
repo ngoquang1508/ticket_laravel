@@ -5,12 +5,12 @@
     {{-- Thanh chọn Tab thời gian --}}
     <div class="mb-6 flex items-center gap-3">
         <button type="button" id="tab-btn-weekend"
-            class="time-tab-btn rounded-full px-5 py-2 text-sm sm:text-base font-bold transition-all duration-200 bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+            class="time-tab-btn rounded-full px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-200 bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
             data-target="weekend-panel">
             Cuối tuần này
         </button>
         <button type="button" id="tab-btn-month"
-            class="time-tab-btn rounded-full px-5 py-2 text-sm sm:text-base font-bold transition-all duration-200 border border-white/20 text-gray-300 hover:border-white/40 hover:text-white"
+            class="time-tab-btn rounded-full px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-200 border border-white/20 text-gray-300 hover:border-white/40 hover:text-white"
             data-target="month-panel">
             Tháng này
         </button>
