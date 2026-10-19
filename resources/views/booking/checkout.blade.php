@@ -230,6 +230,23 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
 
         timer = setInterval(updateCountdown, 1000);
         updateCountdown();
+
+        // Chống spam click nút Tiến hành thanh toán
+        const paymentForm = document.getElementById('payment-form-' + orderId);
+        const payBtn = document.getElementById('btn-pay-' + orderId);
+        let isPaymentSubmitting = false;
+        if (paymentForm && payBtn) {
+            paymentForm.addEventListener('submit', (e) => {
+                if (isPaymentSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                isPaymentSubmitting = true;
+                payBtn.disabled = true;
+                payBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                payBtn.innerHTML = `<span>Đang xử lý thanh toán...</span>`;
+            });
+        }
     })();
 </script>
 

@@ -15,43 +15,60 @@
     <div class="min-h-screen text-white pt-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             @if(session('error'))
-                <div class="mb-4 bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div
+                    class="mb-4 bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                     {{ session('error') }}
                 </div>
             @endif
 
             @if(session('info'))
-                <div class="mb-4 bg-blue-500/10 border border-blue-500/50 text-blue-400 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div
+                    class="mb-4 bg-blue-500/10 border border-blue-500/50 text-blue-400 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                     {{ session('info') }}
                 </div>
             @endif
 
             @if(session('success'))
-                <div class="mb-4 bg-green-500/10 border border-green-500/50 text-green-500 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <div
+                    class="mb-4 bg-green-500/10 border border-green-500/50 text-green-500 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
                     {{ session('success') }}
                 </div>
             @endif
 
             @if(isset($activeOrder) && $activeOrder && $activeOrder->expires_at > now())
                 <!-- Banner thông báo có đơn hàng đang giữ chỗ của sự kiện này -->
-                <div class="mb-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5 text-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div
+                    class="mb-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5 text-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div class="flex items-start sm:items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-400">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                         <div>
-                            <p class="font-bold text-white text-sm sm:text-base">Bạn đang có đơn hàng giữ vé #{{ $activeOrder->order_code }}</p>
-                            <p class="text-xs sm:text-sm text-amber-300/80 mt-0.5">Số lượng: {{ $activeOrder->tickets->count() }} vé | Tổng tiền: {{ number_format($activeOrder->total_amount, 0, ',', '.') }} đ</p>
+                            <p class="font-bold text-white text-sm sm:text-base">Bạn đang có đơn hàng giữ vé
+                                #{{ $activeOrder->order_code }}</p>
+                            <p class="text-xs sm:text-sm text-amber-300/80 mt-0.5">Số lượng:
+                                {{ $activeOrder->tickets->count() }} vé | Tổng tiền:
+                                {{ number_format($activeOrder->total_amount, 0, ',', '.') }} đ</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                        <button type="button" onclick="openCheckoutModal({{ $activeOrder->id }})" 
-                                class="bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl hover:bg-emerald-600 transition text-xs sm:text-sm shadow-md shadow-emerald-500/20 cursor-pointer">
+                        <button type="button" onclick="openCheckoutModal({{ $activeOrder->id }})"
+                            class="bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl hover:bg-emerald-600 transition text-xs sm:text-sm shadow-md shadow-emerald-500/20 cursor-pointer">
                             Thanh toán ngay
                         </button>
                     </div>
@@ -257,7 +274,7 @@
                 const isAssignedSeat = @json($isAssignedSeat);
                 const soldSeats = @json($soldSeats ?? []);
                 const heldSeats = @json($heldSeats ?? []);
-                
+
                 const initialSeatStates = {};
                 soldSeats.forEach(id => initialSeatStates[id] = 'sold');
                 heldSeats.forEach(id => initialSeatStates[id] = 'held');
@@ -333,17 +350,17 @@
                     seats.forEach(seat => {
                         total += seat.price;
                         list.insertAdjacentHTML('beforeend', `
-                                                                                    <div class="cart-item bg-[#2b2b2b] p-4 rounded-xl border border-gray-700 mb-3 flex justify-between items-center transition">
-                                                                                        <div>
-                                                                                            <div class="font-bold text-white text-lg">${seat.id}</div>
-                                                                                            <div class="text-sm text-gray-400">Khu ${seat.zone}</div>
+                                                                                        <div class="cart-item bg-[#2b2b2b] p-4 rounded-xl border border-gray-700 mb-3 flex justify-between items-center transition">
+                                                                                            <div>
+                                                                                                <div class="font-bold text-white text-lg">${seat.id}</div>
+                                                                                                <div class="text-sm text-gray-400">Khu ${seat.zone}</div>
+                                                                                            </div>
+                                                                                            <div class="text-right">
+                                                                                                <div class="font-bold text-green-500">${new Intl.NumberFormat('vi-VN').format(seat.price)} đ</div>
+                                                                                                <button type="button" class="text-red-400 text-xs mt-1 hover:text-red-300 font-semibold" onclick="removeSeat('${seat.id}')">Xóa</button>
+                                                                                            </div>
                                                                                         </div>
-                                                                                        <div class="text-right">
-                                                                                            <div class="font-bold text-green-500">${new Intl.NumberFormat('vi-VN').format(seat.price)} đ</div>
-                                                                                            <button type="button" class="text-red-400 text-xs mt-1 hover:text-red-300 font-semibold" onclick="removeSeat('${seat.id}')">Xóa</button>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                `);
+                                                                                    `);
                     });
                 } else {
                     emptyMsg.style.display = 'block';
@@ -359,16 +376,16 @@
                             const subtotal = ticket.price * qty;
                             total += subtotal;
                             list.insertAdjacentHTML('beforeend', `
-                                                                                        <div class="cart-item bg-[#2b2b2b] p-4 rounded-xl border border-gray-700 mb-3 flex justify-between items-center transition">
-                                                                                            <div>
-                                                                                                <div class="font-bold text-white">${ticket.name}</div>
-                                                                                                <div class="text-sm text-gray-400">${qty} vé</div>
+                                                                                            <div class="cart-item bg-[#2b2b2b] p-4 rounded-xl border border-gray-700 mb-3 flex justify-between items-center transition">
+                                                                                                <div>
+                                                                                                    <div class="font-bold text-white">${ticket.name}</div>
+                                                                                                    <div class="text-sm text-gray-400">${qty} vé</div>
+                                                                                                </div>
+                                                                                                <div class="text-right">
+                                                                                                    <div class="font-bold text-green-500">${new Intl.NumberFormat('vi-VN').format(subtotal)} đ</div>
+                                                                                                </div>
                                                                                             </div>
-                                                                                            <div class="text-right">
-                                                                                                <div class="font-bold text-green-500">${new Intl.NumberFormat('vi-VN').format(subtotal)} đ</div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    `);
+                                                                                        `);
                         }
                     });
                 } else {
@@ -382,6 +399,8 @@
             mCountEl.textContent = `${count} vé`;
 
             dataInput.value = JSON.stringify(cart);
+
+            if (isSubmitting) return;
 
             const canCheckout = count > 0;
             [btn, mBtn].forEach(b => {
@@ -446,8 +465,94 @@
             });
         }
 
-        document.getElementById('mobile-btn-checkout')?.addEventListener('click', () => {
-            document.getElementById('checkout-form').submit();
+        // --- Chống spam submit & Kiểm tra đơn hàng giữ vé ---
+        let isSubmitting = false;
+        let lastToastTime = 0;
+        const hasActiveOrder = @json(isset($activeOrder) && $activeOrder && $activeOrder->expires_at > now());
+        const activeOrderCode = @json($activeOrder?->order_code);
+
+        // Hiển thị trạng thái loading khi đang xử lý đặt vé
+        function setSubmittingState() {
+            isSubmitting = true;
+            const spinnerSvg = `
+                <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            `;
+
+            const btn = document.getElementById('btn-checkout');
+            const mBtn = document.getElementById('mobile-btn-checkout');
+
+            [btn, mBtn].forEach(b => {
+                if (b) {
+                    b.disabled = true;
+                    b.classList.add('opacity-75', 'cursor-not-allowed');
+                    b.classList.remove('hover:bg-white', 'hover:text-black');
+                    b.innerHTML = `${spinnerSvg} <span>Đang xử lý...</span>`;
+                }
+            });
+        }
+
+        function validateBeforeCheckout(e) {
+            // Chặn tuyệt đối nếu đang trong tiến trình submit (chống spam click)
+            if (isSubmitting) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                return false;
+            }
+
+            // Chặn và báo toast nếu user đã có đơn giữ vé
+            if (hasActiveOrder) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                const now = Date.now();
+                // Chống spam toast: chỉ bắn toast nếu cách lần trước tối thiểu 2.5 giây
+                if (now - lastToastTime > 2500) {
+                    lastToastTime = now;
+                    if (typeof window.showAppToast === 'function') {
+                        window.showAppToast(
+                            'error',
+                            'Đang có đơn giữ vé',
+                            `Bạn đang có đơn hàng giữ vé #${activeOrderCode} cho sự kiện này. Vui lòng thanh toán hoặc hủy đơn trước khi đặt mới.`
+                        );
+                    }
+                }
+                return false;
+            }
+
+            // Kiểm tra số lượng vé đã chọn
+            const count = isAssignedSeat 
+                ? Object.keys(cart).length 
+                : Object.values(cart).reduce((a, b) => a + b, 0);
+
+            if (count === 0) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                return false;
+            }
+
+            // Kích hoạt trạng thái loading và khóa nút bấm chống spam
+            setSubmittingState();
+            return true;
+        }
+
+        document.getElementById('checkout-form')?.addEventListener('submit', (e) => {
+            if (!validateBeforeCheckout(e)) {
+                return false;
+            }
+        });
+
+        document.getElementById('mobile-btn-checkout')?.addEventListener('click', (e) => {
+            if (validateBeforeCheckout(e)) {
+                document.getElementById('checkout-form').submit();
+            }
         });
     </script>
 

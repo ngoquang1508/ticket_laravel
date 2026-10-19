@@ -43,10 +43,10 @@ class BookingController extends Controller
         $existingOrder = $bookingService->getActivePendingOrder($event, $userId);
 
         if ($existingOrder) {
-            // Không tạo order mới, tái sử dụng order hiện tại và tự mở checkout modal của order đó
+            // Thông báo người dùng đang có đơn giữ vé chưa thanh toán, không tự động mở modal đơn cũ
             return redirect()->route('events.book', $event->slug)
-                ->with('active_checkout_order', $existingOrder->order_code)
-                ->with('info', 'Bạn đang có đơn hàng giữ vé cho sự kiện này. Vui lòng thanh toán hoặc hủy đơn trước khi đặt mới.');
+                ->with('toast_title', 'Đang có đơn giữ vé')
+                ->with('error', 'Bạn đang có đơn hàng giữ vé #' . $existingOrder->order_code . ' cho sự kiện này. Vui lòng thanh toán hoặc hủy đơn trước khi đặt mới.');
         }
 
         try {
