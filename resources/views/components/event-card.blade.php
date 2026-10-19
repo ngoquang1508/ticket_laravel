@@ -17,7 +17,8 @@
         @endif
 
         @if(!$event->isSaleStarted())
-            <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-amber-500/90 text-white text-[11px] font-bold tracking-wide uppercase backdrop-blur-sm shadow-md z-10">
+            <span
+                class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-amber-500/90 text-white text-[11px] font-bold tracking-wide uppercase backdrop-blur-sm shadow-md z-10">
                 Sắp mở bán
             </span>
         @endif
@@ -29,7 +30,7 @@
             @if(isset($event->ticket_types_min_price) && $event->ticket_types_min_price > 0)
                 Từ {{ number_format($event->ticket_types_min_price, 0, ',', '.') }}đ
             @else
-                Đang cập nhật
+                Từ 0đ
             @endif
         </div>
 
