@@ -2,12 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Booking\ProcessPaymentRequest;
+use App\Http\Requests\Booking\StoreBookingRequest;
+use App\Http\Requests\Booking\UpdateTicketsRequest;
 use App\Models\Event;
+use App\Models\Order;
+use App\Models\Seat;
+use App\Services\BookingService;
+use App\Services\VNPayService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class BookingController extends Controller
 {
-    public function show(string $slug, \App\Services\BookingService $bookingService)
+    protected BookingService $bookingService;
+
+    public function __construct(BookingService $bookingService)
+    {
+        $this->bookingService = $bookingService;
+    }
+
+    /**
+     * Hiển thị trang chọn vé sự kiện (bản đồ ghế hoặc danh sách vé tự do).
+     */
+    public function show(string $slug): View
     {
         $event = Event::with(['ticketTypes', 'seatMap'])
             ->where('slug', $slug)
@@ -18,17 +37,20 @@ class BookingController extends Controller
         $activeOrder = null;
 
         if ($userId) {
-            $bookingService->cancelExpiredOrders($userId);
-            $activeOrder = $bookingService->getActivePendingOrder($event, $userId);
+            $this->bookingService->cancelExpiredOrders($userId);
+            $activeOrder = $this->bookingService->getActivePendingOrder($event, $userId);
         }
 
-        $soldSeats = \App\Models\Seat::where('event_id', $event->id)->where('status', 'sold')->pluck('seat_number')->toArray();
-        $heldSeats = \App\Models\Seat::where('event_id', $event->id)->where('status', 'held')->pluck('seat_number')->toArray();
+        $soldSeats = Seat::where('event_id', $event->id)->where('status', 'sold')->pluck('seat_number')->toArray();
+        $heldSeats = Seat::where('event_id', $event->id)->where('status', 'held')->pluck('seat_number')->toArray();
 
         return view('booking.show', compact('event', 'soldSeats', 'heldSeats', 'activeOrder'));
     }
 
-    public function store(Request $request, string $slug, \App\Services\BookingService $bookingService)
+    /**
+     * Tạo đơn hàng giữ vé khi người dùng bấm Tiếp tục thanh toán.
+     */
+    public function store(StoreBookingRequest $request, string $slug): RedirectResponse
     {
         $event = Event::where('slug', $slug)
             ->where('is_published', true)
@@ -36,31 +58,25 @@ class BookingController extends Controller
 
         $userId = auth()->id();
 
-        // 1. Quét hủy các đơn đã hết hạn giữ vé của user
-        $bookingService->cancelExpiredOrders($userId);
+        // 1. Quét dọn các đơn hết hạn của người dùng
+        $this->bookingService->cancelExpiredOrders($userId);
 
-        // 2. Kiểm tra xem user đã có order pending của cùng event còn trong thời gian giữ vé hay chưa
-        $existingOrder = $bookingService->getActivePendingOrder($event, $userId);
-
+        // 2. Chặn nếu người dùng đang có đơn giữ vé còn thời hạn
+        $existingOrder = $this->bookingService->getActivePendingOrder($event, $userId);
         if ($existingOrder) {
-            // Thông báo người dùng đang có đơn giữ vé chưa thanh toán, không tự động mở modal đơn cũ
             return redirect()->route('events.book', $event->slug)
                 ->with('toast_title', 'Đang có đơn giữ vé')
                 ->with('error', 'Bạn đang có đơn hàng giữ vé #' . $existingOrder->order_code . ' cho sự kiện này. Vui lòng thanh toán hoặc hủy đơn trước khi đặt mới.');
         }
 
         try {
-            // Cart data is sent as JSON in 'cart_data' hidden input
-            \Illuminate\Support\Facades\Log::info('Received cart_data:', ['data' => $request->input('cart_data')]);
-            $cartData = json_decode($request->input('cart_data'), true) ?? [];
-
+            $cartData = $request->getCartData();
             $input = $event->sale_mode === 'assigned_seat'
                 ? ['seats' => implode(',', array_keys($cartData))]
                 : ['tickets' => $cartData];
 
-            $order = $bookingService->createOrder($event, $input);
+            $order = $this->bookingService->createOrder($event, $input);
 
-            // Giữ vé thành công, redirect về trang chọn vé và tự mở modal checkout
             return redirect()->route('events.book', $event->slug)
                 ->with('active_checkout_order', $order->order_code)
                 ->with('success', 'Giữ vé thành công! Vui lòng hoàn tất thanh toán trong 10 phút.');
@@ -69,11 +85,12 @@ class BookingController extends Controller
         }
     }
 
-    public function processPayment(\Illuminate\Http\Request $request, \App\Models\Order $order, \App\Services\VNPayService $vnpayService, \App\Services\BookingService $bookingService)
+    /**
+     * Xử lý điều hướng thanh toán (VNPay hoặc Trực tiếp).
+     */
+    public function processPayment(ProcessPaymentRequest $request, Order $order, VNPayService $vnpayService): RedirectResponse
     {
-        if ($order->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeOrder($order);
 
         if ($order->status !== 'pending' || now() > $order->expires_at) {
             return redirect()->route('home')->with('error', 'Đơn hàng đã hết hạn hoặc bị hủy.');
@@ -85,31 +102,33 @@ class BookingController extends Controller
             if ($method === 'vnpay') {
                 $paymentUrl = $vnpayService->createPaymentUrl($order);
                 return redirect($paymentUrl);
-            } elseif ($method === 'direct') {
-                // Kiểm tra sự kiện có còn trong thời hạn cho phép thanh toán trực tiếp không (trước 48h)
+            }
+
+            if ($method === 'direct') {
                 if (!$order->event->canPayDirect()) {
                     return back()->with('error', 'Hình thức thanh toán trực tiếp đã ngừng nhận cho sự kiện này (chỉ áp dụng trước 48 giờ khi sự kiện diễn ra). Vui lòng chọn thanh toán qua VNPay.');
                 }
 
-                // Gia hạn tối đa 24 giờ nhưng không vượt quá thời điểm bắt đầu sự kiện
                 $expireAt = now()->addHours(24);
                 if ($order->event->starts_at && $expireAt->greaterThan($order->event->starts_at)) {
                     $expireAt = $order->event->starts_at;
                 }
 
-                // Chuyển sang processing và kích hoạt thông báo cho Admin
-                $bookingService->markAsProcessing($order, $expireAt);
+                $this->bookingService->markAsProcessing($order, $expireAt);
 
                 return redirect()->route('orders.instruction', $order->order_code);
-            } else {
-                return back()->with('error', 'Phương thức thanh toán không hợp lệ.');
             }
+
+            return back()->with('error', 'Phương thức thanh toán không hợp lệ.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
 
-    public function vnpayReturn(\Illuminate\Http\Request $request, \App\Services\VNPayService $vnpayService, \App\Services\BookingService $bookingService)
+    /**
+     * Nhận kết quả phản hồi từ cổng thanh toán VNPay.
+     */
+    public function vnpayReturn(Request $request, VNPayService $vnpayService): RedirectResponse
     {
         $result = $vnpayService->verifyPayment($request->all());
 
@@ -117,7 +136,7 @@ class BookingController extends Controller
             return redirect()->route('home')->with('error', 'Giao dịch không hợp lệ.');
         }
 
-        $order = \App\Models\Order::where('order_code', $result['order_code'])->first();
+        $order = Order::where('order_code', $result['order_code'])->first();
         if (!$order) {
             return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng.');
         }
@@ -125,20 +144,23 @@ class BookingController extends Controller
         if ($result['success']) {
             try {
                 if ($order->status === 'pending') {
-                    $bookingService->confirmOrder($order, $result['transaction_no'], 'vnpay');
+                    $this->bookingService->confirmOrder($order, $result['transaction_no'], 'vnpay');
                 }
                 return redirect()->route('orders.success', $order->order_code);
             } catch (\Exception $e) {
                 return redirect()->route('home')->with('error', 'Lỗi xử lý đơn hàng: ' . $e->getMessage());
             }
-        } else {
-            return redirect()->route('user.tickets')
-                ->with('active_checkout_order', $order->order_code)
-                ->with('error', 'Thanh toán thất bại: ' . $result['message']);
         }
+
+        return redirect()->route('user.tickets')
+            ->with('active_checkout_order', $order->order_code)
+            ->with('error', 'Thanh toán thất bại: ' . $result['message']);
     }
 
-    public function success(\App\Models\Order $order)
+    /**
+     * Trang hoàn tất thanh toán thành công.
+     */
+    public function success(Order $order)
     {
         if ($order->user_id !== auth()->id() || $order->status !== 'completed') {
             return redirect()->route('home');
@@ -146,15 +168,21 @@ class BookingController extends Controller
         return view('booking.success', compact('order'));
     }
 
-    public function instruction(\App\Models\Order $order)
+    /**
+     * Trang hướng dẫn chuyển khoản trực tiếp.
+     */
+    public function instruction(Order $order)
     {
-        if ($order->user_id !== auth()->id() || !in_array($order->status, [\App\Models\Order::STATUS_PENDING, \App\Models\Order::STATUS_PROCESSING]) || $order->payment_method !== \App\Models\Order::PAYMENT_METHOD_DIRECT) {
+        if ($order->user_id !== auth()->id() || !in_array($order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING]) || $order->payment_method !== Order::PAYMENT_METHOD_DIRECT) {
             return redirect()->route('home');
         }
         return view('booking.instruction', compact('order'));
     }
 
-    public function cancel(\App\Models\Order $order, \App\Services\BookingService $bookingService)
+    /**
+     * Hủy đơn hàng và giải phóng vé/ghế.
+     */
+    public function cancel(Order $order)
     {
         if ($order->user_id !== auth()->id()) {
             if (request()->wantsJson()) {
@@ -164,7 +192,7 @@ class BookingController extends Controller
         }
 
         try {
-            $bookingService->cancelOrder($order, 'cancelled', 'Người dùng hủy đơn');
+            $this->bookingService->cancelOrder($order, 'cancelled', 'Người dùng hủy đơn');
             if (request()->wantsJson()) {
                 return response()->json(['success' => true]);
             }
@@ -177,27 +205,19 @@ class BookingController extends Controller
         }
     }
 
-    public function updateTickets(\Illuminate\Http\Request $request, \App\Models\Order $order, \App\Services\BookingService $bookingService)
+    /**
+     * Cập nhật số lượng vé cho đơn hàng tự do.
+     */
+    public function updateTickets(UpdateTicketsRequest $request, Order $order): RedirectResponse
     {
-        if ($order->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        $tickets = $request->input('tickets', []);
-        if (empty($tickets) || !is_array($tickets)) {
-            return back()->with('error', 'Dữ liệu số lượng vé không hợp lệ.');
-        }
+        $this->authorizeOrder($order);
 
         try {
-            $bookingService->updateOrderTickets($order, $tickets);
+            $this->bookingService->updateOrderTickets($order, $request->input('tickets', []));
 
-            // Chuyển hướng về trang my-tickets với đúng trạng thái và thẻ đơn hàng theo id
             $status = $request->input('status', $order->status);
             $page = $request->input('page');
-            $params = array_filter([
-                'status' => $status,
-                'page' => $page,
-            ]);
+            $params = array_filter(['status' => $status, 'page' => $page]);
 
             $targetUrl = route('user.tickets', $params) . '#order-' . $order->id;
 
@@ -207,15 +227,16 @@ class BookingController extends Controller
         }
     }
 
-    public function editTickets(\App\Models\Order $order, \App\Services\BookingService $bookingService)
+    /**
+     * Giao diện chỉnh sửa ghế cho đơn hàng sơ đồ ghế.
+     */
+    public function editTickets(Order $order)
     {
-        if ($order->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeOrder($order);
 
         if ($order->status !== 'pending' || now() > $order->expires_at) {
             if ($order->status === 'pending' && now() > $order->expires_at) {
-                $bookingService->cancelOrder($order, 'cancelled', 'Hết hạn thanh toán');
+                $this->bookingService->cancelOrder($order, 'cancelled', 'Hết hạn thanh toán');
             }
             $params = array_filter([
                 'status' => request('status', 'cancelled'),
@@ -232,16 +253,14 @@ class BookingController extends Controller
         $order->load(['event.ticketTypes', 'event.seatMap', 'tickets.seat', 'items.ticketType']);
         $event = $order->event;
 
-        $soldSeats = \App\Models\Seat::where('event_id', $event->id)->where('status', 'sold')->pluck('seat_number')->toArray();
+        $soldSeats = Seat::where('event_id', $event->id)->where('status', 'sold')->pluck('seat_number')->toArray();
         $currentSeatNumbers = $order->tickets->pluck('seat.seat_number')->filter()->values()->toArray();
-        // Ghế held bởi các đơn hàng khác (loại trừ ghế đang giữ của chính đơn hàng này)
-        $heldSeats = \App\Models\Seat::where('event_id', $event->id)
+        $heldSeats = Seat::where('event_id', $event->id)
             ->where('status', 'held')
             ->whereNotIn('seat_number', $currentSeatNumbers)
             ->pluck('seat_number')
             ->toArray();
 
-        // Chuẩn bị giỏ hàng ban đầu
         $initialCart = [];
         foreach ($order->tickets as $ticket) {
             if ($ticket->seat) {
@@ -257,11 +276,12 @@ class BookingController extends Controller
         return view('user.tickets.edit_tickets', compact('order', 'event', 'soldSeats', 'heldSeats', 'currentSeatNumbers', 'initialCart'));
     }
 
-    public function updateAssignedSeats(\Illuminate\Http\Request $request, \App\Models\Order $order, \App\Services\BookingService $bookingService)
+    /**
+     * Cập nhật danh sách ghế đã chọn cho đơn hàng.
+     */
+    public function updateAssignedSeats(Request $request, Order $order): RedirectResponse
     {
-        if ($order->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeOrder($order);
 
         try {
             $cartData = json_decode($request->input('cart_data'), true) ?? [];
@@ -270,15 +290,11 @@ class BookingController extends Controller
             }
 
             $seatNumbers = array_keys($cartData);
-            $bookingService->updateAssignedSeatOrder($order, $seatNumbers);
+            $this->bookingService->updateAssignedSeatOrder($order, $seatNumbers);
 
-            // Chuyển hướng về trang my-tickets với đúng trạng thái và thẻ đơn hàng theo id
             $status = $request->input('status', $order->status);
             $page = $request->input('page');
-            $params = array_filter([
-                'status' => $status,
-                'page' => $page,
-            ]);
+            $params = array_filter(['status' => $status, 'page' => $page]);
 
             $targetUrl = route('user.tickets', $params) . '#order-' . $order->id;
 
@@ -286,5 +302,13 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Kiểm tra quyền sở hữu đơn hàng của người dùng đang đăng nhập.
+     */
+    protected function authorizeOrder(Order $order): void
+    {
+        abort_if($order->user_id !== auth()->id(), 403, 'Bạn không có quyền thao tác trên đơn hàng này.');
     }
 }
