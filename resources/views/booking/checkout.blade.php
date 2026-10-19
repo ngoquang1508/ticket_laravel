@@ -71,6 +71,88 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                 <form id="payment-form-{{ $order->id }}"
                     action="{{ route('orders.process-payment', $order->order_code) }}" method="POST">
                     @csrf
+
+                    @php
+                        $user = auth()->user();
+                        $customerName = old('customer_name', $order->customer_name ?: ($user?->name ?? ''));
+                        $customerEmail = old('customer_email', $order->customer_email ?: ($user?->email ?? ''));
+                        $customerPhone = old('customer_phone', $order->customer_phone ?: ($user?->phone ?? ''));
+                        $hasPhone = !empty($customerPhone);
+                    @endphp
+
+                    <!-- Khối thông tin người nhận vé (Compact Preview Card) -->
+                    <div class="bg-[#292929] rounded-xl p-3 sm:p-3.5 border border-white/10 text-xs mb-3.5 sm:mb-4 transition-all duration-200" id="customer-box-{{ $order->id }}">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="p-1 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </span>
+                                <span class="font-semibold text-white truncate text-xs sm:text-sm">Thông tin nhận vé</span>
+                            </div>
+
+                            <!-- Nút mở rộng/thu gọn form chỉnh sửa -->
+                            <button type="button" id="btn-toggle-customer-{{ $order->id }}"
+                                class="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium px-2 py-1 rounded hover:bg-emerald-500/10 transition cursor-pointer flex items-center gap-1 shrink-0">
+                                <span id="btn-toggle-text-{{ $order->id }}">{{ $hasPhone ? 'Thay đổi' : 'Bổ sung SĐT' }}</span>
+                                <svg id="btn-toggle-icon-{{ $order->id }}" class="w-3.5 h-3.5 transition-transform duration-200 {{ $hasPhone ? '' : 'rotate-180' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Dòng tóm tắt nhanh (hiển thị mặc định nếu đã có số điện thoại) -->
+                        <div id="customer-preview-{{ $order->id }}" class="{{ $hasPhone ? '' : 'hidden' }} mt-2 pt-2 border-t border-white/5 space-y-0.5">
+                            <div class="flex items-center justify-between text-xs gap-2">
+                                <span class="text-white font-medium truncate" id="preview-name-{{ $order->id }}">{{ $customerName ?: 'Chưa có tên' }}</span>
+                                <span class="text-gray-300 font-mono text-[11px] shrink-0" id="preview-phone-{{ $order->id }}">{{ $customerPhone ?: 'Chưa có SĐT' }}</span>
+                            </div>
+                            <div class="text-[11px] text-gray-400 truncate" id="preview-email-{{ $order->id }}">{{ $customerEmail ?: 'Chưa có email' }}</div>
+                        </div>
+
+                        <!-- Form chi tiết (Mở rộng khi click nút Thay đổi hoặc khi chưa có SĐT) -->
+                        <div id="customer-form-fields-{{ $order->id }}" class="{{ $hasPhone ? 'hidden' : '' }} space-y-2.5 mt-2.5 pt-2.5 border-t border-white/10">
+                            <div>
+                                <label class="block text-[11px] text-gray-400 font-medium mb-1">
+                                    Họ và tên người nhận <span class="text-red-400">*</span>
+                                </label>
+                                <input type="text" name="customer_name" id="input-name-{{ $order->id }}" value="{{ $customerName }}" required
+                                    class="w-full bg-[#1e1e1e] border border-white/10 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-500 transition placeholder-gray-500"
+                                    placeholder="VD: Nguyễn Văn A">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] text-gray-400 font-medium mb-1">
+                                        Email nhận mã vé <span class="text-red-400">*</span>
+                                    </label>
+                                    <input type="email" name="customer_email" id="input-email-{{ $order->id }}" value="{{ $customerEmail }}" required
+                                        class="w-full bg-[#1e1e1e] border border-white/10 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-500 transition placeholder-gray-500"
+                                        placeholder="email@example.com">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-gray-400 font-medium mb-1 flex items-center justify-between">
+                                        <span>Số điện thoại <span class="text-red-400">*</span></span>
+                                        @if(!$hasPhone)
+                                            <span class="text-[10px] text-amber-400 font-normal">Cần bổ sung</span>
+                                        @endif
+                                    </label>
+                                    <input type="tel" name="customer_phone" id="input-phone-{{ $order->id }}" value="{{ $customerPhone }}" required
+                                        pattern="^(0|\+84)[35789][0-9]{8}$"
+                                        class="w-full bg-[#1e1e1e] border border-white/10 rounded-lg px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-500 transition placeholder-gray-500"
+                                        placeholder="0912345678">
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-gray-400 italic flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Vé điện tử và mã QR check-in sự kiện sẽ được gửi tới địa chỉ email này.</span>
+                            </p>
+                        </div>
+                    </div>
+
                     <h3 class="font-semibold text-white mb-2 text-xs sm:text-sm flex items-center gap-2">
                         <span>Chọn hình thức thanh toán:</span>
                     </h3>
@@ -231,12 +313,72 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
         timer = setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // Chống spam click nút Tiến hành thanh toán
+        // Xử lý thông tin người nhận vé (Compact Preview Card & Realtime Sync)
+        const toggleBtn = document.getElementById('btn-toggle-customer-' + orderId);
+        const toggleText = document.getElementById('btn-toggle-text-' + orderId);
+        const toggleIcon = document.getElementById('btn-toggle-icon-' + orderId);
+        const formFields = document.getElementById('customer-form-fields-' + orderId);
+        const previewBox = document.getElementById('customer-preview-' + orderId);
+
+        const inputName = document.getElementById('input-name-' + orderId);
+        const inputEmail = document.getElementById('input-email-' + orderId);
+        const inputPhone = document.getElementById('input-phone-' + orderId);
+
+        const previewName = document.getElementById('preview-name-' + orderId);
+        const previewEmail = document.getElementById('preview-email-' + orderId);
+        const previewPhone = document.getElementById('preview-phone-' + orderId);
+
+        if (toggleBtn && formFields) {
+            toggleBtn.addEventListener('click', () => {
+                const isHidden = formFields.classList.contains('hidden');
+                if (isHidden) {
+                    formFields.classList.remove('hidden');
+                    if (previewBox) previewBox.classList.add('hidden');
+                    if (toggleText) toggleText.innerText = 'Thu gọn';
+                    if (toggleIcon) toggleIcon.classList.add('rotate-180');
+                } else {
+                    formFields.classList.add('hidden');
+                    if (previewBox) previewBox.classList.remove('hidden');
+                    if (toggleText) toggleText.innerText = 'Thay đổi';
+                    if (toggleIcon) toggleIcon.classList.remove('rotate-180');
+                }
+            });
+        }
+
+        // Cập nhật realtime preview khi người dùng nhập dữ liệu
+        if (inputName && previewName) {
+            inputName.addEventListener('input', (e) => {
+                previewName.innerText = e.target.value.trim() || 'Chưa có tên';
+            });
+        }
+        if (inputEmail && previewEmail) {
+            inputEmail.addEventListener('input', (e) => {
+                previewEmail.innerText = e.target.value.trim() || 'Chưa có email';
+            });
+        }
+        if (inputPhone && previewPhone) {
+            inputPhone.addEventListener('input', (e) => {
+                previewPhone.innerText = e.target.value.trim() || 'Chưa có SĐT';
+            });
+        }
+
+        // Chống spam click nút Tiến hành thanh toán & tự động mở form nếu thiếu trường
         const paymentForm = document.getElementById('payment-form-' + orderId);
         const payBtn = document.getElementById('btn-pay-' + orderId);
         let isPaymentSubmitting = false;
         if (paymentForm && payBtn) {
             paymentForm.addEventListener('submit', (e) => {
+                // Nếu dữ liệu chưa hợp lệ và form đang bị thu gọn, tự động bung ra để người dùng thấy lỗi
+                if (!paymentForm.checkValidity()) {
+                    if (formFields && formFields.classList.contains('hidden')) {
+                        formFields.classList.remove('hidden');
+                        if (previewBox) previewBox.classList.add('hidden');
+                        if (toggleText) toggleText.innerText = 'Thu gọn';
+                        if (toggleIcon) toggleIcon.classList.add('rotate-180');
+                    }
+                    return;
+                }
+
                 if (isPaymentSubmitting) {
                     e.preventDefault();
                     return false;

@@ -66,9 +66,12 @@ class OrderPaymentService
             }
         });
 
-        // Gửi email xác nhận
+        // Gửi email xác nhận vé điện tử
         try {
-            Mail::to($order->user->email)->send(new OrderConfirmed($order));
+            $recipientEmail = $order->customer_email ?: $order->user?->email;
+            if ($recipientEmail) {
+                Mail::to($recipientEmail)->send(new OrderConfirmed($order));
+            }
         } catch (\Throwable $e) {
             Log::warning('Lỗi gửi email xác nhận đơn hàng: ' . $e->getMessage());
         }
@@ -150,7 +153,8 @@ class OrderPaymentService
         });
 
         try {
-            $recipientEmail = $order->user?->email ?: $order->customer_email;
+            // Ưu tiên gửi email vé điện tử đến địa chỉ customer_email được nhập trên đơn hàng
+            $recipientEmail = $order->customer_email ?: $order->user?->email;
             if ($recipientEmail) {
                 Mail::to($recipientEmail)->send(new OrderConfirmed($order));
             }

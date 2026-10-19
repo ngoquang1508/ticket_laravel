@@ -98,6 +98,19 @@ class BookingController extends Controller
 
         $method = $request->input('payment_method');
 
+        // Cập nhật thông tin người nhận vé vào đơn hàng
+        $order->update([
+            'customer_name'  => $request->input('customer_name', $order->customer_name),
+            'customer_email' => $request->input('customer_email', $order->customer_email),
+            'customer_phone' => $request->input('customer_phone', $order->customer_phone),
+        ]);
+
+        // Tự động lưu số điện thoại vào thông tin tài khoản nếu người dùng chưa có
+        $currentUser = auth()->user();
+        if ($currentUser && empty($currentUser->phone) && !empty($request->customer_phone)) {
+            $currentUser->update(['phone' => $request->customer_phone]);
+        }
+
         try {
             if ($method === 'vnpay') {
                 $paymentUrl = $vnpayService->createPaymentUrl($order);
