@@ -26,12 +26,18 @@ class BookingController extends Controller
     /**
      * Hiển thị trang chọn vé sự kiện (bản đồ ghế hoặc danh sách vé tự do).
      */
-    public function show(string $slug): View
+    public function show(string $slug): View|\Illuminate\Http\RedirectResponse
     {
         $event = Event::with(['ticketTypes', 'seatMap'])
             ->where('slug', $slug)
             ->where('is_published', true)
             ->firstOrFail();
+
+        // Chặn truy cập nếu sự kiện chưa đến giờ mở bán vé
+        if (!$event->isSaleStarted()) {
+            return redirect()->route('events.show', $event->slug)
+                ->with('error', 'Sự kiện chưa đến thời gian mở bán vé (Dự kiến mở bán lúc: ' . $event->ticket_sale_starts_at?->format('H:i, d/m/Y') . ').');
+        }
 
         $userId = auth()->id();
         $activeOrder = null;

@@ -20,6 +20,7 @@ class Event extends Model
         'image',
         'starts_at',
         'ends_at',
+        'ticket_sale_starts_at',
         'sale_mode',
         'is_featured',
         'is_published',
@@ -28,9 +29,19 @@ class Event extends Model
     protected $casts = [
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+        'ticket_sale_starts_at' => 'datetime',
         'is_featured' => 'boolean',
         'is_published' => 'boolean',
     ];
+
+    /**
+     * Kiểm tra xem vé sự kiện đã bắt đầu mở bán hay chưa.
+     * Nếu không cài đặt (null) thì mặc định là đã mở bán ngay khi công bố.
+     */
+    public function isSaleStarted(): bool
+    {
+        return !$this->ticket_sale_starts_at || now()->gte($this->ticket_sale_starts_at);
+    }
 
     /**
      * Số giờ trước khi sự kiện bắt đầu sẽ ngừng chấp nhận thanh toán trực tiếp.

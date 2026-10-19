@@ -15,6 +15,12 @@
                 </svg>
             </div>
         @endif
+
+        @if(!$event->isSaleStarted())
+            <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-amber-500/90 text-white text-[11px] font-bold tracking-wide uppercase backdrop-blur-sm shadow-md z-10">
+                Sắp mở bán
+            </span>
+        @endif
     </div>
     <div class="flex flex-col pt-3">
         <h3 class="line-clamp-2 text-base font-bold">{{ $event->name }}</h3>

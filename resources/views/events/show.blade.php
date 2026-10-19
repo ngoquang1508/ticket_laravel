@@ -115,7 +115,14 @@
                                 </svg>
                             @endif
                         </div>
-                        @if(now() < $event->starts_at)
+                        @if(!$event->isSaleStarted())
+                            <div class="w-full py-3 px-4 rounded-lg font-bold text-center bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                                <span class="block text-sm sm:text-base">Sắp mở bán</span>
+                                <span class="block text-xs font-normal text-gray-300 mt-0.5">
+                                    Mở bán lúc: {{ $event->ticket_sale_starts_at->format('H:i, d/m/Y') }}
+                                </span>
+                            </div>
+                        @elseif(now() < $event->starts_at)
                             <a href="{{ route('events.book', $event->slug) }}"
                                 class="w-full block text-center py-3.5 rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
                                 Mua vé ngay
@@ -217,7 +224,14 @@
                                             {{ \Carbon\Carbon::parse($event->ends_at)->format('H:i, d \T\h\á\n\g m, Y') }}
                                         </span>
                                     </div>
-                                    @if(now() < $event->starts_at)
+                                    @if(!$event->isSaleStarted())
+                                        <div class="w-full sm:w-auto sm:px-5 px-3 py-2 mt-4 sm:mt-0 text-center rounded-lg font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs sm:text-sm">
+                                            <span>Sắp mở bán</span>
+                                            <span class="block sm:inline sm:ml-1 text-[11px] font-normal text-gray-300">
+                                                ({{ $event->ticket_sale_starts_at->format('H:i, d/m/Y') }})
+                                            </span>
+                                        </div>
+                                    @elseif(now() < $event->starts_at)
                                         <a href="{{ route('events.book', $event->slug) }}" onclick="event.stopPropagation()"
                                             class="w-full sm:w-auto sm:px-6 px-3 py-3 mt-4 sm:mt-0 inline-block text-center rounded-lg font-bold transition duration-300 cursor-pointer text-white bg-[#1db954] hover:bg-white hover:text-black">
                                             Mua vé ngay

@@ -212,6 +212,7 @@ class EventController extends Controller
             'image' => ['nullable', 'image', 'max:2048'],
             'starts_at' => ['required', 'date'],
             'ends_at' => ['required', 'date', 'after:starts_at'],
+            'ticket_sale_starts_at' => ['nullable', 'date'],
             'sale_mode' => ['required', 'in:general_admission,assigned_seat,free_sale'],
             'free_tickets' => ['required_if:sale_mode,free_sale', 'nullable', 'array', 'min:1'],
             'free_tickets.*.id' => ['nullable', 'integer'],

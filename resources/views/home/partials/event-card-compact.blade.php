@@ -17,6 +17,12 @@
                 </svg>
             </div>
         @endif
+
+        @if(!$event->isSaleStarted())
+            <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-amber-500/90 text-white text-[10px] font-bold tracking-wide uppercase backdrop-blur-sm shadow-md z-10">
+                Sắp mở bán
+            </span>
+        @endif
     </div>
 
     {{-- Thông tin sự kiện --}}

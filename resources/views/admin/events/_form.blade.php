@@ -36,14 +36,21 @@
     @endif
 </div>
 
-<div class="grid gap-5 md:grid-cols-2">
+<div class="grid gap-5 md:grid-cols-3">
     <div>
-        <label for="starts_at" class="mb-2 block text-sm font-medium">Bắt đầu</label>
+        <label for="starts_at" class="mb-2 block text-sm font-medium">Bắt đầu sự kiện <span class="text-red-500">*</span></label>
         <input id="starts_at" type="datetime-local" name="starts_at" required value="{{ old('starts_at', isset($event) ? $event->starts_at?->format('Y-m-d\TH:i') : '') }}" class="w-full rounded-lg border px-4 py-2.5">
     </div>
     <div>
-        <label for="ends_at" class="mb-2 block text-sm font-medium">Kết thúc</label>
+        <label for="ends_at" class="mb-2 block text-sm font-medium">Kết thúc sự kiện <span class="text-red-500">*</span></label>
         <input id="ends_at" type="datetime-local" name="ends_at" required value="{{ old('ends_at', isset($event) ? $event->ends_at?->format('Y-m-d\TH:i') : '') }}" class="w-full rounded-lg border px-4 py-2.5">
+    </div>
+    <div>
+        <label for="ticket_sale_starts_at" class="mb-2 block text-sm font-medium">
+            <span>Thời gian mở bán vé</span>
+        </label>
+        <input id="ticket_sale_starts_at" type="datetime-local" name="ticket_sale_starts_at" value="{{ old('ticket_sale_starts_at', isset($event) ? $event->ticket_sale_starts_at?->format('Y-m-d\TH:i') : '') }}" class="w-full rounded-lg border px-4 py-2.5">
+        <p class="text-xs text-gray-500 mt-1">Để trống = mở bán ngay khi tạo sự kiện</p>
     </div>
 </div>
 

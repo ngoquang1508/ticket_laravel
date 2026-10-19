@@ -266,6 +266,13 @@ class OrderCreationService
         if (!$event->is_published) {
             throw new \Exception('Sự kiện này chưa được công bố.');
         }
+
+        if (!$event->isSaleStarted()) {
+            throw new \Exception(
+                'Sự kiện chưa đến thời gian mở bán vé (Dự kiến mở bán lúc: ' .
+                $event->ticket_sale_starts_at->format('H:i, d/m/Y') . ').'
+            );
+        }
     }
 
     /**

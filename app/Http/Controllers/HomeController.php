@@ -17,29 +17,31 @@ class HomeController extends Controller
      */
     public function index(): View
     {
-        // 1. Hero Banner Slider (Chỉ lấy đúng 3 sự kiện nổi bật nhất)
+        // 1. Hero Banner Slider: Chỉ lấy các sự kiện nổi bật (is_featured = true), chưa kết thúc
         $heroEvents = Event::activeListing()
             ->where('is_featured', true)
-            ->where('starts_at', '>=', now())
+            ->where(function ($query) {
+                $query->where(function ($sub) {
+                    $sub->whereNotNull('ends_at')
+                        ->where('ends_at', '>', now());
+                })->orWhere(function ($sub) {
+                    $sub->whereNull('ends_at')
+                        ->where('starts_at', '>=', now());
+                });
+            })
             ->orderBy('starts_at', 'asc')
-            ->take(3)
+            ->take(5)
             ->get();
 
-        // Fallback nếu chưa đủ 3 sự kiện nổi bật
-        if ($heroEvents->count() < 3) {
-            $extraEvents = Event::activeListing()
-                ->where('starts_at', '>=', now())
-                ->whereNotIn('id', $heroEvents->pluck('id'))
-                ->orderBy('starts_at', 'asc')
-                ->take(3 - $heroEvents->count())
-                ->get();
-            $heroEvents = $heroEvents->merge($extraEvents);
-        }
-
-        // 2. Sự kiện xu hướng (Lấy đúng 10 sự kiện bán chạy nhất)
+        // 2. Sự kiện xu hướng: Chỉ lấy các sự kiện sắp diễn ra và THỰC SỰ có đơn hàng thành công (orders_count > 0)
         $trendingEvents = Event::activeListing()
             ->upcoming()
-            ->withCount('orders')
+            ->withCount([
+                'orders' => function ($query) {
+                    $query->whereIn('status', ['processing', 'completed']);
+                }
+            ])
+            ->having('orders_count', '>', 0)
             ->orderByDesc('orders_count')
             ->take(10)
             ->get();
