@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\Order;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,61 +63,72 @@ class CheckInController extends Controller
             'checkedInBy'
         ])->where('ticket_code', $ticketCode)->first();
 
-        // 1. Không tìm thấy vé trong hệ thống
-        if (!$ticket) {
-            return response()->json([
-                'status' => 'not_found',
-                'message' => 'Không tìm thấy vé có mã "' . $ticketCode . '" trong hệ thống!',
-            ], 404);
+        // Sử dụng switch-case để kiểm tra toàn bộ các điều kiện hợp lệ của vé
+        switch (true) {
+            // 1. Không tìm thấy vé trong hệ thống
+            case !$ticket:
+                return response()->json([
+                    'status' => 'not_found',
+                    'message' => 'Không tìm thấy vé có mã "' . $ticketCode . '" trong hệ thống!',
+                ], 404);
+
+            // 2. Vé không thuộc đúng sự kiện đang chọn check-in
+            case $ticket->order?->event_id !== $eventId:
+                $ticketEventName = $ticket->order?->event?->name ?? 'Khác';
+                $selectedEvent = Event::find($eventId);
+                $selectedEventName = $selectedEvent?->name ?? 'Sự kiện đang chọn';
+
+                return response()->json([
+                    'status' => 'wrong_event',
+                    'message' => 'Vé này thuộc sự kiện "' . $ticketEventName . '", không khớp với sự kiện bạn đang chọn check-in ("' . $selectedEventName . '")!',
+                    'ticket' => $this->formatTicketData($ticket),
+                ], 422);
+
+            // 3. Đơn hàng của vé chưa thanh toán thành công hoặc đã bị hủy
+            case !$ticket->order || $ticket->order->status !== Order::STATUS_COMPLETED:
+                switch ($ticket->order?->status) {
+                    case Order::STATUS_PENDING:
+                        $statusText = 'Chờ thanh toán';
+                        break;
+                    case Order::STATUS_PROCESSING:
+                        $statusText = 'Chờ duyệt';
+                        break;
+                    case Order::STATUS_CANCELLED:
+                        $statusText = 'Đã hủy';
+                        break;
+                    case Order::STATUS_EXPIRED:
+                        $statusText = 'Đã hết hạn';
+                        break;
+                    default:
+                        $statusText = 'Không hợp lệ';
+                        break;
+                }
+
+                return response()->json([
+                    'status' => 'invalid_order',
+                    'message' => 'Đơn hàng của vé này chưa hoàn tất thanh toán (Trạng thái đơn: ' . $statusText . '). Không được phép check-in!',
+                    'ticket' => $this->formatTicketData($ticket),
+                ], 422);
+
+            // 4. Vé đã được check-in trước đó
+            case $ticket->is_used || $ticket->checked_in_at:
+                $timeStr = $ticket->checked_in_at ? $ticket->checked_in_at->format('H:i:s, d/m/Y') : ($ticket->used_at ? $ticket->used_at->format('H:i:s, d/m/Y') : 'trước đó');
+                $byName = $ticket->checkedInBy?->name ?? 'Admin';
+
+                return response()->json([
+                    'status' => 'already_used',
+                    'message' => 'Vé này đã được check-in vào lúc ' . $timeStr . ' (Người thực hiện: ' . $byName . ')!',
+                    'ticket' => $this->formatTicketData($ticket),
+                ], 200);
+
+            // 5. Vé hoàn toàn hợp lệ, sẵn sàng để xác nhận check-in
+            default:
+                return response()->json([
+                    'status' => 'valid',
+                    'message' => 'Vé hợp lệ! Vui lòng xác nhận check-in.',
+                    'ticket' => $this->formatTicketData($ticket),
+                ], 200);
         }
-
-        // 2. Kiểm tra vé có thuộc đúng sự kiện đang chọn check-in hay không
-        if ($ticket->order?->event_id !== $eventId) {
-            $ticketEventName = $ticket->order?->event?->name ?? 'Khác';
-            $selectedEvent = Event::find($eventId);
-            $selectedEventName = $selectedEvent?->name ?? 'Sự kiện đang chọn';
-
-            return response()->json([
-                'status' => 'wrong_event',
-                'message' => 'Vé này thuộc sự kiện "' . $ticketEventName . '", không khớp với sự kiện bạn đang chọn check-in ("' . $selectedEventName . '")!',
-                'ticket' => $this->formatTicketData($ticket),
-            ], 422);
-        }
-
-        // 3. Đơn hàng của vé chưa thanh toán thành công hoặc đã bị hủy
-        if (!$ticket->order || $ticket->order->status !== 'completed') {
-            $statusText = match ($ticket->order?->status) {
-                'pending' => 'Chờ thanh toán',
-                'processing' => 'Chờ duyệt',
-                'cancelled' => 'Đã hủy',
-                default => 'Không hợp lệ',
-            };
-
-            return response()->json([
-                'status' => 'invalid_order',
-                'message' => 'Đơn hàng của vé này chưa hoàn tất thanh toán (Trạng thái đơn: ' . $statusText . '). Không được phép check-in!',
-                'ticket' => $this->formatTicketData($ticket),
-            ], 422);
-        }
-
-        // 4. Vé đã được check-in trước đó
-        if ($ticket->is_used || $ticket->checked_in_at) {
-            $timeStr = $ticket->checked_in_at ? $ticket->checked_in_at->format('H:i:s, d/m/Y') : ($ticket->used_at ? $ticket->used_at->format('H:i:s, d/m/Y') : 'trước đó');
-            $byName = $ticket->checkedInBy?->name ?? 'Admin';
-
-            return response()->json([
-                'status' => 'already_used',
-                'message' => 'Vé này đã được check-in vào lúc ' . $timeStr . ' (Người thực hiện: ' . $byName . ')!',
-                'ticket' => $this->formatTicketData($ticket),
-            ], 200);
-        }
-
-        // 5. Vé hoàn toàn hợp lệ, sẵn sàng để xác nhận check-in
-        return response()->json([
-            'status' => 'valid',
-            'message' => 'Vé hợp lệ! Vui lòng xác nhận check-in.',
-            'ticket' => $this->formatTicketData($ticket),
-        ], 200);
     }
 
     /**
