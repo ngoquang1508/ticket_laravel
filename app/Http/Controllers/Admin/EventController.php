@@ -172,6 +172,13 @@ class EventController extends Controller
 
     public function destroy(Event $event): RedirectResponse
     {
+        // Chặn xóa nếu sự kiện đã phát sinh đơn hàng của khách hàng để đảm bảo toàn vẹn dữ liệu
+        if ($event->orders()->exists()) {
+            return back()->withErrors([
+                'error' => 'Không thể xóa sự kiện này vì đã phát sinh đơn hàng của khách hàng. Bạn có thể chuyển sự kiện sang trạng thái ẩn bằng cách tắt tùy chọn "Công khai".',
+            ]);
+        }
+
         DB::transaction(function () use ($event) {
             $event->ticketTypes()->delete();
             $event->seats()->delete();

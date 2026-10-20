@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Tin cậy proxy từ ngrok / reverse proxy để nhận diện đúng giao thức HTTPS
         $middleware->trustProxies(at: '*');
 
+        // Bỏ qua kiểm tra CSRF token cho các Webhook bên ngoài (như IPN từ cổng thanh toán VNPay)
+        $middleware->validateCsrfTokens(except: [
+            '/vnpay-ipn',
+        ]);
+
         $middleware->alias([
             'admin' => AdminMiddleware::class,
         ]);

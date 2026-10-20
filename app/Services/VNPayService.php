@@ -8,10 +8,10 @@ class VNPayService
 {
     public function createPaymentUrl(Order $order): string
     {
-        $vnp_Url = env('VNP_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html');
+        $vnp_Url = config('services.vnpay.url', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html');
         $vnp_Returnurl = route('orders.vnpay.return');
-        $vnp_TmnCode = env('VNP_TMN_CODE'); // Mã website tại VNPAY 
-        $vnp_HashSecret = env('VNP_HASH_SECRET'); // Chuỗi bí mật
+        $vnp_TmnCode = config('services.vnpay.tmn_code'); // Mã website tại VNPAY 
+        $vnp_HashSecret = config('services.vnpay.hash_secret'); // Chuỗi bí mật
 
         $vnp_TxnRef = $order->order_code; // Mã đơn hàng.
         $vnp_OrderInfo = 'Thanh toan don hang ' . $order->order_code;
@@ -87,7 +87,7 @@ class VNPayService
             }
         }
 
-        $vnp_HashSecret = env('VNP_HASH_SECRET');
+        $vnp_HashSecret = config('services.vnpay.hash_secret');
         $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
         
         if ($secureHash === $vnp_SecureHash) {

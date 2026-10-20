@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // Cấu hình cổng thanh toán điện tử VNPay
+    'vnpay' => [
+        'url' => env('VNP_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'),
+        'tmn_code' => env('VNP_TMN_CODE'),
+        'hash_secret' => env('VNP_HASH_SECRET'),
+    ],
+
 ];

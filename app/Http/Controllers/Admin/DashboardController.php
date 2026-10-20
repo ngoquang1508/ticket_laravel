@@ -11,6 +11,7 @@ use App\Models\OrderItem;
 use App\Models\TicketType;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -159,26 +160,27 @@ class DashboardController extends Controller
         }
 
         // 7. Top tối đa 5 sự kiện bán chạy nhất
-        $topEvents = Event::whereHas('orders', function ($q) use ($startDate, $endDate, $eventId) {
-            $q->where('payment_status', 'paid')
-                ->when($eventId, fn($sub) => $sub->where('id', $eventId))
-                ->when($startDate, fn($sub) => $sub->where('created_at', '>=', $startDate))
-                ->when($endDate, fn($sub) => $sub->where('created_at', '<=', $endDate));
-        })->with([
-                    'orders' => function ($q) use ($startDate, $endDate) {
-                        $q->where('payment_status', 'paid')
-                            ->when($startDate, fn($sub) => $sub->where('created_at', '>=', $startDate))
-                            ->when($endDate, fn($sub) => $sub->where('created_at', '<=', $endDate))
-                            ->with('items');
-                    }
-                ])->get()->map(function ($event) {
-                    return [
-                        'id' => $event->id,
-                        'name' => $event->name,
-                        'tickets' => (int) $event->orders->flatMap->items->sum('quantity'),
-                        'revenue' => (float) $event->orders->sum('total_amount'),
-                    ];
-                })->sortByDesc('tickets')->values()->take(5);
+        // Tối ưu: Tính toán trực tiếp bằng SQL gom nhóm (GROUP BY) thay vì kéo toàn bộ model vào RAM
+        $topEvents = DB::table('events')
+            ->join('orders', 'events.id', '=', 'orders.event_id')
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.payment_status', 'paid')
+            ->when($eventId, fn($q) => $q->where('events.id', $eventId))
+            ->when($startDate, fn($q) => $q->where('orders.created_at', '>=', $startDate))
+            ->when($endDate, fn($q) => $q->where('orders.created_at', '<=', $endDate))
+            ->selectRaw('events.id, events.name, SUM(order_items.quantity) as tickets, SUM(order_items.total) as revenue')
+            ->groupBy('events.id', 'events.name')
+            ->orderByDesc('tickets')
+            ->limit(5)
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'name' => $event->name,
+                    'tickets' => (int) $event->tickets,
+                    'revenue' => (float) $event->revenue,
+                ];
+            });
 
         // Tính tỷ lệ % so với sự kiện bán chạy nhất để hiển thị thanh độ dài chuẩn
         $maxTickets = $topEvents->max('tickets') ?: 1;

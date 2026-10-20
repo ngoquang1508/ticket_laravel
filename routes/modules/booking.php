@@ -25,9 +25,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{order}/process-payment', [BookingController::class, 'processPayment'])
         ->name('orders.process-payment');
 
-    Route::get('/vnpay-return', [BookingController::class, 'vnpayReturn'])
-        ->name('orders.vnpay.return');
-
     // Màn hình kết quả & hướng dẫn thanh toán
     Route::get('/orders/{order}/success', [BookingController::class, 'success'])
         ->name('orders.success');
@@ -48,3 +45,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{order}/edit-tickets', [BookingController::class, 'updateAssignedSeats'])
         ->name('orders.update-assigned-seats');
 });
+
+// Tuyến đường nhận kết quả thanh toán từ VNPay (công khai, được bảo vệ bằng chữ ký số HMAC-SHA512)
+Route::get('/vnpay-return', [BookingController::class, 'vnpayReturn'])
+    ->name('orders.vnpay.return');
+
+// Tuyến đường Webhook IPN (Server-to-Server) nhận thông báo thanh toán tự động từ VNPay
+Route::match(['get', 'post'], '/vnpay-ipn', [BookingController::class, 'vnpayIpn'])
+    ->name('orders.vnpay.ipn');

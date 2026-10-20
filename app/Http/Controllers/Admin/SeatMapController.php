@@ -106,6 +106,7 @@ class SeatMapController extends Controller
             if ($event->sale_mode === 'assigned_seat') {
                 $seatMap = $event->seatMap()->first();
                 $rows = $layout['rows'] ?? [];
+                $validSeatNumbers = [];
 
                 foreach ($rows as $row) {
                     $rowName = trim((string) ($row['name'] ?? ''));
@@ -117,10 +118,13 @@ class SeatMapController extends Controller
                     }
 
                     for ($number = 1; $number <= $seatCount; $number++) {
+                        $seatNumber = $rowName.$number;
+                        $validSeatNumbers[] = $seatNumber;
+
                         Seat::firstOrCreate(
                             [
                                 'event_id' => $event->id,
-                                'seat_number' => $rowName.$number,
+                                'seat_number' => $seatNumber,
                             ],
                             [
                                 'seat_map_id' => $seatMap->id,
@@ -132,6 +136,13 @@ class SeatMapController extends Controller
                         );
                     }
                 }
+
+                // Dọn dẹp các ghế mồ côi nếu Admin thu nhỏ hàng ghế hoặc xóa bớt hàng ghế.
+                // CHỈ XÓA các ghế đang ở trạng thái 'available' (không ảnh hưởng tới ghế đã bán hoặc đang giữ)
+                $event->seats()
+                    ->where('status', 'available')
+                    ->whereNotIn('seat_number', $validSeatNumbers)
+                    ->delete();
             }
         });
 

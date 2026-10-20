@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Seat;
 use App\Services\BookingService;
 use App\Services\VNPayService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -165,15 +166,67 @@ class BookingController extends Controller
                 if ($order->status === 'pending') {
                     $this->bookingService->confirmOrder($order, $result['transaction_no'], 'vnpay');
                 }
+
+                // Tự động khôi phục phiên đăng nhập cho chủ đơn hàng nếu session bị hết hạn khi thanh toán qua cổng VNPay
+                if (!auth()->check() && $order->user_id) {
+                    auth()->loginUsingId($order->user_id);
+                }
+
                 return redirect()->route('orders.success', $order->order_code);
             } catch (\Exception $e) {
                 return redirect()->route('home')->with('error', 'Lỗi xử lý đơn hàng: ' . $e->getMessage());
             }
         }
 
+        if (!auth()->check()) {
+            return redirect()->route('login')
+                ->with('error', 'Thanh toán thất bại: ' . $result['message']);
+        }
+
         return redirect()->route('user.tickets')
             ->with('active_checkout_order', $order->order_code)
             ->with('error', 'Thanh toán thất bại: ' . $result['message']);
+    }
+
+    /**
+     * Webhook IPN (Server-to-Server) nhận thông báo thanh toán tự động từ cổng VNPay.
+     */
+    public function vnpayIpn(Request $request, VNPayService $vnpayService): JsonResponse
+    {
+        $result = $vnpayService->verifyPayment($request->all());
+
+        if (!$result['order_code']) {
+            return response()->json(['RspCode' => '97', 'Message' => 'Invalid Checksum']);
+        }
+
+        $order = Order::where('order_code', $result['order_code'])->first();
+        if (!$order) {
+            return response()->json(['RspCode' => '01', 'Message' => 'Order not found']);
+        }
+
+        // Kiểm tra số tiền thanh toán (VNPay nhân 100 lần)
+        $vnpAmount = ((float) $request->input('vnp_Amount', 0)) / 100;
+        if (abs($order->total_amount - $vnpAmount) > 1) {
+            return response()->json(['RspCode' => '04', 'Message' => 'Invalid amount']);
+        }
+
+        // Kiểm tra trạng thái đơn hàng (nếu đã xử lý hoàn tất trước đó từ Return URL)
+        if ($order->status === 'completed') {
+            return response()->json(['RspCode' => '02', 'Message' => 'Order already confirmed']);
+        }
+
+        if ($result['success']) {
+            try {
+                if ($order->status === 'pending') {
+                    $this->bookingService->confirmOrder($order, $result['transaction_no'], 'vnpay');
+                }
+                return response()->json(['RspCode' => '00', 'Message' => 'Confirm Success']);
+            } catch (\Exception $e) {
+                return response()->json(['RspCode' => '99', 'Message' => 'Unknown error: ' . $e->getMessage()]);
+            }
+        }
+
+        return response()->json(['RspCode' => '00', 'Message' => 'Confirm Success']);
     }
 
     /**
