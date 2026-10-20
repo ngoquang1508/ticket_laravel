@@ -4,12 +4,14 @@ import Toastify from 'toastify-js';
 import { initSearchBars } from './components/search-bar';
 import { initLoadMoreEvents } from './components/load-more-events';
 import { initEventSchedule } from './components/event-schedule';
+import { initTicketboxFilter } from './components/ticketbox-filter';
 import './seatmap-konva.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initSearchBars();
     initLoadMoreEvents();
     initEventSchedule();
+    initTicketboxFilter();
 
     const resendForm = document.querySelector('form[action$="/forgot-password"] input[name="resend"]')?.form;
     const resendButton = document.getElementById('resend-otp');

@@ -9,6 +9,9 @@
     <div
         class="mx-auto max-w-7xl px-4 pt-8 {{ $pastEvents->isEmpty() && $upcomingEvents->isEmpty() ? 'pb-8' : '' }} sm:px-6 lg:px-8 text-white">
 
+        {{-- Bộ lọc sự kiện phong cách Ticketbox (Lọc ngày, địa điểm, miễn phí, thể loại) --}}
+        @include('events.partials.ticket-filter')
+
         {{-- Thanh thông báo từ khóa tìm kiếm --}}
         @if(!empty($searchTerm))
             <div
