@@ -50,21 +50,9 @@ class OrderController extends Controller
             $query->where('event_id', $request->integer('event_id'));
         }
 
-        // Lọc theo trạng thái đơn hàng
+        // Lọc theo trạng thái đơn hàng (sử dụng Scope chuẩn hóa từ Model Order)
         if ($request->filled('status')) {
-            $statusFilter = $request->string('status')->toString();
-            if ($statusFilter === 'expired') {
-                $query->where('status', 'cancelled')
-                    ->where('cancel_reason', 'like', '%Hết hạn%');
-            } elseif ($statusFilter === 'cancelled') {
-                $query->where('status', 'cancelled')
-                    ->where(function ($q) {
-                        $q->whereNull('cancel_reason')
-                            ->orWhere('cancel_reason', 'not like', '%Hết hạn%');
-                    });
-            } else {
-                $query->where('status', $statusFilter);
-            }
+            $query->filterStatus($request->string('status')->toString());
         }
 
         // Lọc theo trạng thái thanh toán

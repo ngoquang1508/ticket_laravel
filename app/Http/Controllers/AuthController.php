@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\SendOtpRequest;
+use App\Http\Requests\Auth\VerifyOtpCodeRequest;
 use App\Models\User;
 use App\Services\PasswordResetService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
@@ -22,20 +27,9 @@ class AuthController extends Controller
     /**
      * Xử lý đăng nhập.
      */
-    public function authenticate(Request $request)
+    public function authenticate(LoginRequest $request)
     {
-        $credentials = $request->validate(
-            [
-                'email' => ['required', 'email'],
-                'password' => ['required'],
-            ],
-            [
-                'email.required' => 'Vui lòng nhập email.',
-                'email.email' => 'Email không đúng định dạng.',
-                'password.required' => 'Vui lòng nhập mật khẩu.',
-            ]
-        );
-
+        $credentials = $request->validated();
         $remember = $request->boolean('remember');
 
         if (Auth::validate($credentials)) {
@@ -63,7 +57,6 @@ class AuthController extends Controller
             ->onlyInput('email');
     }
 
-
     /**
      * Hiển thị trang đăng ký.
      */
@@ -72,53 +65,14 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-
     /**
      * Xử lý đăng ký.
      */
-    public function store(Request $request)
+    public function store(RegisterRequest $request)
     {
-        $validated = $request->validate(
-            [
-                'name' => ['required', 'string', 'max:255'],
+        $validated = $request->validated();
 
-                'email' => [
-                    'required',
-                    'string',
-                    'email',
-                    'max:255',
-                    'unique:users,email',
-                ],
-
-                'phone' => [
-                    'required',
-                    'string',
-                    'max:20',
-                ],
-
-                'password' => [
-                    'required',
-                    'string',
-                    'min:8',
-                    'confirmed',
-                ],
-            ],
-            [
-                'name.required' => 'Vui lòng nhập họ và tên.',
-
-                'email.required' => 'Vui lòng nhập email.',
-                'email.email' => 'Email không đúng định dạng.',
-                'email.unique' => 'Email này đã được sử dụng.',
-
-                'phone.required' => 'Vui lòng nhập số điện thoại.',
-
-                'password.required' => 'Vui lòng nhập mật khẩu.',
-                'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự.',
-                'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
-            ]
-        );
-
-        $user = \App\Models\User::create([
+        User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'],
@@ -126,29 +80,23 @@ class AuthController extends Controller
             'role' => 'customer',
         ]);
 
-        // Registration ends at the login page so the user can explicitly authenticate.
-
         return redirect()->route('login')->with('success', 'Đăng ký thành công. Vui lòng đăng nhập.');
     }
 
     /**
-     * Xử lý đăng xuất.
+     * Hiển thị trang yêu cầu đặt lại mật khẩu.
      */
     public function forgotPassword()
     {
         return view('auth.forgot-password');
     }
 
-    public function sendOtp(Request $request, PasswordResetService $passwordResetService)
+    /**
+     * Gửi mã OTP đặt lại mật khẩu tới email người dùng.
+     */
+    public function sendOtp(SendOtpRequest $request, PasswordResetService $passwordResetService)
     {
-        $validated = $request->validate(
-            ['email' => ['required', 'email']],
-            [
-                'email.required' => 'Vui lòng nhập email.',
-                'email.email' => 'Email không đúng định dạng.',
-            ],
-        );
-
+        $validated = $request->validated();
         $email = strtolower($validated['email']);
         $isResend = $request->boolean('resend');
         $rateLimitKey = 'password-reset-resend|' . $request->ip() . '|' . sha1($email);
@@ -161,11 +109,19 @@ class AuthController extends Controller
 
         $user = User::where('email', $email)->first();
 
-        // if (! $user) {
-        //     return back()
-        //         ->withErrors(['email' => 'Email không tồn tại trong hệ thống.'])
-        //         ->withInput();
-        // }
+        // Kiểm tra tài khoản tồn tại trong hệ thống
+        if (!$user) {
+            return back()
+                ->withErrors(['email' => 'Email không tồn tại trong hệ thống.'])
+                ->withInput();
+        }
+
+        // Kiểm tra tài khoản có bị khóa hay không
+        if (!$user->is_active) {
+            return back()
+                ->withErrors(['email' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.'])
+                ->withInput();
+        }
 
         if ($isResend) {
             RateLimiter::hit($rateLimitKey, 60);
@@ -185,6 +141,9 @@ class AuthController extends Controller
             ->with('success', 'Mã OTP đã được gửi đến email của bạn.');
     }
 
+    /**
+     * Hiển thị trang nhập mã xác nhận OTP.
+     */
     public function verifyOtp(Request $request)
     {
         if (!$request->session()->has('password_reset_email')) {
@@ -197,16 +156,12 @@ class AuthController extends Controller
         ]);
     }
 
-    public function verifyOtpCode(Request $request, PasswordResetService $passwordResetService)
+    /**
+     * Kiểm tra tính hợp lệ của mã OTP.
+     */
+    public function verifyOtpCode(VerifyOtpCodeRequest $request, PasswordResetService $passwordResetService)
     {
-        $validated = $request->validate(
-            ['otp' => ['required', 'digits:6']],
-            [
-                'otp.required' => 'Vui lòng nhập mã OTP.',
-                'otp.digits' => 'Mã OTP phải gồm 6 chữ số.',
-            ],
-        );
-
+        $validated = $request->validated();
         $email = $request->session()->get('password_reset_email');
 
         if (!$email) {
@@ -230,6 +185,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Hiển thị form nhập mật khẩu mới sau khi xác thực OTP thành công.
+     */
     public function resetPassword(Request $request, PasswordResetService $passwordResetService)
     {
         $email = $request->session()->get('password_reset_email');
@@ -242,17 +200,12 @@ class AuthController extends Controller
         return view('auth.reset-password');
     }
 
-    public function updatePassword(Request $request, PasswordResetService $passwordResetService)
+    /**
+     * Cập nhật mật khẩu mới vào cơ sở dữ liệu.
+     */
+    public function updatePassword(ResetPasswordRequest $request, PasswordResetService $passwordResetService)
     {
-        $validated = $request->validate(
-            ['password' => ['required', 'string', 'min:8', 'confirmed']],
-            [
-                'password.required' => 'Vui lòng nhập mật khẩu mới.',
-                'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự.',
-                'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
-            ],
-        );
-
+        $validated = $request->validated();
         $email = $request->session()->get('password_reset_email');
 
         if (!$email || !$passwordResetService->isVerified($email)) {

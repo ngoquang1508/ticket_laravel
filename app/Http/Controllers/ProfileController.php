@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\Profile\UpdatePasswordRequest;
+use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Models\Order;
 use App\Models\Ticket;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     /**
      * Hiển thị trang Hồ sơ tài khoản (Profile) của người dùng
      */
-    public function index()
+    public function index(): View
     {
         $user = auth()->user();
 
@@ -65,20 +68,10 @@ class ProfileController extends Controller
     /**
      * Cập nhật thông tin cá nhân (chỉ cho phép cập nhật name và phone, không cho phép sửa email)
      */
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request): RedirectResponse
     {
         $user = auth()->user();
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s()]+$/'],
-        ], [
-            'name.required' => 'Vui lòng nhập họ và tên của bạn.',
-            'name.string' => 'Họ và tên không hợp lệ.',
-            'name.max' => 'Họ và tên không được vượt quá 255 ký tự.',
-            'phone.regex' => 'Số điện thoại chứa ký tự không hợp lệ.',
-            'phone.max' => 'Số điện thoại không được vượt quá 20 ký tự.',
-        ]);
+        $validated = $request->validated();
 
         $user->update([
             'name' => $validated['name'],
@@ -94,18 +87,9 @@ class ProfileController extends Controller
     /**
      * Cập nhật mật khẩu tài khoản
      */
-    public function updatePassword(Request $request)
+    public function updatePassword(UpdatePasswordRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ], [
-            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại của bạn.',
-            'current_password.current_password' => 'Mật khẩu hiện tại không chính xác.',
-            'password.required' => 'Vui lòng nhập mật khẩu mới.',
-            'password.min' => 'Mật khẩu mới phải có tối thiểu 8 ký tự.',
-            'password.confirmed' => 'Xác nhận mật khẩu mới không trùng khớp.',
-        ]);
+        $validated = $request->validated();
 
         auth()->user()->update([
             'password' => Hash::make($validated['password']),

@@ -76,6 +76,51 @@ class Order extends Model
         return 'order_code';
     }
 
+    /**
+     * Scope lọc đơn hàng theo người dùng
+     */
+    public function scopeForUser($query, int $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    /**
+     * Scope lọc đơn hàng theo trạng thái nghiệp vụ (bao gồm logic hết hạn và hủy)
+     */
+    public function scopeFilterStatus($query, ?string $status)
+    {
+        if (empty($status) || $status === 'all') {
+            return $query;
+        }
+
+        return match ($status) {
+            'pending' => $query->whereIn('status', [self::STATUS_PENDING, self::STATUS_PROCESSING]),
+            'completed' => $query->where('status', self::STATUS_COMPLETED)
+                ->whereHas('event', function ($q) {
+                    $q->where('ends_at', '>=', now());
+                }),
+            'expired' => $query->where(function ($q) {
+                $q->where('status', self::STATUS_EXPIRED)
+                    ->orWhere(function ($sub) {
+                        $sub->where('status', self::STATUS_CANCELLED)
+                            ->where('cancel_reason', 'like', '%Hết hạn%');
+                    })
+                    ->orWhere(function ($sub) {
+                        $sub->where('status', self::STATUS_COMPLETED)
+                            ->whereHas('event', function ($ev) {
+                                $ev->where('ends_at', '<', now());
+                            });
+                    });
+            }),
+            'cancelled' => $query->where('status', self::STATUS_CANCELLED)
+                ->where(function ($q) {
+                    $q->whereNull('cancel_reason')
+                        ->orWhere('cancel_reason', 'not like', '%Hết hạn%');
+                }),
+            default => $query->where('status', $status),
+        };
+    }
+
     public function items()
     {
         return $this->hasMany(OrderItem::class);

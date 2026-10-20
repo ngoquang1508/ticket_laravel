@@ -85,12 +85,29 @@ class HomeController extends Controller
         }
 
         // 5. Điểm đến thú vị (3 thành phố chính: TP.HCM, Hà Nội, Đà Nẵng và Vị trí khác)
-        $allActiveEvents = Event::activeListing()->upcoming()->get();
+        // Tối ưu: Đếm trực tiếp từ Database qua 1 câu truy vấn gom nhóm duy nhất, tránh N+1 queries và lãng phí RAM
+        $cityCounts = Event::where('is_published', true)
+            ->where('starts_at', '>=', now())
+            ->leftJoin('locations', 'events.location_id', '=', 'locations.id')
+            ->selectRaw("
+                COUNT(CASE WHEN locations.address LIKE '%Hồ Chí Minh%' OR locations.address LIKE '%TP.HCM%' OR locations.address LIKE '%TP. HCM%' OR locations.address LIKE '%Sài Gòn%' THEN 1 END) as count_hcm,
+                COUNT(CASE WHEN locations.address LIKE '%Hà Nội%' THEN 1 END) as count_hn,
+                COUNT(CASE WHEN locations.address LIKE '%Đà Nẵng%' THEN 1 END) as count_dn,
+                COUNT(CASE WHEN locations.id IS NULL OR (
+                    locations.address NOT LIKE '%Hồ Chí Minh%'
+                    AND locations.address NOT LIKE '%TP.HCM%'
+                    AND locations.address NOT LIKE '%TP. HCM%'
+                    AND locations.address NOT LIKE '%Sài Gòn%'
+                    AND locations.address NOT LIKE '%Hà Nội%'
+                    AND locations.address NOT LIKE '%Đà Nẵng%'
+                ) THEN 1 END) as count_other
+            ")
+            ->first();
 
-        $countHcm = $allActiveEvents->filter(fn($e) => $e->location && $e->location->city === 'TP.HCM')->count();
-        $countHn = $allActiveEvents->filter(fn($e) => $e->location && $e->location->city === 'Hà Nội')->count();
-        $countDn = $allActiveEvents->filter(fn($e) => $e->location && $e->location->city === 'Đà Nẵng')->count();
-        $countOther = $allActiveEvents->filter(fn($e) => !$e->location || !in_array($e->location->city, ['TP.HCM', 'Hà Nội', 'Đà Nẵng']))->count();
+        $countHcm = (int) ($cityCounts->count_hcm ?? 0);
+        $countHn = (int) ($cityCounts->count_hn ?? 0);
+        $countDn = (int) ($cityCounts->count_dn ?? 0);
+        $countOther = (int) ($cityCounts->count_other ?? 0);
 
         $destinations = [
             [
