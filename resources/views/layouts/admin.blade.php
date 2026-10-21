@@ -160,6 +160,9 @@
             document.body.classList.toggle('mobile-sidebar-open');
         }
     </script>
+
+    {{-- Component hiển thị hoạt họa Spinner -> Tích xanh --}}
+    <x-processing-modal />
     @stack('scripts')
 </body>
 

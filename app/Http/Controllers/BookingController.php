@@ -98,7 +98,7 @@ class BookingController extends Controller
     /**
      * Xử lý điều hướng thanh toán (VNPay hoặc Trực tiếp).
      */
-    public function processPayment(ProcessPaymentRequest $request, Order $order, VNPayService $vnpayService): RedirectResponse
+    public function processPayment(ProcessPaymentRequest $request, Order $order, VNPayService $vnpayService): RedirectResponse|JsonResponse
     {
         $this->authorizeOrder($order);
 
@@ -127,6 +127,14 @@ class BookingController extends Controller
                 $refCode = 'FREE_' . strtoupper(\Illuminate\Support\Str::random(8));
                 $this->bookingService->confirmOrder($order, $refCode, Order::PAYMENT_METHOD_FREE);
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Đăng ký vé miễn phí thành công!',
+                        'redirect_url' => route('orders.success', $order->order_code),
+                    ]);
+                }
+
                 return redirect()->route('orders.success', $order->order_code)
                     ->with('success', 'Đăng ký vé miễn phí thành công!');
             }
@@ -153,6 +161,13 @@ class BookingController extends Controller
 
             return back()->with('error', 'Phương thức thanh toán không hợp lệ.');
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
             return back()->with('error', $e->getMessage());
         }
     }

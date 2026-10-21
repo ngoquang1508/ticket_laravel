@@ -23,6 +23,8 @@
 
     @include('components.footer')
 
+    {{-- Component hiển thị hoạt họa Spinner -> Tích xanh --}}
+    <x-processing-modal />
 </body>
 
 </html>

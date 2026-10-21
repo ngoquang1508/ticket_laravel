@@ -414,10 +414,63 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                     e.preventDefault();
                     return false;
                 }
+
+                const isFree = @json($isFreeOrder);
+
+                if (isFree) {
+                    e.preventDefault();
+                    isPaymentSubmitting = true;
+                    payBtn.disabled = true;
+
+                    // Hiển thị Spinner xoay trong suốt thời gian server gửi mail
+                    if (typeof window.showProcessing === 'function') {
+                        window.showProcessing('Đang cấp vé & gửi email...', 'Hệ thống đang xuất mã vé và gửi email xác nhận');
+                    }
+
+                    const formData = new FormData(paymentForm);
+
+                    fetch(paymentForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: formData
+                    })
+                    .then(async (response) => {
+                        const data = await response.json();
+                        if (!response.ok || !data.success) {
+                            throw new Error(data.message || 'Lỗi đăng ký vé');
+                        }
+                        return data;
+                    })
+                    .then((data) => {
+                        // Gửi mail và cấp vé xong -> Hiện tích xanh bung nở rồi redirect
+                        if (typeof window.showSuccessAnimation === 'function') {
+                            window.showSuccessAnimation('Đăng ký vé thành công!', () => {
+                                window.location.href = data.redirect_url || '{{ route("orders.success", $order->order_code) }}';
+                            });
+                        } else {
+                            window.location.href = data.redirect_url || '{{ route("orders.success", $order->order_code) }}';
+                        }
+                    })
+                    .catch((error) => {
+                        isPaymentSubmitting = false;
+                        payBtn.disabled = false;
+                        if (typeof window.hideProcessing === 'function') {
+                            window.hideProcessing();
+                        }
+                        alert('Không thể nhận vé: ' + error.message);
+                    });
+
+                    return;
+                }
+
                 isPaymentSubmitting = true;
                 payBtn.disabled = true;
                 payBtn.classList.add('opacity-75', 'cursor-not-allowed');
-                payBtn.innerHTML = `<span>Đang xử lý thanh toán...</span>`;
+                payBtn.innerHTML = `<span>Đang xử lý...</span>`;
             });
         }
     })();

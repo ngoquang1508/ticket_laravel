@@ -100,13 +100,27 @@ class OrderController extends Controller
     /**
      * Admin xác nhận thanh toán thành công cho đơn hàng (pending / processing)
      */
-    public function confirm(Order $order, BookingService $bookingService): RedirectResponse
+    public function confirm(Request $request, Order $order, BookingService $bookingService): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         try {
             $bookingService->adminConfirmOrder($order);
 
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Đã xác nhận thanh toán thành công cho đơn hàng #{$order->order_code}!",
+                ]);
+            }
+
             return back()->with('success', "Đã xác nhận thanh toán thành công cho đơn hàng #{$order->order_code}!");
         } catch (\Throwable $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lỗi xác nhận đơn: ' . $e->getMessage(),
+                ], 422);
+            }
+
             return back()->with('error', 'Lỗi xác nhận đơn: ' . $e->getMessage());
         }
     }
