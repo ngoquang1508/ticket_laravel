@@ -114,26 +114,26 @@ class HomeController extends Controller
                 'name' => 'Tp. Hồ Chí Minh',
                 'query' => 'Hồ Chí Minh',
                 'count' => $countHcm,
-                'image' => asset('/storage/images/destinations/ho-chi-minh.jpg')
+                'image' => asset('assets/images/destinations/ho-chi-minh.jpg')
             ],
             [
                 'name' => 'Hà Nội',
                 'query' => 'Hà Nội',
                 'count' => $countHn,
-                'image' => asset('/storage/images/destinations/ha-noi.jpg')
+                'image' => asset('assets/images/destinations/ha-noi.jpg')
             ],
             [
                 'name' => 'Đà Nẵng',
                 'query' => 'Đà Nẵng',
                 'count' => $countDn,
-                'image' => asset('/storage/images/destinations/da-nang.jpg')
+                'image' => asset('assets/images/destinations/da-nang.jpg')
             ],
             [
                 'name' => 'Vị trí khác',
                 'query' => '',
                 'location' => 'other',
                 'count' => $countOther,
-                'image' => asset('/storage/images/destinations/khac.jpg')
+                'image' => asset('assets/images/destinations/khac.jpg')
             ],
         ];
 

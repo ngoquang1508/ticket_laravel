@@ -20,7 +20,7 @@
             {{-- Dải ảnh nền SVG sóng xanh lượn ở phần chân (bg-ve-ban-lai.svg) được tăng độ cao để mascot đứng lên nền xanh
             --}}
             <div class="pointer-events-none absolute bottom-0 left-0 right-0 h-[280px] sm:h-[320px] md:h-[350px] z-0">
-                <img src="{{ asset('storage/images/bg-ve-ban-lai.svg') }}" alt="Dải sóng vé bán lại"
+                <img src="{{ asset('assets/images/bg-ve-ban-lai.svg') }}" alt="Dải sóng vé bán lại"
                     class="h-full w-full object-fill object-bottom">
             </div>
 
@@ -40,7 +40,7 @@
                 {{-- Div 1: Ảnh logo Resale ticket 3D & Mascot đứng trên nền sóng xanh --}}
                 <div class="shrink-0 flex items-end justify-center w-[170px] sm:w-[210px] md:w-[230px] pb-1">
                     <a href="{{ route('events.index', 've-ban-lai') }}" class="block w-full">
-                        <img src="{{ asset('storage/images/resale-badge-mascot.png') }}" alt="Vé bán lại - Resale Ticket"
+                        <img src="{{ asset('assets/images/resale-badge-mascot.png') }}" alt="Vé bán lại - Resale Ticket"
                             class="w-full h-auto max-h-[220px] sm:max-h-[250px] md:max-h-[270px] object-contain drop-shadow-2xl">
                     </a>
                 </div>

@@ -16,17 +16,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// 1. Trang chủ và xem sự kiện công khai
+// Trang chủ và xem sự kiện công khai
 require __DIR__ . '/modules/events.php';
 
-// 2. Xác thực tài khoản, đăng nhập, đăng ký và quên mật khẩu
+// Xác thực tài khoản, đăng nhập, đăng ký và quên mật khẩu
 require __DIR__ . '/modules/auth.php';
 
-// 3. Quy trình đặt vé, chọn ghế, thanh toán và hủy đơn
+// Quy trình đặt vé, chọn ghế, thanh toán và hủy đơn
 require __DIR__ . '/modules/booking.php';
 
-// 4. Quản lý vé cá nhân và hồ sơ người dùng
+// Quản lý vé cá nhân và hồ sơ người dùng
 require __DIR__ . '/modules/user.php';
 
-// 5. Khu vực quản trị hệ thống dành riêng cho Admin
+// Khu vực quản trị hệ thống dành riêng cho Admin
 require __DIR__ . '/modules/admin.php';
+
+// Bắt tất cả các đường dẫn không tồn tại và trả về view lỗi 404
+Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});
