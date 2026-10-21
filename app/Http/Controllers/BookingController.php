@@ -107,7 +107,7 @@ class BookingController extends Controller
 
         // Cập nhật thông tin người nhận vé vào đơn hàng
         $order->update([
-            'customer_name'  => $request->input('customer_name', $order->customer_name),
+            'customer_name' => $request->input('customer_name', $order->customer_name),
             'customer_email' => $request->input('customer_email', $order->customer_email),
             'customer_phone' => $request->input('customer_phone', $order->customer_phone),
         ]);

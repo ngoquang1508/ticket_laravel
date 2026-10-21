@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Constants\BookingConstant;
 
 class VNPayService
 {
@@ -20,6 +21,10 @@ class VNPayService
         $vnp_Locale = 'vn';
         $vnp_BankCode = ''; // Để trống thì VNPAY sẽ hiển thị danh sách ngân hàng
         $vnp_IpAddr = request()->ip();
+        // Đồng bộ thời gian hết hạn của phiên thanh toán VNPay với thời gian giữ vé của đơn hàng
+        $vnp_ExpireDate = $order->expires_at
+            ? $order->expires_at->format('YmdHis')
+            : now()->addMinutes(BookingConstant::ORDER_EXPIRE_MINUTES)->format('YmdHis');
 
         $inputData = array(
             "vnp_Version" => "2.1.0",
@@ -33,7 +38,8 @@ class VNPayService
             "vnp_OrderInfo" => $vnp_OrderInfo,
             "vnp_OrderType" => $vnp_OrderType,
             "vnp_ReturnUrl" => $vnp_Returnurl,
-            "vnp_TxnRef" => $vnp_TxnRef
+            "vnp_TxnRef" => $vnp_TxnRef,
+            "vnp_ExpireDate" => $vnp_ExpireDate,
         );
 
         if (isset($vnp_BankCode) && $vnp_BankCode != "") {
@@ -67,13 +73,13 @@ class VNPayService
     {
         $vnp_SecureHash = $vnpayData['vnp_SecureHash'] ?? '';
         $inputData = array();
-        
+
         foreach ($vnpayData as $key => $value) {
             if (substr($key, 0, 4) == "vnp_") {
                 $inputData[$key] = $value;
             }
         }
-        
+
         unset($inputData['vnp_SecureHash']);
         ksort($inputData);
         $i = 0;
@@ -89,7 +95,7 @@ class VNPayService
 
         $vnp_HashSecret = config('services.vnpay.hash_secret');
         $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
-        
+
         if ($secureHash === $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00' || $inputData['vnp_TransactionStatus'] == '00') {
                 return ['success' => true, 'order_code' => $inputData['vnp_TxnRef'], 'transaction_no' => $inputData['vnp_TransactionNo']];
