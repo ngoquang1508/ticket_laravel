@@ -8,6 +8,13 @@
                 <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-[#3b82f6]"></span> Đang chọn</div>
                 <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-[#f97316]"></span> Đang giữ</div>
                 <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-[#ef4444]"></span> Đã bán</div>
+
+                @if(isset($remainingQuota))
+                    <div class="h-4 w-px bg-gray-700 hidden sm:block"></div>
+                    <div class="text-xs {{ $remainingQuota <= 0 ? 'text-red-400 font-bold' : 'text-gray-300' }}">
+                        Hạn mức: <strong class="{{ $remainingQuota <= 0 ? 'text-red-400' : 'text-green-400' }}">{{ $remainingQuota }}</strong>/{{ $maxQuota ?? 10 }} ghế
+                    </div>
+                @endif
             @else
                 <div class="flex items-center gap-1.5 text-gray-300">
                     <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

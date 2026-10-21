@@ -300,6 +300,25 @@ class OrderCreationService
     }
 
     /**
+     * Lấy số vé tối đa user còn có thể mua cho sự kiện này.
+     */
+    public function getUserRemainingQuota(Event $event, ?int $userId): int
+    {
+        if (!$userId) {
+            return self::MAX_TICKETS_PER_USER;
+        }
+
+        $alreadyBooked = OrderItem::whereHas('order', function ($q) use ($event, $userId) {
+            $q->where('user_id', $userId)
+                ->where('event_id', $event->id)
+                ->whereIn('status', ['pending', 'processing', 'completed']);
+        })->where('status', '!=', 'cancelled')
+            ->sum('quantity');
+
+        return max(0, self::MAX_TICKETS_PER_USER - $alreadyBooked);
+    }
+
+    /**
      * Tạo bản ghi Order với thông tin cơ bản.
      */
     public function buildOrder(Event $event, float $totalAmount): Order

@@ -42,16 +42,19 @@ class BookingController extends Controller
 
         $userId = auth()->id();
         $activeOrder = null;
+        $maxQuota = \App\Constants\BookingConstant::MAX_TICKETS_PER_USER;
+        $remainingQuota = $maxQuota;
 
         if ($userId) {
             $this->bookingService->cancelExpiredOrders($userId);
             $activeOrder = $this->bookingService->getActivePendingOrder($event, $userId);
+            $remainingQuota = $this->bookingService->getUserRemainingQuota($event, $userId);
         }
 
         $soldSeats = Seat::where('event_id', $event->id)->where('status', 'sold')->pluck('seat_number')->toArray();
         $heldSeats = Seat::where('event_id', $event->id)->where('status', 'held')->pluck('seat_number')->toArray();
 
-        return view('booking.show', compact('event', 'soldSeats', 'heldSeats', 'activeOrder'));
+        return view('booking.show', compact('event', 'soldSeats', 'heldSeats', 'activeOrder', 'remainingQuota', 'maxQuota'));
     }
 
     /**

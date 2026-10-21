@@ -56,6 +56,14 @@ class BookingService
     }
 
     /**
+     * Lấy số vé tối đa user còn có thể mua cho sự kiện này.
+     */
+    public function getUserRemainingQuota(Event $event, ?int $userId): int
+    {
+        return $this->creationService->getUserRemainingQuota($event, $userId);
+    }
+
+    /**
      * Tạo order mới. Nếu đã có order pending còn hạn thì trả về order hiện tại.
      *
      * @throws \Exception

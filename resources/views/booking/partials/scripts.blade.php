@@ -181,6 +181,8 @@
         updateCartUI();
     };
 
+    const remainingQuota = @json($remainingQuota ?? 10);
+
     // Chọn hoặc bỏ chọn ghế trên sơ đồ
     window.toggleSeatSelection = function (seatEl) {
         const id = seatEl.dataset.id;
@@ -188,6 +190,16 @@
             delete cart[id];
             seatEl.classList.remove('status-selected');
         } else {
+            const currentCount = Object.keys(cart).length;
+            if (currentCount >= remainingQuota) {
+                if (typeof showToast === 'function') {
+                    showToast(`Bạn chỉ có thể chọn tối đa ${remainingQuota} vé cho sự kiện này.`, 'warning');
+                } else {
+                    alert(`Bạn chỉ có thể chọn tối đa ${remainingQuota} vé cho sự kiện này.`);
+                }
+                return;
+            }
+
             cart[id] = {
                 id: id,
                 zone: seatEl.dataset.zone,
@@ -203,6 +215,16 @@
     if (!isAssignedSeat) {
         document.querySelectorAll('.btn-plus').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                const totalCurrentSelected = Object.values(cart).reduce((a, b) => a + b, 0);
+                if (totalCurrentSelected >= remainingQuota) {
+                    if (typeof showToast === 'function') {
+                        showToast(`Bạn chỉ có thể chọn tối đa ${remainingQuota} vé cho sự kiện này.`, 'warning');
+                    } else {
+                        alert(`Bạn chỉ có thể chọn tối đa ${remainingQuota} vé cho sự kiện này.`);
+                    }
+                    return;
+                }
+
                 const id = e.target.dataset.id;
                 cart[id] = (cart[id] || 0) + 1;
                 const qtyEl = document.getElementById(`qty-${id}`);
