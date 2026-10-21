@@ -426,9 +426,16 @@
             // Kiểm tra sự kiện đã chọn
             if (!eventId) {
                 sound.play('error');
-                document.getElementById('event-warning-hint').classList.remove('hidden');
-                eventSelect.classList.add('border-red-500', 'ring-2', 'ring-red-200');
-                eventSelect.focus();
+                const warningHint = document.getElementById('event-warning-hint');
+                const btnOpenPicker = document.getElementById('btn-open-event-picker');
+                if (warningHint) warningHint.classList.remove('hidden');
+                if (btnOpenPicker) {
+                    btnOpenPicker.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+                }
+
+                if (typeof openEventPicker === 'function') {
+                    openEventPicker();
+                }
 
                 ui.renderResult({
                     status: 'no_event_selected',
@@ -579,42 +586,213 @@
             });
         }
 
-        // 10. Khởi tạo selector sự kiện
+        // 10. Khởi tạo selector sự kiện dạng Combobox tìm kiếm thông minh
         function initEventSelector() {
             const eventSelect = document.getElementById('event-select');
             const subtext = document.getElementById('event-info-subtext');
-            const savedEventId = localStorage.getItem('admin_checkin_selected_event_id');
+            const btnOpenPicker = document.getElementById('btn-open-event-picker');
+            const btnChangeEvent = document.getElementById('btn-change-event');
+            const selectedDisplay = document.getElementById('selected-event-display');
+            const dropdown = document.getElementById('event-picker-dropdown');
+            const searchInput = document.getElementById('event-search-input');
+            const btnClearSearch = document.getElementById('btn-clear-search');
+            const searchEmpty = document.getElementById('event-search-empty');
+            const filterTabs = document.querySelectorAll('.btn-filter-tab');
+            const eventRows = document.querySelectorAll('.event-item-row');
+            const warningHint = document.getElementById('event-warning-hint');
 
-            function updateSubtext() {
-                const opt = eventSelect.selectedOptions[0];
+            let currentFilter = 'all';
+
+            // Mở dropdown chọn sự kiện
+            openEventPicker = function() {
+                if (!dropdown) return;
+                dropdown.classList.remove('hidden');
+                setTimeout(() => {
+                    if (searchInput) searchInput.focus();
+                }, 50);
+            };
+
+            function closeEventPicker() {
+                if (dropdown) dropdown.classList.add('hidden');
+            }
+
+            // Cập nhật giao diện khi chọn sự kiện
+            function updateSelectedUI(opt) {
                 if (opt && opt.value) {
-                    const time = opt.dataset.time;
-                    const loc = opt.dataset.location;
-                    subtext.textContent = `Thời gian: ${time || '—'} | Địa điểm: ${loc || '—'}`;
+                    const name = opt.dataset.name || opt.text;
+                    const time = opt.dataset.time || '—';
+                    const loc = opt.dataset.location || '—';
+                    const status = opt.dataset.status || 'past';
+                    const checkedIn = opt.dataset.checkedIn || '0';
+                    const total = opt.dataset.total || '0';
+                    const progress = opt.dataset.progress || '0';
+
+                    const nameEl = document.getElementById('display-event-name');
+                    const timeEl = document.getElementById('display-event-time');
+                    const locEl = document.getElementById('display-event-location');
+                    const badge = document.getElementById('display-event-status-badge');
+                    const barEl = document.getElementById('display-event-progress-bar');
+                    const progressText = document.getElementById('display-event-progress-text');
+
+                    if (nameEl) nameEl.textContent = name;
+                    if (timeEl) timeEl.textContent = time;
+                    if (locEl) locEl.textContent = loc;
+                    
+                    if (badge) {
+                        if (status === 'today') {
+                            badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300";
+                            badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Hôm nay';
+                        } else if (status === 'upcoming') {
+                            badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200";
+                            badge.textContent = 'Sắp tới';
+                        } else {
+                            badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600";
+                            badge.textContent = 'Đã qua';
+                        }
+                    }
+
+                    if (barEl) barEl.style.width = `${progress}%`;
+                    if (progressText) progressText.textContent = `Đã soát: ${checkedIn}/${total} vé (${progress}%)`;
+
+                    if (subtext) subtext.textContent = `Thời gian: ${time} | Địa điểm: ${loc}`;
+                    if (btnOpenPicker) btnOpenPicker.classList.add('hidden');
+                    if (selectedDisplay) selectedDisplay.classList.remove('hidden');
+
+                    // Đánh dấu dòng đang chọn trong dropdown
+                    eventRows.forEach(row => {
+                        if (row.dataset.id === opt.value) {
+                            row.classList.add('bg-primary-50', 'border-primary-300');
+                        } else {
+                            row.classList.remove('bg-primary-50', 'border-primary-300');
+                        }
+                    });
                 } else {
-                    subtext.textContent = 'Hệ thống chỉ chấp nhận vé thuộc đúng sự kiện đang chọn';
+                    if (subtext) subtext.textContent = 'Hệ thống chỉ chấp nhận vé thuộc đúng sự kiện đang chọn';
+                    if (btnOpenPicker) btnOpenPicker.classList.remove('hidden');
+                    if (selectedDisplay) selectedDisplay.classList.add('hidden');
+                    eventRows.forEach(row => row.classList.remove('bg-primary-50', 'border-primary-300'));
                 }
             }
 
-            if (savedEventId) {
-                const optionExists = Array.from(eventSelect.options).some(opt => opt.value === savedEventId);
-                if (optionExists) {
-                    eventSelect.value = savedEventId;
-                    updateSubtext();
-                }
-            }
-
-            eventSelect.addEventListener('change', () => {
-                const val = eventSelect.value;
-                if (val) {
-                    localStorage.setItem('admin_checkin_selected_event_id', val);
-                    document.getElementById('event-warning-hint').classList.add('hidden');
-                    eventSelect.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+            // Chọn sự kiện theo ID
+            function selectEventById(id) {
+                eventSelect.value = id || '';
+                const opt = eventSelect.selectedOptions[0];
+                if (id) {
+                    localStorage.setItem('admin_checkin_selected_event_id', id);
+                    if (warningHint) warningHint.classList.add('hidden');
+                    if (btnOpenPicker) btnOpenPicker.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
                 } else {
                     localStorage.removeItem('admin_checkin_selected_event_id');
                 }
-                updateSubtext();
+                updateSelectedUI(opt);
+                closeEventPicker();
+            }
+
+            // Bắt sự kiện click mở picker
+            if (btnOpenPicker) {
+                btnOpenPicker.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openEventPicker();
+                });
+            }
+
+            if (btnChangeEvent) {
+                btnChangeEvent.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openEventPicker();
+                });
+            }
+
+            // Bấm ra ngoài để đóng dropdown
+            document.addEventListener('click', (e) => {
+                if (dropdown && !dropdown.contains(e.target) && btnOpenPicker && !btnOpenPicker.contains(e.target) && btnChangeEvent && !btnChangeEvent.contains(e.target)) {
+                    closeEventPicker();
+                }
             });
+
+            // Lọc danh sách sự kiện theo từ khóa & tab
+            function filterEvents() {
+                if (!searchInput) return;
+                const query = searchInput.value.trim().toLowerCase();
+                if (btnClearSearch) btnClearSearch.classList.toggle('hidden', query === '');
+
+                let visibleCount = 0;
+
+                eventRows.forEach(row => {
+                    const name = (row.dataset.name || '').toLowerCase();
+                    const loc = (row.dataset.location || '').toLowerCase();
+                    const time = (row.dataset.time || '').toLowerCase();
+                    const status = row.dataset.status;
+
+                    const matchSearch = !query || name.includes(query) || loc.includes(query) || time.includes(query);
+                    const matchTab = currentFilter === 'all' || status === currentFilter;
+
+                    if (matchSearch && matchTab) {
+                        row.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+
+                if (searchEmpty) searchEmpty.classList.toggle('hidden', visibleCount > 0);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', filterEvents);
+            }
+
+            if (btnClearSearch) {
+                btnClearSearch.addEventListener('click', () => {
+                    searchInput.value = '';
+                    filterEvents();
+                    searchInput.focus();
+                });
+            }
+
+            // Xử lý chuyển tab lọc (Tất cả / Hôm nay / Sắp tới)
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    filterTabs.forEach(t => {
+                        t.classList.remove('active', 'bg-primary-100', 'text-primary-800');
+                        t.classList.add('text-gray-600');
+                    });
+                    tab.classList.add('active', 'bg-primary-100', 'text-primary-800');
+                    tab.classList.remove('text-gray-600');
+                    currentFilter = tab.dataset.filter;
+                    filterEvents();
+                });
+            });
+
+            // Bắt sự kiện chọn dòng sự kiện
+            eventRows.forEach(row => {
+                row.addEventListener('click', () => {
+                    const id = row.dataset.id;
+                    selectEventById(id);
+                });
+            });
+
+            // Khởi tạo giá trị ban đầu: URL param > localStorage > Sự kiện hôm nay duy nhất
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlEventId = urlParams.get('event_id');
+            const savedEventId = localStorage.getItem('admin_checkin_selected_event_id');
+
+            const optionValues = Array.from(eventSelect.options).map(o => o.value);
+
+            if (urlEventId && optionValues.includes(urlEventId)) {
+                selectEventById(urlEventId);
+            } else if (savedEventId && optionValues.includes(savedEventId)) {
+                selectEventById(savedEventId);
+            } else {
+                // Kiểm tra xem có đúng 1 sự kiện diễn ra hôm nay không
+                const todayRows = Array.from(eventRows).filter(r => r.dataset.status === 'today');
+                if (todayRows.length === 1) {
+                    selectEventById(todayRows[0].dataset.id);
+                } else {
+                    updateSelectedUI(null);
+                }
+            }
         }
 
         // Public API

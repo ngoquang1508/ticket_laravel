@@ -16,11 +16,49 @@ class CheckInController extends Controller
      */
     public function index()
     {
-        // Danh sách các sự kiện đang hoạt động để Admin chọn trước khi check-in
+        // Thống kê số lượng vé đã phát hành và đã check-in theo từng sự kiện
+        $ticketStats = Ticket::join('orders', 'tickets.order_id', '=', 'orders.id')
+            ->selectRaw('orders.event_id, count(tickets.id) as total_tickets, count(tickets.checked_in_at) as checked_in_tickets')
+            ->groupBy('orders.event_id')
+            ->get()
+            ->keyBy('event_id');
+
+        // Danh sách các sự kiện đang hoạt động được phân loại và ưu tiên thông minh
         $events = Event::with('location')
             ->where('is_published', true)
-            ->orderBy('starts_at', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($event) use ($ticketStats) {
+                // Xác định trạng thái thời gian của sự kiện
+                $isToday = $event->starts_at && $event->starts_at->isToday();
+                $isUpcoming = $event->starts_at && $event->starts_at->isFuture() && !$isToday;
+                $isPast = $event->starts_at && $event->starts_at->isPast() && !$isToday;
+
+                $event->time_status = $isToday ? 'today' : ($isUpcoming ? 'upcoming' : 'past');
+
+                // Thống kê vé của sự kiện
+                $stats = $ticketStats->get($event->id);
+                $event->total_tickets_count = $stats ? (int) $stats->total_tickets : 0;
+                $event->checked_in_tickets_count = $stats ? (int) $stats->checked_in_tickets : 0;
+                $event->checkin_progress_pct = $event->total_tickets_count > 0
+                    ? round(($event->checked_in_tickets_count / $event->total_tickets_count) * 100)
+                    : 0;
+
+                return $event;
+            })
+            ->sortBy(function ($event) {
+                // Thứ tự ưu tiên:
+                // 1. Sự kiện diễn ra hôm nay (Nhóm 0)
+                // 2. Sự kiện sắp diễn ra trong tương lai (Nhóm 1)
+                // 3. Sự kiện đã qua (Nhóm 2)
+                $priority = match ($event->time_status) {
+                    'today' => 0,
+                    'upcoming' => 1,
+                    default => 2,
+                };
+                $timestamp = $event->starts_at ? $event->starts_at->timestamp : 0;
+                return sprintf('%d_%012d', $priority, $timestamp);
+            })
+            ->values();
 
         // Thống kê số lượng vé đã check-in trong ngày hôm nay
         $todayCount = Ticket::whereDate('checked_in_at', today())->count();
