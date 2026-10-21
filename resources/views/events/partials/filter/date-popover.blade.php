@@ -9,9 +9,7 @@
     <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 sm:hidden">
         <span class="font-bold text-gray-900 text-sm">Thời gian</span>
         <button type="button" class="btn-close-popover p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <x-icons.close class="w-5 h-5" />
         </button>
     </div>
 
@@ -47,9 +45,7 @@
             <button type="button" id="btn-prev-month"
                 class="p-1.5 rounded-full hover:bg-gray-100 text-gray-600 transition cursor-pointer"
                 title="Tháng trước">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
+                <x-icons.chevron-left class="w-5 h-5" />
             </button>
             <div class="flex-1 flex justify-around text-sm font-bold text-gray-800">
                 <span id="label-month-left">Tháng ..., 2026</span>
@@ -58,9 +54,7 @@
             <button type="button" id="btn-next-month"
                 class="p-1.5 rounded-full hover:bg-gray-100 text-gray-600 transition cursor-pointer"
                 title="Tháng sau">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
+                <x-icons.chevron-right class="w-5 h-5" />
             </button>
         </div>
 

@@ -31,9 +31,7 @@
                 </form>
             @elseif ($order->status === 'pending')
                 <span class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <x-icons.clock class="h-4 w-4" />
                     <span>Khách đang giữ chỗ (chưa thể xác nhận)</span>
                 </span>
             @endif

@@ -25,10 +25,7 @@
                 <nav class="flex gap-1 overflow-x-auto scrollbar-none" aria-label="Profile tabs">
                     <button type="button" data-tab="personal-info" onclick="switchProfileTab('personal-info')"
                         class="profile-nav-btn flex shrink-0 items-center gap-2 rounded-xl border border-transparent px-4 py-2.5 text-xs font-semibold text-gray-400 transition-all hover:bg-white/5 hover:text-white">
-                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
+                        <x-icons.user class="h-4 w-4 shrink-0" />
 
                         <span class="whitespace-nowrap">
                             Thông tin cá nhân
@@ -37,10 +34,7 @@
 
                     <button type="button" data-tab="security" onclick="switchProfileTab('security')"
                         class="profile-nav-btn flex shrink-0 items-center gap-2 rounded-xl border border-transparent px-4 py-2.5 text-xs font-semibold text-gray-400 transition-all hover:bg-white/5 hover:text-white">
-                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
+                        <x-icons.lock class="h-4 w-4 shrink-0" />
 
                         <span class="whitespace-nowrap">
                             Bảo mật
@@ -49,10 +43,7 @@
 
                     <button type="button" data-tab="tickets" onclick="switchProfileTab('tickets')"
                         class="profile-nav-btn flex shrink-0 items-center gap-2 rounded-xl border border-transparent px-4 py-2.5 text-xs font-semibold text-gray-400 transition-all hover:bg-white/5 hover:text-white">
-                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                        </svg>
+                        <x-icons.ticket class="h-4 w-4 shrink-0" />
 
                         <span class="whitespace-nowrap">
                             Vé của tôi

@@ -12,10 +12,7 @@
             </div>
             <button type="button" onclick="closeEditTicketModal({{ $order->id }})"
                 class="rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition cursor-pointer">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <x-icons.close class="h-5 w-5" />
             </button>
         </div>
 
@@ -24,11 +21,7 @@
             <div class="py-5 space-y-4">
                 <div
                     class="flex items-start gap-3 rounded-xl border border-blue-500/20 bg-blue-500/10 p-3.5 text-xs text-blue-300">
-                    <svg class="h-5 w-5 shrink-0 text-blue-400 mt-0.5" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <x-icons.info class="h-5 w-5 shrink-0 text-blue-400 mt-0.5" />
                     <div>
                         <p class="font-semibold text-blue-200 mb-1">Chỉnh sửa ghế trên sơ đồ trực tiếp</p>
                         <p class="text-blue-300/90 leading-relaxed">Sự kiện áp dụng sơ đồ chọn ghế. Bạn có thể
@@ -59,11 +52,7 @@
                 <div class="py-4 space-y-4 max-h-[60vh] overflow-y-auto pr-1">
                     <div
                         class="rounded-xl border border-blue-500/20 bg-blue-500/10 p-3 text-xs text-blue-300 flex items-center gap-2">
-                        <svg class="h-4 w-4 shrink-0 text-blue-400" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        <x-icons.info class="h-4 w-4 shrink-0 text-blue-400" />
                         <span>Mỗi đơn hàng tối đa 10 vé. Bạn có thể tăng hoặc giảm số lượng từng loại vé trong
                             phạm vi vé còn trống.</span>
                     </div>

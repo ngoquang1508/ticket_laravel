@@ -33,9 +33,7 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
             <button type="button" onclick="closeCheckoutModal({{ $order->id }})"
                 class="shrink-0 text-gray-400 hover:text-white hover:bg-white/10 p-1.5 sm:p-2 rounded-xl transition duration-150 flex items-center justify-center cursor-pointer"
                 title="Đóng modal">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <x-icons.close class="w-5 h-5" />
             </button>
         </div>
 
@@ -90,9 +88,7 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2 min-w-0">
                                 <span class="p-1 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
+                                    <x-icons.user class="w-4 h-4" />
                                 </span>
                                 <span class="font-semibold text-white truncate text-xs sm:text-sm">Thông tin nhận vé</span>
                             </div>
@@ -101,9 +97,7 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                             <button type="button" id="btn-toggle-customer-{{ $order->id }}"
                                 class="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium px-2 py-1 rounded hover:bg-emerald-500/10 transition cursor-pointer flex items-center gap-1 shrink-0">
                                 <span id="btn-toggle-text-{{ $order->id }}">{{ $hasPhone ? 'Thay đổi' : 'Bổ sung SĐT' }}</span>
-                                <svg id="btn-toggle-icon-{{ $order->id }}" class="w-3.5 h-3.5 transition-transform duration-200 {{ $hasPhone ? '' : 'rotate-180' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
+                                <x-icons.chevron-down id="btn-toggle-icon-{{ $order->id }}" class="w-3.5 h-3.5 transition-transform duration-200 {{ $hasPhone ? '' : 'rotate-180' }}" />
                             </button>
                         </div>
 
@@ -150,9 +144,7 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                                 </div>
                             </div>
                             <p class="text-[10px] text-gray-400 italic flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <x-icons.info class="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                                 <span>Vé điện tử và mã QR check-in sự kiện sẽ được gửi tới địa chỉ email này.</span>
                             </p>
                         </div>
@@ -163,9 +155,7 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                         <input type="hidden" name="payment_method" value="free">
                         <div class="mb-3.5 sm:mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <x-icons.check-circle class="w-5 h-5" />
                             </div>
                             <div class="text-xs">
                                 <div class="font-bold text-white">Đơn hàng miễn phí (0 đ)</div>
@@ -177,9 +167,7 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                         <button type="submit" id="btn-pay-{{ $order->id }}"
                             class="w-full bg-emerald-500 text-white font-bold py-2.5 sm:py-3 rounded-xl hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/20 text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2">
                             <span>Xác nhận nhận vé (Miễn phí)</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
+                            <x-icons.arrow-right class="w-4 h-4" />
                         </button>
                     @else
                         {{-- Trường hợp đơn hàng có phí cần thanh toán --}}
@@ -247,10 +235,7 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                         <button type="submit" id="btn-pay-{{ $order->id }}"
                             class="w-full bg-emerald-500 text-white font-bold py-2.5 sm:py-3 rounded-xl hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/20 text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2">
                             <span>Tiến hành thanh toán</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
+                            <x-icons.arrow-right class="w-4 h-4" />
                         </button>
                     @endif
                 </form>

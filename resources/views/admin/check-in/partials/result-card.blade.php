@@ -5,10 +5,7 @@
     {{-- Trạng thái chờ quét ban đầu --}}
     <div id="state-idle" class="flex-1 flex flex-col items-center justify-center text-center py-10">
         <div class="w-20 h-20 rounded-3xl bg-gray-100 border border-gray-200/80 flex items-center justify-center text-gray-400 mb-4">
-            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-            </svg>
+            <x-icons.qr-scan class="w-10 h-10" />
         </div>
         <h3 class="text-base font-bold text-gray-800">Sẵn sàng kiểm tra vé</h3>
         <p class="text-sm text-gray-500 mt-1.5 max-w-sm">Chọn sự kiện đang soát vé, sau đó đưa mã QR trước camera hoặc nhập mã vé để hiển thị thông tin.</p>
@@ -80,10 +77,7 @@
             <div id="ticket-checked-in-info"
                 class="hidden mt-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs">
                 <div class="flex items-center gap-1.5 font-bold mb-1">
-                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <x-icons.clock class="w-4 h-4 text-amber-600" />
                     <span>Thời gian check-in trước đó:</span>
                 </div>
                 <p class="font-mono font-semibold" id="ticket-checked-in-time"></p>
@@ -101,9 +95,7 @@
             {{-- Nút Xác nhận Check-in (chỉ hiển thị khi vé valid) --}}
             <button type="button" id="btn-confirm-checkin" onclick="CheckInApp.confirmCheckin()"
                 class="hidden flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-700 cursor-pointer">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                </svg>
+                <x-icons.check class="h-5 w-5" />
                 <span>Xác nhận Check-in</span>
                 <span class="hidden sm:inline-block ml-1 text-xs opacity-75 font-normal">(Phím Space)</span>
             </button>

@@ -93,7 +93,7 @@
             <p class="text-xs sm:text-sm text-primary-700">Cấu hình một hoặc nhiều loại vé (ví dụ: Vé VIP, Vé Thường...). Hình thức này không tạo sơ đồ ghế.</p>
         </div>
         <button type="button" id="btn-add-free-ticket" class="inline-flex items-center justify-center gap-1.5 self-start sm:self-auto rounded-lg bg-primary-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-primary-700 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <x-icons.plus class="w-4 h-4" />
             Thêm loại vé
         </button>
     </div>
@@ -126,7 +126,7 @@
                     </div>
                     <div class="sm:col-span-1 flex items-center justify-end sm:justify-center">
                         <button type="button" class="btn-remove-free-ticket inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition" title="Xóa loại vé này" @disabled(!empty($ticket['sold_quantity']) && $ticket['sold_quantity'] > 0)>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            <x-icons.delete class="w-5 h-5" />
                         </button>
                     </div>
                 </div>
@@ -200,7 +200,7 @@
                             </div>
                             <div class="sm:col-span-1 flex items-center justify-end sm:justify-center">
                                 <button type="button" class="btn-remove-free-ticket inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition" title="Xóa loại vé này">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    <x-icons.delete class="w-5 h-5" />
                                 </button>
                             </div>
                         </div>

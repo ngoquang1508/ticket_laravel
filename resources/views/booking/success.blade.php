@@ -31,10 +31,7 @@
                     <div
                         class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg shadow-emerald-900/10">
 
-                        <svg class="h-8 w-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                d="M5 13l4 4L19 7" />
-                        </svg>
+                        <x-icons.check class="h-8 w-8 text-emerald-500" />
 
                     </div>
 
@@ -109,10 +106,7 @@
                     <a href="{{ route('user.tickets') }}"
                         class="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
 
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                d="M15 5H6a2 2 0 00-2 2v10a2 2 0 002 2h9m0-14l5 4v6l-5 4V5z" />
-                        </svg>
+                        <x-icons.ticket class="h-4 w-4" />
 
                         Xem vé của tôi
 
@@ -123,10 +117,7 @@
                     <a href="{{ route('home') }}"
                         class="flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
 
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                d="M3 10.5L12 3l9 7.5M5 9v11h14V9M9 20v-6h6v6" />
-                        </svg>
+                        <x-icons.home class="h-4 w-4" />
 
                         Về trang chủ
 

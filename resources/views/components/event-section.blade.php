@@ -4,15 +4,11 @@
     <!-- Title Section -->
     <div class="mb-4 flex items-center gap-2 {{ $isPast ? 'mt-8' : '' }} {{ $centerTitle ? 'justify-center mb-8' : '' }}">
         @if(!$centerTitle)
-            <svg class="h-6 w-6 {{ $isPast ? '' : 'text-green-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                @if ($isPast)
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                @else
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                @endif
-            </svg>
+            @if ($isPast)
+                <x-icons.archive class="h-6 w-6" />
+            @else
+                <x-icons.clock class="h-6 w-6 text-green-500" />
+            @endif
         @endif
         <h2 class="font-bold">{{ $title }}</h2>
     </div>
@@ -33,10 +29,7 @@
                 data-type="{{ $type }}" data-page="2" data-url="{{ route('events.index', array_filter(['categorySlug' => $categorySlug, 'q' => request('q')])) }}">
                 <span class="flex items-center gap-1">
                     Xem thêm sự kiện {{ $type === 'upcoming' ? 'sắp diễn ra' : 'đã diễn ra' }}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <x-icons.chevron-down class="h-4 w-4" />
                 </span>
             </button>
         </div>

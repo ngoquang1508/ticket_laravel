@@ -8,10 +8,7 @@
                 <p class="text-xs text-gray-500">Diễn biến dòng tiền từ các đơn thanh toán thành công (VND)</p>
             </div>
             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                </svg>
+                <x-icons.chart-line class="h-4 w-4" />
             </span>
         </div>
         <div class="mt-4 flex-1">
@@ -27,10 +24,7 @@
                 <p class="text-xs text-gray-500">Số lượng vé bán ra thành công nhiều nhất</p>
             </div>
             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
+                <x-icons.chart-bar class="h-4 w-4" />
             </span>
         </div>
 
@@ -65,10 +59,7 @@
                 {{-- Trạng thái rỗng khi chưa có vé bán --}}
                 <div class="flex h-[260px] flex-col items-center justify-center text-center">
                     <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                        </svg>
+                        <x-icons.archive class="h-6 w-6" />
                     </div>
                     <p class="mt-2 text-sm font-medium text-gray-900">Chưa có vé bán</p>
                     <p class="text-xs text-gray-500">Chưa có sự kiện nào phát sinh đơn hàng đã thanh toán trong kỳ này.

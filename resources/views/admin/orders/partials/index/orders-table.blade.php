@@ -175,10 +175,7 @@
                         <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                             <div
                                 class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-3">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                </svg>
+                                <x-icons.shopping-bag class="h-6 w-6" />
                             </div>
                             <p class="font-medium text-gray-900">Không tìm thấy đơn hàng nào</p>
                             <p class="mt-1 text-xs text-gray-500">Thử thay đổi bộ lọc tìm kiếm hoặc từ khóa tra cứu.</p>

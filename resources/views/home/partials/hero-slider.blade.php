@@ -62,7 +62,7 @@
                                         <a href="{{ route('events.show', $event->slug) }}"
                                             class="flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition hover:bg-black/90"
                                             aria-label="Xem chi tiết sự kiện">
-                                            <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                            <x-icons.play class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                         </a>
                                     </div>
                                 </div>
@@ -76,18 +76,14 @@
                     <button type="button" id="hero-prev"
                         class="flex absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/60 hover:bg-black/90 text-white/90 backdrop-blur-sm transition z-20 shadow-lg cursor-pointer"
                         aria-label="Slide trước">
-                        <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-                        </svg>
+                        <x-icons.chevron-left class="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
 
                     {{-- Nút cuộn phải: Luôn luôn chuyển động từ phải sang trái --}}
                     <button type="button" id="hero-next"
                         class="flex absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/60 hover:bg-black/90 text-white/90 backdrop-blur-sm transition z-20 shadow-lg cursor-pointer"
                         aria-label="Slide tiếp theo">
-                        <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
+                        <x-icons.chevron-right class="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
 
                     {{-- Dots phân trang --}}

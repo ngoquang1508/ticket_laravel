@@ -36,10 +36,7 @@
         <div class="flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50/50 p-3.5">
             <div class="flex items-center gap-3">
                 <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                            d="M5 13l4 4L19 7" />
-                    </svg>
+                    <x-icons.check class="h-4 w-4" />
                 </span>
                 <div>
                     <p class="text-xs font-medium text-emerald-800">Đã thanh toán</p>
@@ -58,10 +55,7 @@
         <div class="flex items-center justify-between rounded-xl border border-amber-100 bg-amber-50/50 p-3.5">
             <div class="flex items-center gap-3">
                 <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <x-icons.clock class="h-4 w-4" />
                 </span>
                 <div>
                     <p class="text-xs font-medium text-amber-800">Chờ thanh toán</p>
@@ -80,10 +74,7 @@
         <div class="flex items-center justify-between rounded-xl border border-rose-100 bg-rose-50/50 p-3.5">
             <div class="flex items-center gap-3">
                 <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-rose-700">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <x-icons.close class="h-4 w-4" />
                 </span>
                 <div>
                     <p class="text-xs font-medium text-rose-800">Đã hủy / Hết hạn</p>

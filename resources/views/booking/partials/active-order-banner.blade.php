@@ -3,9 +3,7 @@
     <div class="mb-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5 text-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div class="flex items-start sm:items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <x-icons.clock class="w-5 h-5" />
             </div>
             <div>
                 <p class="font-bold text-white text-sm sm:text-base">

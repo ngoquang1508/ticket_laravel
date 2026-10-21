@@ -16,14 +16,14 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             @if(session('error'))
                 <div class="mb-4 bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <x-icons.exclamation class="w-5 h-5 shrink-0" />
                     {{ session('error') }}
                 </div>
             @endif
 
             @if(session('success'))
                 <div class="mb-4 bg-green-500/10 border border-green-500/50 text-green-500 px-4 py-3 rounded-xl font-medium flex items-center gap-2">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <x-icons.check class="w-5 h-5 shrink-0" />
                     {{ session('success') }}
                 </div>
             @endif
@@ -33,7 +33,7 @@
                 <div>
                     <div class="flex flex-wrap items-center gap-2.5 mb-1.5">
                         <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-400 ring-1 ring-inset ring-blue-500/30">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <x-icons.pencil class="w-3.5 h-3.5" />
                             Chỉnh sửa đơn hàng #{{ $order->order_code }}
                         </span>
                         <span class="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
@@ -42,11 +42,7 @@
                     </div>
                     <h1 class="text-2xl font-bold text-white mb-1">{{ $event->name }}</h1>
                     <p class="text-gray-400 text-sm flex items-center gap-2">
-                        <svg class="w-4 h-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                            </path>
-                        </svg>
+                        <x-icons.calendar class="w-4 h-4 text-green-500 shrink-0" />
                         {{ \Carbon\Carbon::parse($event->starts_at)->format('H:i, d \T\h\á\n\g m, Y') }}
                     </p>
                 </div>
@@ -55,7 +51,7 @@
                 <div class="flex items-center gap-2.5 self-start md:self-auto">
                     <a href="{{ route('user.tickets', array_filter(['status' => request('status', $order->status), 'page' => request('page')])) }}#order-{{ $order->id }}"
                         class="text-sm font-semibold text-gray-300 hover:text-white bg-[#2b2b2b] hover:bg-[#333] px-4 py-2 rounded-lg transition flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        <x-icons.chevron-left class="w-4 h-4" />
                         Vé của tôi
                     </a>
                     <a href="{{ route('events.show', $event->slug) }}"
@@ -67,7 +63,7 @@
 
             <!-- Banner hướng dẫn -->
             <div class="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/10 p-3.5 sm:p-4 text-xs sm:text-sm text-blue-300 flex items-start gap-3">
-                <svg class="w-5 h-5 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <x-icons.info class="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                 <div class="leading-relaxed">
                     Bạn đang thay đổi vị trí ghế cho đơn hàng này. Các ghế bạn đang giữ hiện được đánh dấu màu <span class="font-semibold text-blue-400">Xanh dương (Đang chọn)</span>. Bạn có thể nhấn vào để bỏ chọn hoặc chọn thêm các ghế trống khác (tối đa 10 ghế). Sau khi chọn xong, nhấn <strong>Cập nhật vé</strong> để lưu lại.
                 </div>
@@ -91,16 +87,12 @@
                                     <button type="button" id="zoom-out"
                                         class="w-8 h-8 rounded bg-[#333] hover:bg-[#444] text-white flex items-center justify-center transition cursor-pointer"
                                         title="Thu nhỏ (Zoom Out)">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                                        </svg>
+                                        <x-icons.minus class="w-4 h-4" />
                                     </button>
                                     <button type="button" id="zoom-in"
                                         class="w-8 h-8 rounded bg-[#333] hover:bg-[#444] text-white flex items-center justify-center transition cursor-pointer"
                                         title="Phóng to (Zoom In)">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                        </svg>
+                                        <x-icons.plus class="w-4 h-4" />
                                     </button>
                                     <button type="button" id="zoom-reset"
                                         class="px-3 h-8 rounded bg-[#333] hover:bg-[#444] text-white text-xs font-semibold flex items-center justify-center transition cursor-pointer"

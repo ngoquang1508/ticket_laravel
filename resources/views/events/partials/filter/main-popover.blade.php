@@ -9,9 +9,7 @@ Component Popover Bộ Lọc Tổng Hợp: Vị trí, Giá tiền, Thể loại 
     <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 sm:hidden">
         <span class="font-bold text-gray-900 text-sm">Bộ lọc</span>
         <button type="button" class="btn-close-popover p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <x-icons.close class="w-5 h-5" />
         </button>
     </div>
 

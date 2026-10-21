@@ -9,11 +9,7 @@
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Mã đơn, tên khách, email, SĐT..."
                     class="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-                <svg class="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <x-icons.search class="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             </div>
         </div>
 

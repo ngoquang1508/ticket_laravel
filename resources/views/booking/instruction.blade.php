@@ -31,10 +31,7 @@
 
                         <div
                             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <x-icons.clock class="h-6 w-6" />
                         </div>
 
                         <div>
@@ -94,10 +91,7 @@
 
                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
 
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                            d="M12 8v4m0 4h.01M10.29 3.86l-7.82 13.5A2 2 0 004.2 20.4h15.6a2 2 0 001.73-3.04l-7.82-13.5a2 2 0 00-3.42 0z" />
-                    </svg>
+                    <x-icons.exclamation class="h-5 w-5" />
 
                 </div>
 
@@ -148,10 +142,7 @@
                             <div
                                 class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
 
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                        d="M3 10h18M5 6h14l2 4H3l2-4zm0 4v8h14v-8M9 14h6" />
-                                </svg>
+                                <x-icons.credit-card class="h-5 w-5" />
 
                             </div>
 
@@ -258,10 +249,7 @@
                                 <div
                                     class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
 
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                    <x-icons.info class="h-4 w-4" />
 
                                 </div>
 
@@ -294,11 +282,7 @@
                         {{-- Confirmation --}}
                         <div class="mt-4 flex gap-2 text-xs text-slate-500">
 
-                            <svg class="mt-0.5 h-4 w-4 shrink-0 text-blue-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
+                            <x-icons.check class="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
 
                             <p>
                                 Sau khi chuyển khoản, vui lòng chờ hệ thống hoặc quản trị viên xác nhận giao dịch.
@@ -322,10 +306,7 @@
                             <div
                                 class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
 
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                        d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6M8 10h.01M12 10h.01M16 10h.01" />
-                                </svg>
+                                <x-icons.building class="h-5 w-5" />
 
                             </div>
 
@@ -374,16 +355,7 @@
 
                                 <div class="flex gap-3">
 
-                                    <svg class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-
-                                    </svg>
+                                    <x-icons.location class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
 
                                     <p class="text-xs leading-relaxed text-slate-600">
                                         Tầng 1, Tòa nhà Landmark,<br>
@@ -396,13 +368,7 @@
 
                                 <div class="flex gap-3">
 
-                                    <svg class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-
-                                    </svg>
+                                    <x-icons.clock class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
 
                                     <p class="text-xs leading-relaxed text-slate-600">
                                         <span class="font-medium text-slate-800">
@@ -457,13 +423,7 @@
 
                             <div class="flex gap-3">
 
-                                <svg class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 12c0 5.591 3.824 10.29 9 11.622C17.176 22.29 21 17.591 21 12c0-1.27-.197-2.494-.564-3.016z" />
-
-                                </svg>
+                                <x-icons.shield-check class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
 
                                 <p class="text-xs leading-relaxed text-emerald-800">
                                     Sau khi nhân viên xác nhận đã nhận tiền,
@@ -560,10 +520,7 @@
                 <a href="{{ route('home') }}"
                     class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
 
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                    <x-icons.arrow-left class="h-4 w-4" />
 
                     Về trang chủ
 

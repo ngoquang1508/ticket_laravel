@@ -34,9 +34,7 @@
                         @csrf
                         <button type="submit" title="Đánh dấu tất cả là đã đọc"
                             class="text-xs font-medium text-primary-600 hover:text-primary-700 hover:underline transition-colors flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
+                            <x-icons.check class="w-3.5 h-3.5" />
                             Đã đọc tất cả
                         </button>
                     </form>
@@ -87,25 +85,13 @@
                                     @else bg-blue-100 text-blue-600 @endif">
 
                             @if ($iconType === 'success')
-                                <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <x-icons.check-circle class="h-4.5 w-4.5" />
                             @elseif ($iconType === 'warning')
-                                <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <x-icons.clock class="h-4.5 w-4.5" />
                             @elseif ($iconType === 'danger')
-                                <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
+                                <x-icons.exclamation class="h-4.5 w-4.5" />
                             @else
-                                <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <x-icons.info class="h-4.5 w-4.5" />
                             @endif
                         </div>
 
@@ -134,10 +120,7 @@
                         title="Xóa thông báo"
                         data-delete-url="{{ route('admin.notifications.destroy', $notification->id) }}"
                         data-is-unread="{{ $isUnread ? '1' : '0' }}">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                        <x-icons.delete class="h-3.5 w-3.5" />
                     </button>
                 </div>
             @empty
@@ -159,10 +142,7 @@
             <div id="empty-state-unread" class="hidden p-8 text-center">
                 <div
                     class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-3">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <x-icons.check-circle class="h-6 w-6" />
                 </div>
                 <p class="text-xs font-semibold text-gray-700">Không có thông báo chưa đọc</p>
                 <p class="text-[11px] text-gray-400 mt-0.5">Tuyệt vời! Bạn đã xem hết tất cả thông báo.</p>
@@ -174,9 +154,7 @@
             <button type="button" id="btn-load-more"
                 class="w-full flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold text-primary-600 hover:bg-primary-50/80 hover:text-primary-700 transition-colors">
                 <span>Xem thêm</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+                <x-icons.chevron-down class="w-3.5 h-3.5" />
             </button>
         </div>
     </div>
@@ -251,9 +229,7 @@
                         loadMoreContainer.classList.remove('hidden');
                         const remaining = matchingItems.length - visibleCount;
                         btnLoadMore.innerHTML = `<span>Xem thêm (${remaining})</span>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>`;
+                            <x-icons.chevron-down class="w-3.5 h-3.5" />`;
                     }
                 } else {
                     if (loadMoreContainer) loadMoreContainer.classList.add('hidden');
@@ -471,17 +447,17 @@
             div.setAttribute('data-unread', isUnread ? '1' : '0');
 
             let iconBg = 'bg-blue-100 text-blue-600';
-            let iconSvg = `<svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            let iconSvg = `<x-icons.info class="h-4.5 w-4.5" />`;
 
             if (notif.icon_type === 'success') {
                 iconBg = 'bg-emerald-100 text-emerald-600';
-                iconSvg = `<svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                iconSvg = `<x-icons.check-circle class="h-4.5 w-4.5" />`;
             } else if (notif.icon_type === 'warning') {
                 iconBg = 'bg-amber-100 text-amber-600';
-                iconSvg = `<svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                iconSvg = `<x-icons.clock class="h-4.5 w-4.5" />`;
             } else if (notif.icon_type === 'danger') {
                 iconBg = 'bg-rose-100 text-rose-600';
-                iconSvg = `<svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`;
+                iconSvg = `<x-icons.exclamation class="h-4.5 w-4.5" />`;
             }
 
             div.innerHTML = `
@@ -509,10 +485,7 @@
                     title="Xóa thông báo"
                     data-delete-url="/admin/notifications/${notif.id}"
                     data-is-unread="${isUnread ? '1' : '0'}">
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
+                    <x-icons.delete class="h-3.5 w-3.5" />
                 </button>
             `;
 

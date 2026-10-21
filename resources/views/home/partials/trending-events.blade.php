@@ -17,9 +17,7 @@
             <button type="button" id="trending-scroll-left"
                 class="hidden absolute -left-2 sm:-left-4 top-[40%] -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full bg-black/85 text-white border border-white/20 shadow-2xl backdrop-blur-md transition duration-300 hover:bg-emerald-500 z-20 cursor-pointer"
                 aria-label="Cuộn sang trái">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-                </svg>
+                <x-icons.chevron-left class="h-5 w-5" />
             </button>
 
             {{-- Container cuộn ngang chứa đúng 10 sự kiện --}}
@@ -68,9 +66,7 @@
             <button type="button" id="trending-scroll-right"
                 class="flex absolute -right-2 sm:-right-4 top-[40%] -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full bg-black/85 text-white border border-white/20 shadow-2xl backdrop-blur-md transition duration-300 hover:bg-emerald-500 z-20 cursor-pointer"
                 aria-label="Cuộn sang phải">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
+                <x-icons.chevron-right class="h-5 w-5" />
             </button>
         </div>
     </section>

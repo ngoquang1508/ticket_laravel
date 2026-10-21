@@ -61,18 +61,11 @@
             ring-1 ring-inset ring-{{ $statusConfig['color'] }}-500/20">
 
             @if($statusConfig['icon'] === 'check')
-                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                </svg>
+                <x-icons.check class="h-3.5 w-3.5" />
             @elseif($statusConfig['icon'] === 'x')
-                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <x-icons.close class="h-3.5 w-3.5" />
             @else
-                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <x-icons.clock class="h-3.5 w-3.5" />
             @endif
 
             {{ $statusConfig['text'] }}
@@ -94,11 +87,7 @@
 
                     <span class="truncate">{{ $order->order_code }}</span>
 
-                    <svg class="h-4 w-4 shrink-0 text-gray-300/50" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
+                    <x-icons.copy />
                 </button>
             </div>
 
@@ -107,7 +96,7 @@
                 <p class="mb-1 text-xs text-gray-300/50">Thời gian sự kiện</p>
 
                 <p class="flex items-center gap-1.5 text-sm text-gray-200">
-                    <span>📅</span>
+                    <x-icons.calendar />
                     {{ $order->event->starts_at->format('d/m/Y H:i') }}
                 </p>
             </div>
@@ -141,8 +130,8 @@
         {{-- Thời hạn --}}
         @if(in_array($order->status, ['pending', 'processing']) && $order->expires_at)
             <div class="mt-4 flex items-center justify-between gap-3 rounded-xl
-                border border-amber-500/20 bg-amber-500/10 px-3.5 py-2.5
-                text-xs text-amber-300">
+                                border border-amber-500/20 bg-amber-500/10 px-3.5 py-2.5
+                                text-xs text-amber-300">
 
                 <span>
                     Thời hạn thanh toán:
@@ -171,7 +160,7 @@
         {{-- Thông báo --}}
         @if($isExpired)
             <div class="mt-4 rounded-xl border border-rose-500/20 bg-rose-500/10
-                px-3.5 py-2.5 text-xs text-rose-300">
+                                px-3.5 py-2.5 text-xs text-rose-300">
 
                 {{ $order->cancel_reason ?: ($isEventEnded
             ? 'Sự kiện đã kết thúc'
@@ -180,7 +169,7 @@
 
         @elseif($order->status === 'cancelled')
             <div class="mt-4 rounded-xl border border-red-500/20 bg-red-500/10
-                px-3.5 py-2.5 text-xs text-red-300">
+                                px-3.5 py-2.5 text-xs text-red-300">
 
                 Lý do:
                 <strong class="text-red-200">
@@ -207,10 +196,7 @@
                         Xem chi tiết vé
                     </span>
 
-                    <svg id="btn-icon-{{ $order->id }}" class="h-4 w-4 transition-transform" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <x-icons.chevron-down id="btn-icon-{{ $order->id }}" class="h-4 w-4 transition-transform" />
                 </button>
             @endif
 
@@ -253,7 +239,7 @@
             @elseif(in_array($order->status, ['cancelled', 'expired']))
 
                 <a href="{{ route('events.book', $order->event->slug) }}" class="rounded-lg border border-emerald-500/20 bg-emerald-500/10
-                    px-4 py-2 text-emerald-400 hover:bg-emerald-500/20">
+                                    px-4 py-2 text-emerald-400 hover:bg-emerald-500/20">
                     Đặt lại vé
                 </a>
 

@@ -19,20 +19,14 @@
             <div class="mb-6 flex items-center justify-between">
                 <button onclick="window.history.back()"
                     class="inline-flex items-center gap-2 text-sm font-medium text-gray-400 transition hover:text-white">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                    <x-icons.arrow-left class="h-4 w-4" />
                     Quay lại
                 </button>
 
                 <button
                     onclick="navigator.clipboard.writeText('{{ route('tickets.public.show', $ticket->ticket_code) }}'); window.showAppToast('success', 'Thành công', 'Đã copy link chia sẻ');"
                     class="inline-flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 text-sm font-semibold text-gray-300 transition hover:bg-white/10 hover:text-white">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                    </svg>
+                    <x-icons.share class="h-4 w-4" />
                     Chia sẻ
                 </button>
             </div>
@@ -83,11 +77,7 @@
                                     <div
                                         class="transform -rotate-12 rounded-2xl border-4 border-dashed border-gray-600 bg-gray-600/20 backdrop-blur-[2px] px-5 py-3 sm:px-7 sm:py-4 shadow-2xl text-center max-w-[92%] transition-transform">
                                         <div class="flex items-center justify-center gap-1.5 sm:gap-2 text-gray-800">
-                                            <svg class="h-6 w-6 sm:h-7 sm:w-7 shrink-0 stroke-[2.5]" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
+                                            <x-icons.exclamation class="h-6 w-6 sm:h-7 sm:w-7 shrink-0 stroke-[2.5]" />
                                             <span class="text-xl sm:text-2xl font-black tracking-widest uppercase">HẾT
                                                 HẠN</span>
                                         </div>
@@ -112,11 +102,7 @@
                         <!-- Cột trái: Thời gian & Địa điểm -->
                         <div class="flex h-full flex-col justify-between space-y-5">
                             <div class="flex items-start gap-3">
-                                <svg class="mt-0.5 h-5 w-5 shrink-0 text-blue-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
+                                <x-icons.calendar class="mt-0.5 h-5 w-5 shrink-0 text-blue-500" />
                                 <div>
                                     <p class="text-sm font-semibold text-white">Thời gian diễn ra</p>
                                     <p class="mt-0.5 text-sm text-gray-400">
@@ -126,13 +112,7 @@
                             </div>
 
                             <div class="flex items-start gap-3">
-                                <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
+                                <x-icons.location class="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
                                 <div>
                                     <p class="text-sm font-semibold text-white">Địa điểm tổ chức</p>
                                     <p class="mt-0.5 text-sm text-gray-300">{{ $ticket->order->event->location->name }}</p>

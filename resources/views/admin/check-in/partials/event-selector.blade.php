@@ -4,10 +4,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-primary-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-primary-600/30">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+                <x-icons.calendar class="w-5 h-5" />
             </div>
             <div>
                 <label for="event-select" class="block text-xs font-bold uppercase tracking-wider text-primary-900">
@@ -36,10 +33,7 @@
 
     {{-- Cảnh báo khi chưa chọn sự kiện --}}
     <div id="event-warning-hint" class="hidden mt-3 pt-3 border-t border-red-200 text-xs text-red-600 font-semibold flex items-center gap-1.5 animate-pulse">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
+        <x-icons.exclamation class="w-4 h-4 shrink-0" />
         <span>Vui lòng chọn sự kiện bạn đang thực hiện check-in trước khi quét vé!</span>
     </div>
 </div>

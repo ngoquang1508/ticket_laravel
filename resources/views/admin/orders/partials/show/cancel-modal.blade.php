@@ -8,9 +8,7 @@
                     <p class="mt-1 text-xs text-gray-500">Mã đơn: <span class="font-mono font-bold text-gray-800">#{{ $order->order_code }}</span></p>
                 </div>
                 <button type="button" onclick="closeCancelModal()" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <x-icons.close class="h-5 w-5" />
                 </button>
             </div>
 

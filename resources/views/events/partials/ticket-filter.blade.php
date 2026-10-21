@@ -68,31 +68,20 @@ Bao gồm:
                     class="inline-flex items-center rounded-full bg-[#10b981] text-white shadow-md shadow-emerald-500/20 text-xs sm:text-sm font-semibold transition hover:bg-[#059669]">
                     <button type="button" id="btn-toggle-date-filter"
                         class="inline-flex items-center gap-2 pl-4 pr-2 py-2 cursor-pointer">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                        <x-icons.calendar class="w-4 h-4 shrink-0" />
                         <span class="max-w-[130px] sm:max-w-[180px] truncate">{{ $dateLabel }}</span>
                     </button>
                     <a href="{{ request()->fullUrlWithQuery(['date_preset' => null, 'start_date' => null, 'end_date' => null]) }}"
                         class="pr-3 pl-1 py-2 text-white/80 hover:text-white transition" title="Xóa lọc thời gian">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <x-icons.close class="w-4 h-4" />
                     </a>
                 </div>
             @else
                 <button type="button" id="btn-toggle-date-filter"
                     class="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/15 text-white border border-white/10 px-4 py-2 text-xs sm:text-sm font-semibold transition cursor-pointer backdrop-blur-md">
-                    <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                    <x-icons.calendar class="w-4 h-4 text-gray-300 shrink-0" />
                     <span>Tất cả các ngày</span>
-                    <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <x-icons.chevron-down class="w-3.5 h-3.5 text-gray-400 shrink-0" />
                 </button>
             @endif
 
@@ -107,31 +96,20 @@ Bao gồm:
                     class="inline-flex items-center rounded-full bg-[#10b981] text-white shadow-md shadow-emerald-500/20 text-xs sm:text-sm font-semibold transition hover:bg-[#059669]">
                     <button type="button" id="btn-toggle-main-filter"
                         class="inline-flex items-center gap-2 pl-4 pr-2 py-2 cursor-pointer">
-                        <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                        </svg>
+                        <x-icons.filter class="w-4 h-4 shrink-0" />
                         <span>Bộ lọc ({{ $activeFilterCount }})</span>
                     </button>
                     <a href="{{ route('events.index', request()->except(['location', 'is_free', 'categories'])) }}"
                         class="pr-3 pl-1 py-2 text-white/80 hover:text-white transition" title="Xóa bộ lọc">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <x-icons.close class="w-4 h-4" />
                     </a>
                 </div>
             @else
                 <button type="button" id="btn-toggle-main-filter"
                     class="inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/15 text-white border border-white/10 px-4 py-2 text-xs sm:text-sm font-semibold transition cursor-pointer backdrop-blur-md">
-                    <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
+                    <x-icons.filter class="w-4 h-4 text-gray-300 shrink-0" />
                     <span>Bộ lọc</span>
-                    <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <x-icons.chevron-down class="w-3.5 h-3.5 text-gray-400 shrink-0" />
                 </button>
             @endif
 

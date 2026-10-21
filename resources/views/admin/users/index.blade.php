@@ -13,9 +13,7 @@
             <div>
                 <a href="{{ route('admin.users.create') }}"
                     class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
+                    <x-icons.plus class="h-4 w-4" />
                     Thêm người dùng
                 </a>
             </div>
@@ -28,10 +26,7 @@
                 {{-- Tìm kiếm tên, email, sđt --}}
                 <div class="relative lg:col-span-5">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                        </svg>
+                        <x-icons.search class="h-4 w-4" />
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}"
                         placeholder="Tìm theo tên, email, SĐT..."
@@ -67,10 +62,7 @@
                     @if (request()->anyFilled(['search', 'role', 'is_active']))
                         <a href="{{ route('admin.users.index') }}" title="Xóa bộ lọc"
                             class="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition cursor-pointer">
-                            <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <x-icons.close class="h-4 w-4 text-gray-500" />
                         </a>
                     @endif
                 </div>
@@ -162,10 +154,7 @@
                             <tr>
                                 <td colspan="8" class="px-6 py-12 text-center text-gray-500">
                                     <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-3">
-                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                                        </svg>
+                                        <x-icons.user class="h-6 w-6" />
                                     </div>
                                     <p class="font-medium text-gray-900">Không tìm thấy người dùng nào</p>
                                     <p class="mt-1 text-xs text-gray-500">Thử thay đổi bộ lọc tìm kiếm hoặc từ khóa tra cứu.</p>

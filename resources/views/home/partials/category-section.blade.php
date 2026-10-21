@@ -11,10 +11,7 @@
                     <a href="{{ route('events.index', $category->slug) }}"
                         class="group inline-flex items-center gap-2 text-lg sm:text-xl font-bold text-white hover:text-emerald-400 transition-colors">
                         <span>{{ $category->name }}</span>
-                        <svg class="h-5 w-5 text-gray-400 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
+                        <x-icons.chevron-right class="h-5 w-5 text-gray-400 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
                     </a>
                 </div>
 

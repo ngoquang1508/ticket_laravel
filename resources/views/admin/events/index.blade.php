@@ -13,9 +13,7 @@
             <div>
                 <a href="{{ route('admin.events.create') }}"
                     class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
+                    <x-icons.plus class="h-4 w-4" />
                     Thêm sự kiện
                 </a>
             </div>
@@ -28,10 +26,7 @@
                 {{-- Tìm kiếm tên --}}
                 <div class="relative lg:col-span-4">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                        </svg>
+                        <x-icons.search class="h-4 w-4" />
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}"
                         placeholder="Tìm kiếm theo tên sự kiện..."
@@ -82,10 +77,7 @@
                     @if (request()->anyFilled(['search', 'location_id', 'sale_mode', 'is_published']))
                         <a href="{{ route('admin.events.index') }}" title="Xóa bộ lọc"
                             class="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition cursor-pointer">
-                            <svg class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <x-icons.close class="h-4 w-4 text-gray-500" />
                         </a>
                     @endif
                 </div>
@@ -126,10 +118,7 @@
                                         @else
                                             <div
                                                 class="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-100 text-gray-400">
-                                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                        d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                                </svg>
+                                                <x-icons.photograph class="h-6 w-6" />
                                             </div>
                                         @endif
                                         <div class="min-w-0 flex-1">
@@ -154,13 +143,7 @@
                                 {{-- Cột địa điểm --}}
                                 <td class="px-5 py-4">
                                     <div class="flex items-start gap-1.5">
-                                        <svg class="h-4 w-4 shrink-0 text-gray-400 mt-0.5" fill="none" viewBox="0 0 24 24"
-                                            stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
+                                        <x-icons.location class="h-4 w-4 shrink-0 text-gray-400 mt-0.5" />
                                         <span class="font-medium text-gray-800 line-clamp-2">
                                             {{ $event->location->name }}
                                         </span>
@@ -303,11 +286,7 @@
                             <tr>
                                 <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                                     <div class="flex flex-col items-center justify-center">
-                                        <svg class="h-10 w-10 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24"
-                                            stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                                        </svg>
+                                        <x-icons.calendar class="h-10 w-10 text-gray-300 mb-2" />
                                         <p class="font-medium text-gray-600">Không tìm thấy sự kiện nào.</p>
                                         <p class="text-xs text-gray-400 mt-1">Thử thay đổi bộ lọc tìm kiếm hoặc thêm sự kiện
                                             mới.</p>

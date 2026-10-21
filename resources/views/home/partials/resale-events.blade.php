@@ -8,10 +8,7 @@
             <a href="{{ route('events.index', 've-ban-lai') }}"
                 class="group inline-flex items-center gap-2 text-lg sm:text-xl font-bold text-white hover:text-emerald-400 transition-colors">
                 <span>Bán lại vé</span>
-                <svg class="h-5 w-5 text-gray-400 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
+                <x-icons.chevron-right class="h-5 w-5 text-gray-400 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
             </a>
         </div>
 
@@ -28,9 +25,7 @@
             <button type="button" id="resale-scroll-left"
                 class="hidden absolute left-0 top-1/2 -translate-y-1/2 h-10 w-8 items-center justify-center rounded-r-lg bg-black/90 text-white border border-white/20 shadow-2xl transition duration-300 hover:bg-emerald-500 hover:border-emerald-500 z-20 cursor-pointer"
                 aria-label="Cuộn vé bán lại sang trái">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-                </svg>
+                <x-icons.chevron-left class="h-5 w-5" />
             </button>
 
             {{-- Container cuộn ngang: Chứa cả div ảnh mascot lẫn các thẻ vé bán lại --}}
@@ -77,13 +72,7 @@
                             </div>
 
                             <div class="mt-1 flex items-center text-xs text-gray-400">
-                                <svg class="mr-1 h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
+                                <x-icons.location class="mr-1 h-3.5 w-3.5 shrink-0 text-gray-400" />
                                 <span class="truncate">
                                     {{ $event->location ? $event->location->city : 'Toàn quốc' }}
                                 </span>
@@ -101,9 +90,7 @@
             <button type="button" id="resale-scroll-right"
                 class="flex absolute right-0 top-1/2 -translate-y-1/2 h-12 w-8 items-center justify-center rounded-md bg-black/90 text-white border border-white/20 shadow-2xl transition duration-300 hover:bg-emerald-500 hover:border-emerald-500 z-20 cursor-pointer"
                 aria-label="Cuộn vé bán lại sang phải">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
+                <x-icons.chevron-right class="h-5 w-5" />
             </button>
         </div>
     </section>
