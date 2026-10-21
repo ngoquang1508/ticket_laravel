@@ -14,7 +14,7 @@ class ProcessPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payment_method' => ['required', 'string', 'in:vnpay,direct'],
+            'payment_method' => ['required', 'string', 'in:vnpay,direct,free'],
             'customer_name'  => ['required', 'string', 'max:255'],
             'customer_email' => ['required', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'regex:/^(0|\+84)[35789][0-9]{8}$/'],

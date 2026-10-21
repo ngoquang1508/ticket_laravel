@@ -147,8 +147,8 @@
                         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
                         <option value="">Tất cả phương thức</option>
                         <option value="vnpay" @selected(request('payment_method') === 'vnpay')>VNPay</option>
-                        <option value="direct" @selected(request('payment_method') === 'direct')>Trực tiếp / Chuyển khoản
-                        </option>
+                        <option value="direct" @selected(request('payment_method') === 'direct')>Trực tiếp / Chuyển khoản</option>
+                        <option value="free" @selected(request('payment_method') === 'free')>Miễn phí (0đ)</option>
                     </select>
                 </div>
 
@@ -257,7 +257,6 @@
                                 </td>
 
                                 {{-- Thanh toán --}}
-                                {{-- Thanh toán --}}
                                 <td class="px-5 py-4">
                                     <div class="flex flex-col gap-1">
                                         @if ($order->payment_method === 'vnpay')
@@ -270,6 +269,11 @@
                                                 class="inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700">
                                                 Trực tiếp
                                             </span>
+                                        @elseif ($order->payment_method === 'free')
+                                            <span
+                                                class="inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                Miễn phí (0đ)
+                                            </span>
                                         @else
                                             <span
                                                 class="inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium bg-gray-50 text-gray-500 border border-gray-200">
@@ -278,7 +282,11 @@
                                         @endif
                                         <span
                                             class="text-[11px] {{ $order->payment_status === 'paid' ? 'text-emerald-600 font-semibold' : 'text-gray-500' }}">
-                                            {{ $order->payment_status === 'paid' ? '✓ Đã thanh toán' : ($order->payment_status === 'failed' ? 'Thất bại' : 'Chưa thanh toán') }}
+                                            @if ($order->payment_method === 'free')
+                                                ✓ Miễn phí
+                                            @else
+                                                {{ $order->payment_status === 'paid' ? '✓ Đã thanh toán' : ($order->payment_status === 'failed' ? 'Thất bại' : 'Chưa thanh toán') }}
+                                            @endif
                                         </span>
                                     </div>
                                 </td>

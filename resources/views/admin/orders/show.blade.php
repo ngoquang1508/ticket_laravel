@@ -232,6 +232,10 @@
                                     VNPay QR / Thẻ nội địa
                                 @elseif ($order->payment_method === 'direct')
                                     Trực tiếp / Chuyển khoản
+                                @elseif ($order->payment_method === 'free')
+                                    <span class="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 font-semibold border border-emerald-200">
+                                        Miễn phí (0đ)
+                                    </span>
                                 @else
                                     <span class="text-gray-400 font-normal">Chưa chọn (Đang giữ chỗ)</span>
                                 @endif
@@ -241,7 +245,11 @@
                         <div class="flex justify-between">
                             <dt class="text-gray-500">Trạng thái thanh toán:</dt>
                             <dd class="font-semibold {{ $order->payment_status === 'paid' ? 'text-emerald-700' : 'text-amber-700' }}">
-                                {{ $order->payment_status === 'paid' ? 'Đã thanh toán đủ' : ($order->payment_status === 'failed' ? 'Thất bại' : 'Chưa thanh toán') }}
+                                @if ($order->payment_method === 'free')
+                                    Miễn phí (Không cần thanh toán)
+                                @else
+                                    {{ $order->payment_status === 'paid' ? 'Đã thanh toán đủ' : ($order->payment_status === 'failed' ? 'Thất bại' : 'Chưa thanh toán') }}
+                                @endif
                             </dd>
                         </div>
 

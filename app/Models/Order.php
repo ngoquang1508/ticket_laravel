@@ -16,6 +16,7 @@ class Order extends Model
     // Phương thức thanh toán
     const PAYMENT_METHOD_VNPAY = 'vnpay';
     const PAYMENT_METHOD_DIRECT = 'direct';
+    const PAYMENT_METHOD_FREE = 'free';
 
     // Trạng thái thanh toán
     const PAYMENT_STATUS_PENDING = 'pending';
@@ -59,6 +60,19 @@ class Order extends Model
     public function isPaid(): bool
     {
         return $this->payment_status === self::PAYMENT_STATUS_PAID;
+    }
+
+    /**
+     * Nhãn hiển thị phương thức thanh toán
+     */
+    public function getPaymentMethodNameAttribute(): string
+    {
+        return match ($this->payment_method) {
+            self::PAYMENT_METHOD_VNPAY => 'VNPay',
+            self::PAYMENT_METHOD_DIRECT => 'Trực tiếp / Chuyển khoản',
+            self::PAYMENT_METHOD_FREE => 'Miễn phí (0đ)',
+            default => 'Chưa chọn',
+        };
     }
 
     public function canBeCancelled(): bool

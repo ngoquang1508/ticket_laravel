@@ -233,7 +233,7 @@
                     @else
                         <button type="button" onclick="openCheckoutModal({{ $order->id }})"
                             class="rounded-lg bg-emerald-500 px-4 py-2 text-white hover:bg-emerald-600">
-                            Thanh toán ngay
+                            {{ $order->total_amount <= 0 ? 'Nhận vé ngay' : 'Thanh toán ngay' }}
                         </button>
                     @endif
 

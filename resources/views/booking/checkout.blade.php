@@ -13,15 +13,19 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
     <div id="checkout-modal-container-{{ $order->id }}"
         class="relative w-full max-w-lg my-auto rounded-2xl bg-[#222222] border border-white/10 text-white shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden animate-fade-in-up">
 
+        @php
+            $isFreeOrder = ($order->total_amount <= 0);
+        @endphp
+
         <!-- Header Modal (Cố định ở trên cùng, luôn nhìn thấy nút X và tiêu đề) -->
         <div
             class="shrink-0 flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-6 sm:py-3.5 bg-[#222222] z-10">
             <div class="min-w-0 pr-2">
                 <h2 class="text-base sm:text-lg font-bold text-white truncate">
-                    Hoàn tất thanh toán
+                    {{ $isFreeOrder ? 'Xác nhận nhận vé miễn phí' : 'Hoàn tất thanh toán' }}
                 </h2>
                 <p class="text-gray-400 text-xs mt-0.5 line-clamp-1">
-                    Ghế của bạn đang được giữ chỗ trong thời gian đếm ngược
+                    {{ $isFreeOrder ? 'Vé của bạn đang được giữ chỗ. Vui lòng xác nhận thông tin nhận vé.' : 'Ghế của bạn đang được giữ chỗ trong thời gian đếm ngược' }}
                 </p>
             </div>
 
@@ -37,13 +41,14 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
 
         <!-- Thân Modal (Cuộn nội dung độc lập, thanh cuộn mượt mà) -->
         <div class="overflow-y-auto p-4 sm:p-5 space-y-3.5 sm:space-y-4 custom-scrollbar">
-            <!-- Đồng hồ đếm ngược -->
+            <!-- Đồng hồ đếm ngược giữ vé -->
             <div class="flex justify-center">
                 <div id="countdown-wrapper-{{ $order->id }}"
-                    class="w-full sm:w-auto bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2 sm:px-6 sm:py-2.5 text-center transition-all duration-300">
-                    <span class="block text-[11px] font-semibold text-amber-400 uppercase tracking-wider mb-0.5">Thời
-                        gian giữ vé còn lại</span>
-                    <div class="text-2xl sm:text-3xl font-mono font-bold text-amber-400 tracking-wider countdown-display"
+                    class="w-full sm:w-auto {{ $isFreeOrder ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-amber-500/10 border-amber-500/20' }} border rounded-xl px-4 py-2 sm:px-6 sm:py-2.5 text-center transition-all duration-300">
+                    <span class="block text-[11px] font-semibold {{ $isFreeOrder ? 'text-emerald-400' : 'text-amber-400' }} uppercase tracking-wider mb-0.5">
+                        {{ $isFreeOrder ? 'Thời gian giữ vé miễn phí còn lại' : 'Thời gian giữ vé còn lại' }}
+                    </span>
+                    <div class="text-2xl sm:text-3xl font-mono font-bold {{ $isFreeOrder ? 'text-emerald-400' : 'text-amber-400' }} tracking-wider countdown-display"
                         id="countdown-{{ $order->id }}">10:00</div>
                 </div>
             </div>
@@ -153,75 +158,101 @@ Sử dụng trực tiếp tại: Trang đặt vé (booking.show) và Trang vé c
                         </div>
                     </div>
 
-                    <h3 class="font-semibold text-white mb-2 text-xs sm:text-sm flex items-center gap-2">
-                        <span>Chọn hình thức thanh toán:</span>
-                    </h3>
-
-                    @php
-                        $canPayDirect = $order->event ? $order->event->canPayDirect() : false;
-                    @endphp
-
-                    <div class="space-y-2 mb-3.5 sm:mb-4">
-                        <!-- Lựa chọn VNPay -->
-                        <label
-                            class="flex items-center justify-between p-2.5 sm:p-3 border border-white/10 rounded-xl cursor-pointer bg-[#292929] hover:bg-white/5 transition has-[:checked]:border-emerald-500/60 has-[:checked]:bg-emerald-500/10 has-[:checked]:ring-1 has-[:checked]:ring-emerald-500/50">
-                            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                <input type="radio" name="payment_method" value="vnpay"
-                                    class="w-4 h-4 text-emerald-500 border-white/20 bg-black/40 focus:ring-emerald-500 shrink-0"
-                                    checked>
-                                <div class="min-w-0">
-                                    <span class="block text-xs sm:text-sm font-semibold text-white truncate">Thanh toán
-                                        qua VNPay</span>
-                                    <span class="block text-[11px] text-gray-400 truncate">Quét mã QR, Thẻ ATM,
-                                        Visa/Mastercard</span>
-                                </div>
+                    @if($isFreeOrder)
+                        {{-- Trường hợp đơn hàng miễn phí (0 đ) --}}
+                        <input type="hidden" name="payment_method" value="free">
+                        <div class="mb-3.5 sm:mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                             </div>
-                        </label>
+                            <div class="text-xs">
+                                <div class="font-bold text-white">Đơn hàng miễn phí (0 đ)</div>
+                                <div class="text-gray-400">Bạn không cần thanh toán bất kỳ chi phí nào. Nhấn nút bên dưới để nhận vé ngay.</div>
+                            </div>
+                        </div>
 
-                        <!-- Lựa chọn Thanh toán trực tiếp -->
-                        @if($canPayDirect)
+                        <!-- Nút xác nhận nhận vé miễn phí -->
+                        <button type="submit" id="btn-pay-{{ $order->id }}"
+                            class="w-full bg-emerald-500 text-white font-bold py-2.5 sm:py-3 rounded-xl hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/20 text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2">
+                            <span>Xác nhận nhận vé (Miễn phí)</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    @else
+                        {{-- Trường hợp đơn hàng có phí cần thanh toán --}}
+                        <h3 class="font-semibold text-white mb-2 text-xs sm:text-sm flex items-center gap-2">
+                            <span>Chọn hình thức thanh toán:</span>
+                        </h3>
+
+                        @php
+                            $canPayDirect = $order->event ? $order->event->canPayDirect() : false;
+                        @endphp
+
+                        <div class="space-y-2 mb-3.5 sm:mb-4">
+                            <!-- Lựa chọn VNPay -->
                             <label
                                 class="flex items-center justify-between p-2.5 sm:p-3 border border-white/10 rounded-xl cursor-pointer bg-[#292929] hover:bg-white/5 transition has-[:checked]:border-emerald-500/60 has-[:checked]:bg-emerald-500/10 has-[:checked]:ring-1 has-[:checked]:ring-emerald-500/50">
                                 <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                    <input type="radio" name="payment_method" value="direct"
-                                        class="w-4 h-4 text-emerald-500 border-white/20 bg-black/40 focus:ring-emerald-500 shrink-0">
+                                    <input type="radio" name="payment_method" value="vnpay"
+                                        class="w-4 h-4 text-emerald-500 border-white/20 bg-black/40 focus:ring-emerald-500 shrink-0"
+                                        checked>
                                     <div class="min-w-0">
                                         <span class="block text-xs sm:text-sm font-semibold text-white truncate">Thanh toán
-                                            trực tiếp</span>
-                                        <span class="block text-[11px] text-gray-400 truncate">Chuyển khoản thủ công hoặc
-                                            tại quầy</span>
+                                            qua VNPay</span>
+                                        <span class="block text-[11px] text-gray-400 truncate">Quét mã QR, Thẻ ATM,
+                                            Visa/Mastercard</span>
                                     </div>
                                 </div>
                             </label>
-                        @else
-                            <div
-                                class="flex items-center justify-between p-2.5 sm:p-3 border border-white/5 rounded-xl bg-[#202020] opacity-50 cursor-not-allowed">
-                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                    <input type="radio" disabled
-                                        class="w-4 h-4 text-gray-600 border-white/10 bg-black/20 shrink-0">
-                                    <div class="min-w-0">
-                                        <span class="block text-xs sm:text-sm font-semibold text-gray-400 truncate">Thanh
-                                            toán trực tiếp</span>
-                                        <span class="block text-[11px] text-red-400 truncate">Đã ngừng nhận (sự kiện diễn ra
-                                            trong vòng 48h)</span>
-                                    </div>
-                                </div>
-                                <span
-                                    class="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">Đã
-                                    đóng</span>
-                            </div>
-                        @endif
-                    </div>
 
-                    <!-- Nút xác nhận thanh toán -->
-                    <button type="submit" id="btn-pay-{{ $order->id }}"
-                        class="w-full bg-emerald-500 text-white font-bold py-2.5 sm:py-3 rounded-xl hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/20 text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2">
-                        <span>Tiến hành thanh toán</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                    </button>
+                            <!-- Lựa chọn Thanh toán trực tiếp -->
+                            @if($canPayDirect)
+                                <label
+                                    class="flex items-center justify-between p-2.5 sm:p-3 border border-white/10 rounded-xl cursor-pointer bg-[#292929] hover:bg-white/5 transition has-[:checked]:border-emerald-500/60 has-[:checked]:bg-emerald-500/10 has-[:checked]:ring-1 has-[:checked]:ring-emerald-500/50">
+                                    <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                        <input type="radio" name="payment_method" value="direct"
+                                            class="w-4 h-4 text-emerald-500 border-white/20 bg-black/40 focus:ring-emerald-500 shrink-0">
+                                        <div class="min-w-0">
+                                            <span class="block text-xs sm:text-sm font-semibold text-white truncate">Thanh toán
+                                                trực tiếp</span>
+                                            <span class="block text-[11px] text-gray-400 truncate">Chuyển khoản thủ công hoặc
+                                                tại quầy</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            @else
+                                <div
+                                    class="flex items-center justify-between p-2.5 sm:p-3 border border-white/5 rounded-xl bg-[#202020] opacity-50 cursor-not-allowed">
+                                    <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                        <input type="radio" disabled
+                                            class="w-4 h-4 text-gray-600 border-white/10 bg-black/20 shrink-0">
+                                        <div class="min-w-0">
+                                            <span class="block text-xs sm:text-sm font-semibold text-gray-400 truncate">Thanh
+                                                toán trực tiếp</span>
+                                            <span class="block text-[11px] text-red-400 truncate">Đã ngừng nhận (sự kiện diễn ra
+                                                trong vòng 48h)</span>
+                                        </div>
+                                    </div>
+                                    <span
+                                        class="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">Đã
+                                        đóng</span>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Nút xác nhận thanh toán -->
+                        <button type="submit" id="btn-pay-{{ $order->id }}"
+                            class="w-full bg-emerald-500 text-white font-bold py-2.5 sm:py-3 rounded-xl hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/20 text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2">
+                            <span>Tiến hành thanh toán</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    @endif
                 </form>
 
                 <!-- Nút thao tác phụ: Đóng modal và Hủy đơn hàng -->

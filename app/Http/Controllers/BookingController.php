@@ -122,6 +122,15 @@ class BookingController extends Controller
         }
 
         try {
+            // Trường hợp đơn hàng miễn phí (0 đ) hoặc phương thức 'free'
+            if ($order->total_amount <= 0 || $method === Order::PAYMENT_METHOD_FREE) {
+                $refCode = 'FREE_' . strtoupper(\Illuminate\Support\Str::random(8));
+                $this->bookingService->confirmOrder($order, $refCode, Order::PAYMENT_METHOD_FREE);
+
+                return redirect()->route('orders.success', $order->order_code)
+                    ->with('success', 'Đăng ký vé miễn phí thành công!');
+            }
+
             if ($method === 'vnpay') {
                 $paymentUrl = $vnpayService->createPaymentUrl($order);
                 return redirect($paymentUrl);
