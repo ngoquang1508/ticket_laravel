@@ -10,81 +10,34 @@
             <div class="relative flex flex-col md:flex-row bg-[#2b2b2b] rounded-2xl overflow-hidden shadow-2xl">
 
                 <!-- Left Info -->
-                <div class="w-full md:w-[38%] p-6 md:p-10 flex flex-col z-10 relative">
-                    <h1 class="text-lg lg:text-xl font-bold text-white mb-8 uppercase leading-snug">{{ $event->name }}
-                    </h1>
+                <div class="w-full md:w-[38%] p-6 md:p-8 flex flex-col justify-between z-10 relative">
+                    <div>
+                        <h1 class="text-lg lg:text-xl font-bold text-white mb-6 uppercase leading-snug">
+                            {{ $event->name }}
+                        </h1>
 
-                    <div class="flex items-start gap-4 mb-6">
-                        <x-icons.calendar class="w-5 h-5 shrink-0 mt-0.5" />
-                        <div class="text-green-500 text-sm lg:text-base font-semibold">
-                            {{ $event->starts_at->format('H:i, d \T\h\á\n\g m, Y') }} -
-                            {{ $event->ends_at->format('H:i, d \T\h\á\n\g m, Y') }}
-                        </div>
-                    </div>
-
-                    <div class="flex items-start gap-4 mb-8">
-                        <x-icons.location class="w-5 h-5 text-white shrink-0 mt-0.5" />
-                        <div>
-                            <div class="text-green-500 text-sm lg:text-base font-semibold">{{ $event->location->name }}
-                            </div>
-                            <div class="text-gray-400 text-sm mt-1.5 leading-relaxed">{{ $event->location->address }},
-                                {{ $event->location->city }}
+                        <div class="flex items-start gap-4 mb-5">
+                            <x-icons.calendar class="w-5 h-5 shrink-0 mt-0.5 text-white" />
+                            <div class="text-green-500 text-sm lg:text-base font-semibold">
+                                {{ $event->starts_at->format('H:i, d \T\h\á\n\g m, Y') }} -
+                                {{ $event->ends_at->format('H:i, d \T\h\á\n\g m, Y') }}
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Phương thức thanh toán áp dụng -->
-                    <div class="flex items-start gap-4 mb-8">
-                        <x-icons.credit-card class="w-5 h-5 text-white shrink-0 mt-0.5" />
-                        <div class="flex-1 min-w-0">
-                            <div class="text-green-500 text-sm lg:text-base font-semibold mb-2.5">
-                                Phương thức thanh toán
-                            </div>
-
-                            <div class="space-y-2 text-xs sm:text-sm">
-                                <!-- Thanh toán Online -->
-                                <div class="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2.5">
-                                    <div class="flex items-center gap-2">
-                                        <span class="h-2 w-2 shrink-0 rounded-full bg-blue-400"></span>
-                                        <span class="font-medium text-gray-200">Online (VNPay)</span>
-                                    </div>
-
-                                    <span class="text-[11px] text-blue-400">
-                                        Hỗ trợ 24/7
-                                    </span>
+                        <div class="flex items-start gap-4 mb-6">
+                            <x-icons.location class="w-5 h-5 text-white shrink-0 mt-0.5" />
+                            <div>
+                                <div class="text-green-500 text-sm lg:text-base font-semibold">
+                                    {{ $event->location->name }}
                                 </div>
-
-                                <!-- Thanh toán Trực tiếp -->
-                                <div class="flex items-center justify-between gap-3 rounded-lg bg-white/5 px-3 py-2.5">
-                                    <div class="flex min-w-0 items-center gap-2">
-                                        <span class="h-2 w-2 shrink-0 rounded-full
-                                {{ $event->canPayDirect() ? 'bg-amber-400' : 'bg-red-400' }}">
-                                        </span>
-
-                                        <span class="font-medium text-gray-200">
-                                            Trực tiếp / Chuyển khoản
-                                        </span>
-                                    </div>
-
-                                    @if($event->canPayDirect())
-                                        <span class="shrink-0 text-[11px] text-gray-400">
-                                            Ngừng: <span class="font-medium text-amber-400">
-                                                {{ $event->direct_payment_cutoff_at->format('H:i, d/m/Y') }}
-                                            </span>
-                                        </span>
-                                    @else
-                                        <span class="shrink-0 text-[11px] font-medium text-red-400">
-                                            Đã ngừng nhận
-                                        </span>
-                                    @endif
+                                <div class="text-gray-400 text-sm mt-1 leading-relaxed">
+                                    {{ $event->location->address }}, {{ $event->location->city }}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="flex-grow"></div>
-
-                    <div class="pt-6 border-t border-gray-400/50">
+                    <div class="pt-5 border-t border-gray-400/30">
                         <div class="text-xl lg:text-2xl font-bold text-white mb-4 flex items-center gap-2">
                             Giá từ
                             <span class="text-green-500">
@@ -99,7 +52,8 @@
                             @endif
                         </div>
                         @if(!$event->isSaleStarted())
-                            <div class="w-full py-3 px-4 rounded-lg font-bold text-center bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                            <div
+                                class="w-full py-3 px-4 rounded-lg font-bold text-center bg-amber-500/10 border border-amber-500/30 text-amber-400">
                                 <span class="block text-sm sm:text-base">Sắp mở bán</span>
                                 <span class="block text-xs font-normal text-gray-300 mt-0.5">
                                     Mở bán lúc: {{ $event->ticket_sale_starts_at->format('H:i, d/m/Y') }}
@@ -126,18 +80,18 @@
                     </div>
                 </div>
 
-                <!-- Right Image -->
-                <div class="w-full md:w-[62%] min-h-[300px] md:min-h-[500px] relative order-first md:order-last">
+                <!-- Right Image (Tỷ lệ 16:9 chuẩn giống Ticketbox) -->
+                <div class="w-full md:w-[62%] aspect-video relative order-first md:order-last overflow-hidden bg-black/40">
                     @if($event->image)
                         <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->name }}"
-                            class="absolute inset-0 w-full h-full object-cover">
+                            class="w-full h-full object-cover object-center">
                     @else
-                        <div
-                            class="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
+                        <div class="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
                             <x-icons.ticket class="h-20 w-20 text-gray-500" />
                         </div>
                     @endif
                 </div>
+
 
                 <!-- Cutout Overlay & Dashed Line -->
                 <!-- Only visible on md+ -->
@@ -190,14 +144,16 @@
                                 <div
                                     class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 cursor-pointer schedule-header hover:bg-[#444] transition">
                                     <div class="flex items-center gap-3">
-                                        <x-icons.chevron-right class="w-5 h-5 text-gray-400 arrow transition-transform duration-300" />
+                                        <x-icons.chevron-right
+                                            class="w-5 h-5 text-gray-400 arrow transition-transform duration-300" />
                                         <span class="text-white font-bold text-base">
                                             {{ \Carbon\Carbon::parse($event->starts_at)->format('H:i') }} -
                                             {{ \Carbon\Carbon::parse($event->ends_at)->format('H:i, d \T\h\á\n\g m, Y') }}
                                         </span>
                                     </div>
                                     @if(!$event->isSaleStarted())
-                                        <div class="w-full sm:w-auto sm:px-5 px-3 py-2 mt-4 sm:mt-0 text-center rounded-lg font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs sm:text-sm">
+                                        <div
+                                            class="w-full sm:w-auto sm:px-5 px-3 py-2 mt-4 sm:mt-0 text-center rounded-lg font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs sm:text-sm">
                                             <span>Sắp mở bán</span>
                                             <span class="block sm:inline sm:ml-1 text-[11px] font-normal text-gray-300">
                                                 ({{ $event->ticket_sale_starts_at->format('H:i, d/m/Y') }})
@@ -231,7 +187,8 @@
                                             Thông tin vé
                                         </h4>
 
-                                        <div class="space-y-3">
+                                        <!-- Danh sách vé có thanh cuộn mượt mà -->
+                                        <div class="space-y-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                                             @forelse($event->ticketTypes as $ticket)
                                                 <div
                                                     class="flex items-center justify-between bg-[#2b2b2b] rounded-lg p-4 border border-gray-600/30">
@@ -258,6 +215,69 @@
 
                 <!-- Sidebar Info -->
                 <div class="space-y-6">
+                    <!-- Phương thức thanh toán Card -->
+                    <div class="bg-[#2b2b2b] rounded-2xl p-6 md:p-8 shadow-xl">
+                        <h3 class="text-lg font-bold mb-5 text-white flex items-center gap-2">
+                            <x-icons.credit-card class="w-5 h-5 text-green-500" />
+                            Phương thức thanh toán
+                        </h3>
+
+                        <div class="space-y-3">
+                            <!-- Thanh toán Online -->
+                            <div
+                                class="flex items-center justify-between rounded-xl bg-white/5 p-3.5 border border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-200 text-sm">Online (VNPay)</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">ATM, QR Pay, Visa/Mastercard</div>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-semibold px-2 py-1 rounded bg-blue-500/10 text-blue-400 shrink-0">
+                                    24/7
+                                </span>
+                            </div>
+
+                            <!-- Thanh toán Trực tiếp / Chuyển khoản -->
+                            <div
+                                class="flex items-center justify-between rounded-xl bg-white/5 p-3.5 border border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg {{ $event->canPayDirect() ? 'bg-amber-500/10' : 'bg-red-500/10' }} flex items-center justify-center shrink-0">
+                                        <span
+                                            class="w-2.5 h-2.5 rounded-full {{ $event->canPayDirect() ? 'bg-amber-400' : 'bg-red-400' }}"></span>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-200 text-sm">Trực tiếp</div>
+                                        @if($event->canPayDirect())
+                                            <div class="text-xs text-gray-400 mt-0.5">
+                                                Ngừng nhận: <span
+                                                    class="text-amber-400 font-medium">{{ $event->direct_payment_cutoff_at->format('H:i, d/m/Y') }}</span>
+                                            </div>
+                                        @else
+                                            <div class="text-xs text-red-400 mt-0.5 font-medium">
+                                                Đã ngừng nhận chuyển khoản
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                @if($event->canPayDirect())
+                                    <span
+                                        class="text-xs font-semibold px-2 py-1 rounded bg-amber-500/10 text-amber-400 shrink-0">
+                                        Khả dụng
+                                    </span>
+                                @else
+                                    <span class="text-xs font-semibold px-2 py-1 rounded bg-red-500/10 text-red-400 shrink-0">
+                                        Hết hạn
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="bg-[#2b2b2b] rounded-2xl p-6 md:p-8 shadow-xl">
                         <h3 class="text-lg font-bold mb-5 text-white flex items-center gap-2">
                             <x-icons.shield-check class="w-5 h-5 text-green-500" />

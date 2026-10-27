@@ -195,3 +195,23 @@ input[class*="#1e1e1e"]:autofill:focus {
     --color-danger: #ef4444;       /* Lỗi */
     --color-info: #3b82f6;         /* Thông tin */
 }
+
+/* Tùy chỉnh thanh cuộn thanh mảnh cho theme tối */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
